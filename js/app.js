@@ -8,6 +8,7 @@ class PalawijaApp {
   constructor() {
     this.currentView = 'dashboard';
     this.posCart = [];
+    this.showAllRekapProducts = false;
     this.reportPeriod = 'this_month';
     this.reportCustomStart = null;
     this.reportCustomEnd = null;
@@ -81,8 +82,8 @@ class PalawijaApp {
     // Update header titles
     const headings = {
       dashboard: { title: '📊 Dashboard Ringkasan', sub: 'Pantau penjualan hari ini, HPP, stok bahan, dan arus kas bisnis secara seketika.' },
-      pos: { title: '🛒 Kasir Lapak (POS Cepat)', sub: 'Pencatatan transaksi jual langsung di lapak dengan perhitungan HPP dan laba otomatis.' },
-      gofood: { title: '🛵 Penjualan GoFood', sub: 'Catat omset kotor, potongan komisi aplikasi, dan uang bersih diterima.' },
+      pos: { title: '📝 Rekap Penjualan Lapak', sub: 'Catat total omset uang hari ini dan sisa stok fisik. Selisih produksi vs sisa dihitung otomatis.' },
+      gofood: { title: '🛵 Penjualan GoFood', sub: 'Catat total uang bersih yang murni Anda terima di aplikasi GoPay / GoBiz.' },
       production: { title: '♨️ Dapur Kukus & Produksi', sub: 'Konversi bahan baku mentah menjadi produk jadi matang dengan MWA HPP.' },
       raw: { title: '🧺 Stok Bahan Baku', sub: 'Manajemen persediaan bahan mentah menggunakan Moving Weighted Average.' },
       finished: { title: '🍠 Produk Jadi Siap Jual', sub: 'Daftar makanan kukus siap saji beserta HPP rata-rata dan harga jual.' },
@@ -176,9 +177,12 @@ class PalawijaApp {
       this.setupProductionModal();
     } else if (modalId === 'modalGoFood') {
       document.getElementById('gfDate').value = this.getTodayDateString();
-      document.getElementById('gfGrossSales').value = '';
-      document.getElementById('gfAppFee').value = '';
-      document.getElementById('gfNetDisplay').textContent = 'Rp 0';
+      const netInput = document.getElementById('gfNetSales');
+      if (netInput) netInput.value = '';
+      const countInput = document.getElementById('gfOrderCount');
+      if (countInput) countInput.value = '1';
+      const notesInput = document.getElementById('gfNotes');
+      if (notesInput) notesInput.value = '';
     } else if (modalId === 'modalExpense') {
       document.getElementById('expDate').value = this.getTodayDateString();
       document.getElementById('expTotalAmount').value = '';
@@ -205,7 +209,7 @@ class PalawijaApp {
 
   populateInitialDateFields() {
     const today = this.getTodayDateString();
-    ['pchDate', 'prdDate', 'gfDate', 'expDate', 'wstDate', 'soDate'].forEach(id => {
+    ['pchDate', 'prdDate', 'gfDate', 'expDate', 'wstDate', 'soDate', 'rekapDate'].forEach(id => {
       const el = document.getElementById(id);
       if (el) el.value = today;
     });
@@ -374,10 +378,10 @@ class PalawijaApp {
       // Combine sales, productions, purchases, expenses
       (store.getSalesLapak() || []).slice(0, 3).forEach(s => {
         activities.push({
-          type: 'Penjualan Lapak',
+          type: 'Rekap Lapak',
           badge: 'badge-success',
           date: `${s.date} ${s.time || ''}`,
-          desc: `${s.invoiceNo} (${s.items.length} item terjual)`,
+          desc: `${s.invoiceNo} (Laba: ${this.formatRupiah(s.grossProfit)})`,
           amount: `+${this.formatRupiah(s.totalRevenue)}`,
           rawDate: s.date
         });
@@ -445,285 +449,397 @@ class PalawijaApp {
   }
 
   // ==========================================
-  // VIEW: KASIR LAPAK (POS)
+  // VIEW: REKAP PENJUALAN LAPAK (TUTUP HARIAN)
   // ==========================================
 
-  renderPos() {
-    const grid = document.getElementById('posProductGrid');
-    if (!grid) return;
-    grid.innerHTML = '';
-
-    const products = store.getFinishedGoods();
-    products.forEach(p => {
-      const isOut = p.currentStock <= 0;
-      const card = document.createElement('div');
-      card.className = `product-card-pos ${isOut ? 'out-of-stock' : ''}`;
-      card.onclick = () => {
-        if (!isOut) this.posAddToCart(p.id);
-      };
-
-      card.innerHTML = `
-        <div class="product-card-icon">${p.icon || '🍠'}</div>
-        <div class="product-card-name">${p.name}</div>
-        <div class="product-card-price num">${this.formatRupiah(p.sellingPrice)} <span style="font-size:0.75rem; font-weight:normal; color:var(--text-muted);">/${p.unit}</span></div>
-        <div class="product-card-stock">
-          ${isOut ? '<span style="color:var(--danger-600); font-weight:700;">Stok Habis</span>' : `Stok: <strong>${p.currentStock}</strong> ${p.unit}`}
-        </div>
-      `;
-      grid.appendChild(card);
-    });
-
-    this.renderPosCart();
-    this.renderPosHistory();
-  }
-
-  filterPosProducts(query) {
-    const term = (query || '').toLowerCase();
-    const cards = document.querySelectorAll('.product-card-pos');
-    cards.forEach(card => {
-      const name = card.querySelector('.product-card-name').textContent.toLowerCase();
-      if (name.includes(term)) {
-        card.style.display = 'flex';
-      } else {
-        card.style.display = 'none';
-      }
-    });
-  }
-
-  posAddToCart(productId) {
-    const prod = store.getFinishedGoodById(productId);
-    if (!prod) return;
-
-    const existing = this.posCart.find(i => i.finishedGoodId === productId);
-    if (existing) {
-      if (existing.qty + 1 > prod.currentStock) {
-        this.showToast(`Stok ${prod.name} tidak mencukupi (sisa ${prod.currentStock})`, 'error');
-        return;
-      }
-      existing.qty += 1;
-    } else {
-      this.posCart.push({
-        finishedGoodId: prod.id,
-        name: prod.name,
-        unit: prod.unit,
-        unitPrice: prod.sellingPrice,
-        avgHpp: prod.avgHpp,
-        qty: 1
-      });
-    }
-
-    this.renderPosCart();
-  }
-
-  posChangeQty(productId, delta) {
-    const existing = this.posCart.find(i => i.finishedGoodId === productId);
-    if (!existing) return;
-
-    const prod = store.getFinishedGoodById(productId);
-    const newQty = existing.qty + delta;
-
-    if (newQty <= 0) {
-      this.posCart = this.posCart.filter(i => i.finishedGoodId !== productId);
-    } else {
-      if (prod && newQty > prod.currentStock) {
-        this.showToast(`Stok ${prod.name} tidak mencukupi (sisa ${prod.currentStock})`, 'error');
-        return;
-      }
-      existing.qty = newQty;
-    }
-
-    this.renderPosCart();
-  }
-
-  posClearCart() {
-    this.posCart = [];
-    this.renderPosCart();
-  }
-
-  renderPosCart() {
-    const listEl = document.getElementById('posCartItemsList');
-    if (!listEl) return;
-    listEl.innerHTML = '';
-
-    if (this.posCart.length === 0) {
-      listEl.innerHTML = `
-        <div style="text-align:center; padding:30px 10px; color:var(--text-muted); font-size:0.85rem;">
-          🛒 Keranjang masih kosong.<br>Klik menu produk di sebelah kiri untuk menambah.
-        </div>
-      `;
-      document.getElementById('posCartItemCount').textContent = '0 item';
-      document.getElementById('posCartHppTotal').textContent = 'Rp 0';
-      document.getElementById('posCartTotalAmount').textContent = 'Rp 0';
-      document.getElementById('posChangeDisplay').textContent = 'Rp 0';
-      return;
-    }
-
-    let totalAmount = 0;
-    let totalHpp = 0;
-    let totalCount = 0;
-
-    this.posCart.forEach(item => {
-      const subtotal = item.qty * item.unitPrice;
-      const subHpp = item.qty * (item.avgHpp || 0);
-      totalAmount += subtotal;
-      totalHpp += subHpp;
-      totalCount += item.qty;
-
-      const row = document.createElement('div');
-      row.className = 'cart-item-row';
-      row.innerHTML = `
-        <div class="cart-item-info">
-          <div class="cart-item-title">${item.name}</div>
-          <div class="cart-item-price-unit num">${this.formatRupiah(item.unitPrice)} × ${item.qty} ${item.unit}</div>
-        </div>
-        <div class="cart-qty-ctrl">
-          <button class="btn-qty" onclick="app.posChangeQty('${item.finishedGoodId}', -1)">-</button>
-          <span style="font-weight:700; min-width:20px; text-align:center;">${item.qty}</span>
-          <button class="btn-qty" onclick="app.posChangeQty('${item.finishedGoodId}', 1)">+</button>
-        </div>
-        <div class="num" style="font-weight:700; min-width:70px; text-align:right;">
-          ${this.formatRupiah(subtotal)}
-        </div>
-      `;
-      listEl.appendChild(row);
-    });
-
-    document.getElementById('posCartItemCount').textContent = `${totalCount} item`;
-    document.getElementById('posCartHppTotal').textContent = this.formatRupiah(totalHpp);
-    document.getElementById('posCartTotalAmount').textContent = this.formatRupiah(totalAmount);
-
-    this.calculatePosChange();
-  }
-
-  calculatePosChange() {
-    let total = 0;
-    this.posCart.forEach(item => {
-      total += item.qty * item.unitPrice;
-    });
-
-    const receivedInput = document.getElementById('posCashReceived');
-    const receivedVal = Number(receivedInput.value) || 0;
-    const change = Math.max(0, receivedVal - total);
-    document.getElementById('posChangeDisplay').textContent = this.formatRupiah(change);
-  }
-
-  posSubmitSale() {
-    if (this.posCart.length === 0) {
-      this.showToast('Keranjang belanja masih kosong!', 'error');
-      return;
-    }
-
-    let total = 0;
-    this.posCart.forEach(i => { total += i.qty * i.unitPrice; });
-
-    const paymentMethod = document.getElementById('posPaymentMethod').value;
-    const receivedInput = document.getElementById('posCashReceived');
-    let cashReceived = Number(receivedInput.value) || total;
-
-    if (paymentMethod === 'Tunai' && cashReceived < total) {
-      this.showToast(`Uang diterima (${this.formatRupiah(cashReceived)}) kurang dari total tagihan (${this.formatRupiah(total)})!`, 'error');
-      return;
-    }
-
-    try {
-      const sale = store.recordSaleLapak({
-        date: this.getTodayDateString(),
-        time: new Date().toTimeString().split(' ')[0].substring(0, 5),
-        items: this.posCart,
-        paymentMethod,
-        cashReceived,
-        notes: 'Penjualan Lapak POS'
-      });
-
-      this.posCart = [];
-      receivedInput.value = '';
-      this.renderPosCart();
-      this.renderPos();
-
-      this.showToast(`Nota ${sale.invoiceNo} berhasil disimpan! Total: ${this.formatRupiah(sale.totalRevenue)}`, 'success');
-
-      // Tampilkan struk
-      this.showReceiptModal(sale);
-    } catch (e) {
-      this.showToast(e.message, 'error');
-    }
-  }
-
-  showReceiptModal(sale) {
-    const area = document.getElementById('receiptPrintArea');
-    if (!area) return;
-
-    let itemsHtml = '';
-    sale.items.forEach(it => {
-      itemsHtml += `
-        <div style="display:flex; justify-content:space-between; margin-bottom:4px;">
-          <span>${it.productName} (${it.qty}x)</span>
-          <span>${this.formatRupiah(it.subtotal)}</span>
-        </div>
-      `;
-    });
-
-    area.innerHTML = `
-      <div style="text-align:center; border-bottom:1px dashed #ccc; padding-bottom:10px; margin-bottom:10px;">
-        <h3 style="margin:0; font-size:1.1rem;">KUKUSAN PALAWIJA</h3>
-        <div>Camilan Sehat Tradisional Kukus</div>
-        <div style="font-size:0.75rem; color:#666;">No: ${sale.invoiceNo} | ${sale.date} ${sale.time || ''}</div>
-      </div>
-      <div>
-        ${itemsHtml}
-      </div>
-      <div style="border-top:1px dashed #ccc; margin-top:10px; padding-top:8px;">
-        <div style="display:flex; justify-content:space-between; font-weight:bold;">
-          <span>TOTAL:</span>
-          <span>${this.formatRupiah(sale.totalRevenue)}</span>
-        </div>
-        <div style="display:flex; justify-content:space-between;">
-          <span>Bayar (${sale.paymentMethod}):</span>
-          <span>${this.formatRupiah(sale.cashReceived)}</span>
-        </div>
-        <div style="display:flex; justify-content:space-between;">
-          <span>Kembalian:</span>
-          <span>${this.formatRupiah(sale.changeAmount)}</span>
-        </div>
-      </div>
-      <div style="text-align:center; margin-top:14px; font-size:0.75rem; color:#666;">
-        Terima kasih atas kunjungan Anda!<br>Kukusan Sehat Alami Setiap Hari
-      </div>
-    `;
-
-    this.openModal('modalReceipt');
-  }
-
-  renderPosHistory() {
-    const tbody = document.getElementById('posSalesHistoryTable');
+  renderDailyClosing() {
+    const tbody = document.getElementById('dailyClosingTableBody');
     if (!tbody) return;
     tbody.innerHTML = '';
 
-    const sales = store.getSalesLapak();
-    sales.forEach(s => {
-      const itemsDesc = s.items.map(i => `${i.productName} (${i.qty})`).join(', ');
+    const dateInput = document.getElementById('rekapDate');
+    if (dateInput && !dateInput.value) {
+      dateInput.value = this.getTodayDateString();
+    }
+
+    const allProducts = store.getFinishedGoods();
+    const products = this.showAllRekapProducts 
+      ? allProducts 
+      : allProducts.filter(p => Number(p.currentStock) > 0);
+
+    const toggleBtn = document.getElementById('btnToggleShowAllRekap');
+    if (toggleBtn) {
+      toggleBtn.textContent = this.showAllRekapProducts 
+        ? '🎯 Sembunyikan Menu Stok 0' 
+        : `👁️ Tampilkan Semua Menu (${allProducts.length})`;
+    }
+
+    const subHint = document.getElementById('rekapTableSubHint');
+    if (subHint) {
+      subHint.textContent = this.showAllRekapProducts
+        ? `Menampilkan seluruh ${allProducts.length} menu makanan (termasuk yang stoknya 0).`
+        : `Menampilkan ${products.length} menu yang memiliki stok siap jual hari ini. Cukup isi sisa fisik di lapak.`;
+    }
+
+    if (products.length === 0) {
+      tbody.innerHTML = `
+        <tr>
+          <td colspan="5" class="text-center" style="padding:28px 16px; color:var(--text-muted);">
+            <div style="font-size:1.8rem; margin-bottom:8px;">🍠</div>
+            <div style="font-weight:700; color:var(--text-primary); margin-bottom:4px;">Tidak Ada Produk dengan Stok Siap Jual Hari Ini</div>
+            <div style="font-size:0.82rem; margin-bottom:12px;">Pastikan Anda sudah mencatat hasil masak di menu <strong>♨️ Dapur Kukus</strong>.</div>
+            <button type="button" class="btn btn-secondary btn-sm" onclick="app.toggleShowAllRekapProducts()">
+              👁️ Buka Semua Menu (Termasuk Stok 0)
+            </button>
+          </td>
+        </tr>
+      `;
+    } else {
+      products.forEach(p => {
+        const tr = document.createElement('tr');
+        tr.className = 'rekap-item-row';
+        tr.setAttribute('data-id', p.id);
+
+        const currentStock = Number(p.currentStock) || 0;
+        const avgHpp = Number(p.avgHpp) || 0;
+
+        tr.innerHTML = `
+          <td>
+            <div class="item-tag">
+              <span class="item-icon">${p.icon || '🍠'}</span>
+              <div>
+                <div class="item-title" style="font-size:0.95rem; font-weight:700;">${p.name}</div>
+                <div class="item-sub">Harga Jual: ${this.formatRupiah(p.sellingPrice)} / ${p.unit}</div>
+              </div>
+            </div>
+          </td>
+          <td class="text-center">
+            <span class="badge ${currentStock > 0 ? 'badge-success' : 'badge-danger'}" style="font-size:0.9rem; padding:6px 12px;">
+              ${currentStock} ${p.unit}
+            </span>
+          </td>
+          <td class="text-center" style="background:rgba(64,145,108,0.04);">
+            <div style="display:flex; align-items:center; justify-content:center; gap:6px;">
+              <input type="number" 
+                class="form-control rekap-remaining-input" 
+                data-id="${p.id}" 
+                data-stock="${currentStock}" 
+                data-hpp="${avgHpp}" 
+                data-name="${p.name}"
+                data-unit="${p.unit}"
+                value="0" 
+                min="0" 
+                max="${Math.max(0, currentStock)}" 
+                oninput="app.recalcDailyClosingTotals()" 
+                style="width:90px; text-align:center; font-weight:700; font-size:1.05rem; padding:8px; border-color:var(--primary-400);">
+              <span style="font-size:0.82rem; color:var(--text-secondary); font-weight:600;">${p.unit}</span>
+            </div>
+          </td>
+          <td class="text-center">
+            <span class="rekap-sold-val" style="font-weight:800; color:var(--primary-700); font-size:1.15rem;">${currentStock}</span> 
+            <span style="font-size:0.8rem; color:var(--text-muted);">${p.unit}</span>
+          </td>
+          <td class="text-center">
+            <button type="button" class="btn btn-secondary btn-sm" onclick="app.setSingleRekapZero('${p.id}')" title="Set sisa = 0 (habis terjual)">
+              Habis (0)
+            </button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    this.recalcDailyClosingTotals();
+    this.renderDailyClosingHistory();
+  }
+
+  // Toggle filter menu stok 0
+  toggleShowAllRekapProducts() {
+    this.showAllRekapProducts = !this.showAllRekapProducts;
+    this.renderDailyClosing();
+  }
+
+  // Alias for backward compatibility
+  renderPos() {
+    this.renderDailyClosing();
+  }
+
+  setSingleRekapZero(fgId) {
+    const input = document.querySelector(`.rekap-remaining-input[data-id="${fgId}"]`);
+    if (input) {
+      input.value = 0;
+      this.recalcDailyClosingTotals();
+    }
+  }
+
+  setAllRekapZero() {
+    const inputs = document.querySelectorAll('.rekap-remaining-input');
+    inputs.forEach(input => {
+      input.value = 0;
+    });
+    this.recalcDailyClosingTotals();
+    this.showToast('Semua sisa produk lapak diatur menjadi 0 (terjual habis).', 'info');
+  }
+
+  recalcDailyClosingTotals() {
+    const revenueInput = document.getElementById('rekapTotalRevenue');
+    const totalRevenue = Number(revenueInput ? revenueInput.value : 0) || 0;
+
+    let totalSoldQty = 0;
+    let totalHpp = 0;
+
+    const rows = document.querySelectorAll('.rekap-item-row');
+    rows.forEach(row => {
+      const input = row.querySelector('.rekap-remaining-input');
+      if (!input) return;
+
+      const currentStock = Number(input.getAttribute('data-stock')) || 0;
+      const unitHpp = Number(input.getAttribute('data-hpp')) || 0;
+      let remainingVal = Number(input.value);
+
+      if (isNaN(remainingVal) || remainingVal < 0) {
+        remainingVal = 0;
+      }
+
+      // Validasi sisa tidak boleh melebihi stok siap jual
+      if (remainingVal > currentStock) {
+        remainingVal = currentStock;
+        input.value = currentStock;
+      }
+
+      const soldQty = Math.max(0, currentStock - remainingVal);
+      const itemHpp = soldQty * unitHpp;
+
+      totalSoldQty += soldQty;
+      totalHpp += itemHpp;
+
+      // Update teks di baris tabel
+      const soldEl = row.querySelector('.rekap-sold-val');
+      if (soldEl) soldEl.textContent = soldQty;
+    });
+
+    // Update KPI summary cards
+    const liveOmsetEl = document.getElementById('rekapLiveOmset');
+    if (liveOmsetEl) liveOmsetEl.textContent = this.formatRupiah(totalRevenue);
+
+    const liveQtySoldEl = document.getElementById('rekapLiveQtySold');
+    if (liveQtySoldEl) liveQtySoldEl.textContent = `${totalSoldQty} porsi`;
+
+    const liveHppEl = document.getElementById('rekapLiveHpp');
+    if (liveHppEl) liveHppEl.textContent = this.formatRupiah(totalHpp);
+
+    const liveGrossEl = document.getElementById('rekapLiveGrossProfit');
+    const liveMarginEl = document.getElementById('rekapLiveMarginPct');
+
+    if (totalRevenue === 0) {
+      if (liveGrossEl) {
+        liveGrossEl.textContent = 'Rp 0';
+        liveGrossEl.style.color = 'var(--text-muted)';
+      }
+      if (liveMarginEl) {
+        liveMarginEl.textContent = totalSoldQty > 0 ? 'Ketik uang hasil jual di atas' : 'Menunggu input omset';
+      }
+    } else {
+      const grossProfit = totalRevenue - totalHpp;
+      const marginPct = totalRevenue > 0 ? Math.round((grossProfit / totalRevenue) * 100) : 0;
+      if (liveGrossEl) {
+        liveGrossEl.textContent = this.formatRupiah(grossProfit);
+        liveGrossEl.style.color = grossProfit >= 0 ? 'var(--primary-700)' : 'var(--danger-600)';
+      }
+      if (liveMarginEl) {
+        liveMarginEl.textContent = `Margin Keuntungan: ${marginPct}%`;
+      }
+    }
+  }
+
+  handleDailyClosingSubmit(e) {
+    e.preventDefault();
+
+    const date = document.getElementById('rekapDate').value || this.getTodayDateString();
+    const revenueInput = document.getElementById('rekapTotalRevenue');
+    const totalRevenue = Number(revenueInput.value);
+    const paymentMethod = document.getElementById('rekapPaymentMethod').value || 'Tunai';
+    const notes = document.getElementById('rekapNotes').value || '';
+
+    if (isNaN(totalRevenue) || totalRevenue < 0) {
+      this.showToast('Harap masukkan nominal pendapatan total lapak hari ini!', 'error');
+      return;
+    }
+
+    const items = [];
+    const inputs = document.querySelectorAll('.rekap-remaining-input');
+    inputs.forEach(inp => {
+      const finishedGoodId = inp.getAttribute('data-id');
+      const remainingStock = Math.max(0, Number(inp.value) || 0);
+      items.push({
+        finishedGoodId,
+        remainingStock
+      });
+    });
+
+    try {
+      const record = store.recordDailyClosingLapak({
+        date,
+        totalRevenue,
+        paymentMethod,
+        items,
+        notes: notes || 'Rekap Penjualan Harian Lapak'
+      });
+
+      revenueInput.value = '';
+      const notesInput = document.getElementById('rekapNotes');
+      if (notesInput) notesInput.value = '';
+
+      this.showToast(`Rekap harian ${record.invoiceNo} berhasil disimpan! Laba kotor: ${this.formatRupiah(record.grossProfit)}`, 'success');
+
+      // Tampilkan popup rincian rekap
+      this.showReceiptModal(record);
+
+      this.renderDailyClosing();
+    } catch (err) {
+      this.showToast(err.message, 'error');
+    }
+  }
+
+  renderDailyClosingHistory() {
+    const tbody = document.getElementById('dailyClosingHistoryTableBody');
+    if (!tbody) return;
+    tbody.innerHTML = '';
+
+    const list = store.getSalesLapak();
+    if (list.length === 0) {
+      tbody.innerHTML = `
+        <tr>
+          <td colspan="8" class="text-center" style="padding:22px; color:var(--text-muted);">
+            Belum ada riwayat rekap penjualan harian yang disimpan.
+          </td>
+        </tr>
+      `;
+      return;
+    }
+
+    list.forEach(s => {
       const tr = document.createElement('tr');
+
+      // Summary of sold items
+      const itemsDesc = (s.items || [])
+        .filter(it => (it.soldQty || it.qty || 0) > 0)
+        .map(it => `${it.productName} (${it.soldQty || it.qty} ${it.unit})`)
+        .join(', ') || 'Semua sisa utuh (0 terjual)';
+
       tr.innerHTML = `
         <td><strong style="color:var(--primary-700)">${s.invoiceNo}</strong></td>
-        <td>${s.time || '-'}</td>
-        <td style="max-width:280px; font-size:0.82rem;">${itemsDesc}</td>
-        <td class="text-right num" style="font-weight:700;">${this.formatRupiah(s.totalRevenue)}</td>
-        <td class="text-right num" style="color:var(--text-muted);">${this.formatRupiah(s.totalHpp)}</td>
-        <td class="text-right num" style="color:var(--success-600); font-weight:700;">${this.formatRupiah(s.grossProfit)}</td>
+        <td>
+          <div>${s.date}</div>
+          <div style="font-size:0.75rem; color:var(--text-muted);">${s.time || ''}</div>
+        </td>
+        <td style="max-width:280px; font-size:0.82rem; color:var(--text-secondary); line-height:1.35;">
+          ${itemsDesc}
+        </td>
+        <td class="text-right num" style="font-weight:700; color:var(--primary-800);">
+          ${this.formatRupiah(s.totalRevenue)}
+        </td>
+        <td class="text-right num" style="color:var(--accent-terracotta);">
+          ${this.formatRupiah(s.totalHpp)}
+        </td>
+        <td class="text-right num" style="font-weight:700; color:${s.grossProfit >= 0 ? 'var(--success-600)' : 'var(--danger-600)'};">
+          ${this.formatRupiah(s.grossProfit)}
+        </td>
+        <td><span class="badge badge-info">${s.paymentMethod || 'Tunai'}</span></td>
         <td class="text-center">
-          <button class="btn btn-secondary btn-sm" onclick='app.showReceiptModal(${JSON.stringify(s)})'>🧾 Struk</button>
-          <button class="btn btn-danger btn-sm" onclick="app.deleteSaleLapakConfirm('${s.id}')">🗑️</button>
+          <div style="display:flex; justify-content:center; gap:6px;">
+            <button class="btn btn-secondary btn-sm" onclick='app.showReceiptModal(${JSON.stringify(s)})' title="Lihat Rincian Rekap">
+              📑 Detail
+            </button>
+            <button class="btn btn-danger btn-sm" onclick="app.deleteSaleLapakConfirm('${s.id}')" title="Hapus Rekap">
+              🗑️
+            </button>
+          </div>
         </td>
       `;
       tbody.appendChild(tr);
     });
   }
 
+  showReceiptModal(sale) {
+    const area = document.getElementById('receiptPrintArea');
+    if (!area) return;
+
+    let itemsRows = '';
+    (sale.items || []).forEach(it => {
+      const sold = it.soldQty !== undefined ? it.soldQty : (it.qty || 0);
+      const stockBefore = it.stockBefore !== undefined ? it.stockBefore : '-';
+      const remaining = it.remainingStock !== undefined ? it.remainingStock : '-';
+      const itemHpp = it.totalHpp !== undefined ? it.totalHpp : (sold * (it.hppPerUnit || 0));
+
+      itemsRows += `
+        <tr>
+          <td style="padding:6px 8px; border-bottom:1px solid #e2e8e5;"><strong>${it.productName}</strong></td>
+          <td class="text-center" style="padding:6px 8px; border-bottom:1px solid #e2e8e5;">${stockBefore}</td>
+          <td class="text-center" style="padding:6px 8px; border-bottom:1px solid #e2e8e5; color:#d97706; font-weight:700;">${remaining}</td>
+          <td class="text-center" style="padding:6px 8px; border-bottom:1px solid #e2e8e5; color:#1b4332; font-weight:700;">${sold} ${it.unit || ''}</td>
+          <td class="text-right num" style="padding:6px 8px; border-bottom:1px solid #e2e8e5;">${this.formatRupiah(it.hppPerUnit || 0)}</td>
+          <td class="text-right num font-weight-bold" style="padding:6px 8px; border-bottom:1px solid #e2e8e5; color:#e76f51;">${this.formatRupiah(itemHpp)}</td>
+        </tr>
+      `;
+    });
+
+    area.innerHTML = `
+      <div style="text-align:center; border-bottom:2px solid #0d281e; padding-bottom:12px; margin-bottom:14px;">
+        <h3 style="margin:0; font-size:1.2rem; color:#0d281e; letter-spacing:0.5px;">KUKUSAN PALAWIJA</h3>
+        <div style="font-size:0.85rem; color:#475569; font-weight:600;">REKAP PENJUALAN & TUTUP HARIAN LAPAK</div>
+        <div style="font-size:0.8rem; color:#94a3b8; margin-top:4px;">
+          No: <strong>${sale.invoiceNo}</strong> | Tanggal: ${sale.date} ${sale.time || ''}
+        </div>
+      </div>
+
+      <div style="margin-bottom:14px; font-size:0.85rem; display:flex; justify-content:space-between; background:#f8fafc; padding:8px 12px; border-radius:6px;">
+        <div><strong>Metode Kas:</strong> ${sale.paymentMethod || 'Tunai'}</div>
+        <div><strong>Keterangan:</strong> ${sale.notes || 'Penjualan Lapak'}</div>
+      </div>
+
+      <div class="table-responsive" style="margin-bottom:14px;">
+        <table style="width:100%; border-collapse:collapse; font-size:0.84rem;">
+          <thead>
+            <tr style="background:#f1f5f3; text-transform:uppercase; font-size:0.72rem; color:#475569;">
+              <th style="padding:6px 8px; text-align:left;">Produk</th>
+              <th style="padding:6px 8px; text-align:center;">Stok Awal</th>
+              <th style="padding:6px 8px; text-align:center;">Sisa</th>
+              <th style="padding:6px 8px; text-align:center;">Terjual</th>
+              <th style="padding:6px 8px; text-align:right;">HPP Satuan</th>
+              <th style="padding:6px 8px; text-align:right;">Total HPP</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${itemsRows}
+          </tbody>
+        </table>
+      </div>
+
+      <div style="border-top:2px solid #e2e8e5; padding-top:10px; font-size:0.92rem; display:flex; flex-direction:column; gap:6px;">
+        <div style="display:flex; justify-content:space-between;">
+          <span style="color:#475569;">Total Omset (Uang Masuk Lapak):</span>
+          <strong class="num" style="font-size:1.05rem; color:#1b4332;">${this.formatRupiah(sale.totalRevenue)}</strong>
+        </div>
+        <div style="display:flex; justify-content:space-between;">
+          <span style="color:#475569;">Total Beban Modal (HPP Terjual):</span>
+          <strong class="num" style="color:#e76f51;">${this.formatRupiah(sale.totalHpp)}</strong>
+        </div>
+        <div style="display:flex; justify-content:space-between; border-top:1px dashed #cbd5e1; padding-top:8px; margin-top:2px;">
+          <span style="font-weight:800; color:#0d281e; font-size:1.05rem;">LABA KOTOR LAPAK:</span>
+          <strong class="num" style="font-size:1.2rem; color:${sale.grossProfit >= 0 ? '#10b981' : '#e63946'};">${this.formatRupiah(sale.grossProfit)}</strong>
+        </div>
+      </div>
+    `;
+
+    this.openModal('modalReceipt');
+  }
+
   deleteSaleLapakConfirm(id) {
-    if (confirm('Hapus transaksi nota lapak ini? Stok produk jadi akan disesuaikan kembali.')) {
+    if (confirm('Hapus data rekap penjualan ini? Stok produk jadi akan dikembalikan ke kondisi sebelum penutupan lapak.')) {
       store.deleteSaleLapak(id);
-      this.showToast('Nota lapak dihapus.', 'info');
-      this.renderPos();
+      this.showToast('Data rekap dihapus dan stok produk berhasil dipulihkan.', 'info');
+      this.renderDailyClosing();
     }
   }
 
@@ -733,70 +849,79 @@ class PalawijaApp {
 
   renderGoFood() {
     const list = store.getSalesGoFood();
-    let totalGross = 0;
-    let totalFee = 0;
     let totalNet = 0;
+    let totalOrders = 0;
 
     const tbody = document.getElementById('gofoodTableBody');
     if (tbody) tbody.innerHTML = '';
 
-    list.forEach(g => {
-      totalGross += g.grossSales;
-      totalFee += g.appFee;
-      totalNet += g.netReceived;
-
-      if (tbody) {
-        const tr = document.createElement('tr');
-        tr.innerHTML = `
-          <td><strong>${g.orderNo}</strong></td>
-          <td>${g.date}</td>
-          <td class="text-center">${g.orderCount} order</td>
-          <td class="text-right num">${this.formatRupiah(g.grossSales)}</td>
-          <td class="text-right num" style="color:var(--danger-600);">-${this.formatRupiah(g.appFee)}</td>
-          <td class="text-right num" style="color:var(--gofood-green); font-weight:800;">${this.formatRupiah(g.netReceived)}</td>
-          <td><span class="badge badge-brand">${g.paymentMethod}</span></td>
-          <td style="font-size:0.82rem; color:var(--text-secondary);">${g.notes || '-'}</td>
-          <td class="text-center">
-            <button class="btn btn-danger btn-sm" onclick="app.deleteGoFoodConfirm('${g.id}')">🗑️</button>
+    if (list.length === 0 && tbody) {
+      tbody.innerHTML = `
+        <tr>
+          <td colspan="7" class="text-center" style="padding:22px; color:var(--text-muted);">
+            Belum ada catatan penjualan GoFood.
           </td>
-        `;
-        tbody.appendChild(tr);
-      }
-    });
+        </tr>
+      `;
+    } else {
+      list.forEach(g => {
+        const net = Number(g.netReceived !== undefined ? g.netReceived : g.grossSales) || 0;
+        const orders = Number(g.orderCount) || 1;
+        totalNet += net;
+        totalOrders += orders;
 
-    document.getElementById('gfTotalGross').textContent = this.formatRupiah(totalGross);
-    document.getElementById('gfTotalFee').textContent = this.formatRupiah(totalFee);
-    document.getElementById('gfTotalNet').textContent = this.formatRupiah(totalNet);
-  }
+        if (tbody) {
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td><strong style="color:var(--gofood-green);">${g.orderNo}</strong></td>
+            <td>${g.date}</td>
+            <td class="text-center font-weight-bold">${orders} order</td>
+            <td class="text-right num font-weight-bold" style="color:var(--gofood-green); font-size:0.95rem;">
+              ${this.formatRupiah(net)}
+            </td>
+            <td><span class="badge badge-brand">${g.paymentMethod || 'Saldo GoPay'}</span></td>
+            <td style="font-size:0.82rem; color:var(--text-secondary);">${g.notes || '-'}</td>
+            <td class="text-center">
+              <button class="btn btn-danger btn-sm" onclick="app.deleteGoFoodConfirm('${g.id}')" title="Hapus">🗑️</button>
+            </td>
+          `;
+          tbody.appendChild(tr);
+        }
+      });
+    }
 
-  calculateGoFoodNet() {
-    const gross = Number(document.getElementById('gfGrossSales').value) || 0;
-    const fee = Number(document.getElementById('gfAppFee').value) || 0;
-    const net = Math.max(0, gross - fee);
-    document.getElementById('gfNetDisplay').textContent = this.formatRupiah(net);
+    const netEl = document.getElementById('gfTotalNet');
+    if (netEl) netEl.textContent = this.formatRupiah(totalNet);
+
+    const ordersEl = document.getElementById('gfTotalOrders');
+    if (ordersEl) ordersEl.textContent = `${totalOrders} order`;
   }
 
   handleGoFoodSubmit(e) {
     e.preventDefault();
-    const date = document.getElementById('gfDate').value;
-    const orderCount = document.getElementById('gfOrderCount').value;
-    const grossSales = document.getElementById('gfGrossSales').value;
-    const appFee = document.getElementById('gfAppFee').value;
+    const date = document.getElementById('gfDate').value || this.getTodayDateString();
+    const orderCount = document.getElementById('gfOrderCount').value || 1;
+    const netInput = document.getElementById('gfNetSales');
+    const netReceived = Number(netInput ? netInput.value : 0);
     const paymentMethod = document.getElementById('gfPaymentMethod').value;
     const notes = document.getElementById('gfNotes').value;
+
+    if (isNaN(netReceived) || netReceived <= 0) {
+      this.showToast('Harap masukkan nominal uang bersih yang diterima dari GoFood!', 'error');
+      return;
+    }
 
     try {
       const record = store.recordSaleGoFood({
         date,
         orderCount,
-        grossSales,
-        appFee,
+        netReceived,
         paymentMethod,
         notes
       });
 
       this.closeModal('modalGoFood');
-      this.showToast(`Rekap GoFood ${record.orderNo} disimpan! Diterima bersih: ${this.formatRupiah(record.netReceived)}`, 'success');
+      this.showToast(`Penjualan GoFood ${record.orderNo} sebesar ${this.formatRupiah(record.netReceived)} berhasil dicatat!`, 'success');
       this.renderGoFood();
     } catch (err) {
       this.showToast(err.message, 'error');
@@ -815,134 +940,258 @@ class PalawijaApp {
   // VIEW: DAPUR KUKUS (PRODUKSI & MWA)
   // ==========================================
 
+  // Helper untuk mencocokkan bahan baku mentah dengan produk jadi pasangannya
+  getDefaultFinishedGoodForRaw(rawId) {
+    const raw = store.getRawMaterialById(rawId);
+    if (!raw) return store.getFinishedGoods()[0]?.id || '';
+
+    // Cek kecocokan ID (raw-1 -> prod-1, dst.)
+    const directProdId = raw.id.replace('raw-', 'prod-');
+    if (store.getFinishedGoodById(directProdId)) {
+      return directProdId;
+    }
+
+    // Cek kecocokan kata kunci nama
+    const rawNameLower = raw.name.toLowerCase();
+    const fgList = store.getFinishedGoods();
+    const found = fgList.find(f => {
+      const fNameLower = f.name.toLowerCase();
+      if (rawNameLower.includes('telur') && fNameLower.includes('telur')) return true;
+      if (rawNameLower.includes('kacang') && fNameLower.includes('kacang')) return true;
+      if (rawNameLower.includes('edamame') && fNameLower.includes('edamame')) return true;
+      if (rawNameLower.includes('jagung manis') && fNameLower.includes('jagung manis')) return true;
+      if (rawNameLower.includes('jagung ungu') && fNameLower.includes('jagung ungu')) return true;
+      if (rawNameLower.includes('pisang') && fNameLower.includes('pisang')) return true;
+      if (rawNameLower.includes('singkong') && fNameLower.includes('singkong')) return true;
+      if (rawNameLower.includes('labu') && fNameLower.includes('labu')) return true;
+      if (rawNameLower.includes('ubi madu') && fNameLower.includes('ubi madu')) return true;
+      if (rawNameLower.includes('ubi ungu') && fNameLower.includes('ubi ungu')) return true;
+      if (rawNameLower.includes('ubi oren') && fNameLower.includes('ubi oren')) return true;
+      if (rawNameLower.includes('gembili') && fNameLower.includes('gembili')) return true;
+      if (rawNameLower.includes('sukun') && fNameLower.includes('sukun')) return true;
+      return false;
+    });
+
+    return found ? found.id : (fgList[0]?.id || '');
+  }
+
   setupProductionModal() {
     document.getElementById('prdDate').value = this.getTodayDateString();
     document.getElementById('prdAdditionalCost').value = '0';
     document.getElementById('prdNotes').value = '';
 
-    const ingContainer = document.getElementById('prdIngredientsContainer');
-    const outContainer = document.getElementById('prdOutputsContainer');
-    ingContainer.innerHTML = '';
-    outContainer.innerHTML = '';
-
-    // Add 1 default ingredient and 1 default output
-    this.addProductionIngredientRow();
-    this.addProductionOutputRow();
+    const container = document.getElementById('prdUnifiedRowsContainer');
+    if (container) {
+      container.innerHTML = '';
+      this.addProductionRow();
+    }
     this.recalcProductionTotals();
   }
 
-  addProductionIngredientRow() {
-    const container = document.getElementById('prdIngredientsContainer');
+  addProductionRow() {
+    const container = document.getElementById('prdUnifiedRowsContainer');
+    if (!container) return;
+
     const rawMaterials = store.getRawMaterials();
+    const finishedGoods = store.getFinishedGoods();
+    if (rawMaterials.length === 0 || finishedGoods.length === 0) {
+      this.showToast('Master bahan atau produk belum tersedia.', 'error');
+      return;
+    }
 
-    const row = document.createElement('div');
-    row.className = 'repeater-row';
+    const firstRaw = rawMaterials[0];
+    const defaultFgId = this.getDefaultFinishedGoodForRaw(firstRaw.id);
+    const defaultFg = store.getFinishedGoodById(defaultFgId) || finishedGoods[0];
 
-    let options = '';
+    const tr = document.createElement('tr');
+    tr.className = 'prd-row';
+
+    let rawOptions = '';
     rawMaterials.forEach(m => {
-      options += `<option value="${m.id}" data-unit="${m.unit}" data-cost="${m.avgPrice}">${m.name} (Stok: ${m.currentStock} ${m.unit} @ ${this.formatRupiah(m.avgPrice)})</option>`;
+      rawOptions += `<option value="${m.id}" data-unit="${m.unit}" data-cost="${m.avgPrice}">${m.name} (Stok: ${m.currentStock} ${m.unit})</option>`;
     });
 
-    row.innerHTML = `
-      <select class="form-select prd-ing-select" onchange="app.recalcProductionTotals()">
-        ${options}
-      </select>
-      <input type="number" step="0.01" class="form-control prd-ing-qty" placeholder="Jumlah Dipakai" oninput="app.recalcProductionTotals()" required>
-      <div class="prd-ing-subcost num" style="font-size:0.8rem; font-weight:700; text-align:right;">Rp 0</div>
-      <button type="button" class="btn-remove-row" onclick="this.parentElement.remove(); app.recalcProductionTotals();">✕</button>
+    let fgOptions = '';
+    finishedGoods.forEach(f => {
+      const isSelected = f.id === defaultFgId ? 'selected' : '';
+      fgOptions += `<option value="${f.id}" data-unit="${f.unit}" ${isSelected}>${f.name}</option>`;
+    });
+
+    tr.innerHTML = `
+      <td>
+        <select class="form-select prd-raw-select" style="font-size:0.85rem;" onchange="app.onProductionRawChange(this)">
+          ${rawOptions}
+        </select>
+        <div class="prd-raw-subcost num" style="font-size:0.75rem; color:var(--text-muted); margin-top:3px;">
+          Biaya: Rp 0 (@ ${this.formatRupiah(firstRaw.avgPrice)}/${firstRaw.unit})
+        </div>
+      </td>
+      <td>
+        <input type="number" step="0.01" class="form-control prd-raw-qty" style="text-align:center; font-weight:700;" placeholder="0" oninput="app.onProductionRawQtyInput(this)" required>
+        <div class="prd-raw-unit" style="font-size:0.72rem; text-align:center; color:var(--text-muted); margin-top:2px;">${firstRaw.unit}</div>
+      </td>
+      <td>
+        <select class="form-select prd-fg-select" style="font-size:0.85rem;" onchange="app.onProductionFgChange(this)">
+          ${fgOptions}
+        </select>
+      </td>
+      <td>
+        <input type="number" step="0.01" class="form-control prd-out-qty" data-manually-changed="false" style="text-align:center; font-weight:800; color:var(--primary-800);" placeholder="0" oninput="app.onProductionOutQtyInput(this)" required>
+        <div class="prd-out-unit" style="font-size:0.72rem; text-align:center; color:var(--text-muted); margin-top:2px;">${defaultFg.unit}</div>
+      </td>
+      <td class="text-right num font-weight-bold prd-row-hpp" style="color:var(--primary-700); vertical-align:middle; font-size:0.88rem;">
+        Rp 0
+      </td>
+      <td class="text-center" style="vertical-align:middle;">
+        <button type="button" class="btn-remove-row" style="cursor:pointer;" onclick="app.removeProductionRow(this)">✕</button>
+      </td>
     `;
 
-    container.appendChild(row);
+    container.appendChild(tr);
+    this.recalcProductionTotals();
   }
 
-  addProductionOutputRow() {
-    const container = document.getElementById('prdOutputsContainer');
-    const finishedGoods = store.getFinishedGoods();
+  removeProductionRow(btn) {
+    const row = btn.closest('.prd-row');
+    const container = document.getElementById('prdUnifiedRowsContainer');
+    if (row && container) {
+      if (container.querySelectorAll('.prd-row').length > 1) {
+        row.remove();
+      } else {
+        // Jika tinggal 1 baris, cukup reset nilainya
+        row.querySelector('.prd-raw-qty').value = '';
+        row.querySelector('.prd-out-qty').value = '';
+        row.querySelector('.prd-out-qty').setAttribute('data-manually-changed', 'false');
+      }
+      this.recalcProductionTotals();
+    }
+  }
 
-    const row = document.createElement('div');
-    row.className = 'repeater-row';
+  onProductionRawChange(selectEl) {
+    const row = selectEl.closest('.prd-row');
+    if (!row) return;
 
-    let options = '';
-    finishedGoods.forEach(f => {
-      options += `<option value="${f.id}" data-unit="${f.unit}">${f.name} (${f.unit})</option>`;
-    });
+    const rawId = selectEl.value;
+    const raw = store.getRawMaterialById(rawId);
+    if (!raw) return;
 
-    // Default cost percent = 100 divided by number of rows
-    const currentRows = container.querySelectorAll('.repeater-row').length + 1;
-    const defaultPct = currentRows === 1 ? 100 : 50;
+    // Update label satuan mentah
+    row.querySelector('.prd-raw-unit').textContent = raw.unit;
 
-    row.innerHTML = `
-      <select class="form-select prd-out-select">
-        ${options}
-      </select>
-      <input type="number" class="form-control prd-out-qty" placeholder="Hasil Jadi Aktual" oninput="app.recalcProductionTotals()" required>
-      <div style="display:flex; align-items:center; gap:4px;">
-        <input type="number" class="form-control prd-out-pct" value="${defaultPct}" min="1" max="100" placeholder="%" oninput="app.recalcProductionTotals()" required>
-        <span style="font-size:0.8rem; font-weight:700;">%</span>
-      </div>
-      <button type="button" class="btn-remove-row" onclick="this.parentElement.remove(); app.recalcProductionTotals();">✕</button>
-    `;
+    // Otomatis pilih pasangan produk jadi yang sesuai
+    const autoFgId = this.getDefaultFinishedGoodForRaw(rawId);
+    const fgSelect = row.querySelector('.prd-fg-select');
+    if (fgSelect && autoFgId) {
+      fgSelect.value = autoFgId;
+      const fg = store.getFinishedGoodById(autoFgId);
+      if (fg) {
+        row.querySelector('.prd-out-unit').textContent = fg.unit;
+      }
+    }
 
-    container.appendChild(row);
+    this.recalcProductionTotals();
+  }
+
+  onProductionFgChange(selectEl) {
+    const row = selectEl.closest('.prd-row');
+    if (!row) return;
+
+    const fg = store.getFinishedGoodById(selectEl.value);
+    if (fg) {
+      row.querySelector('.prd-out-unit').textContent = fg.unit;
+    }
+    this.recalcProductionTotals();
+  }
+
+  onProductionRawQtyInput(inputEl) {
+    const row = inputEl.closest('.prd-row');
+    if (!row) return;
+
+    const rawQtyVal = inputEl.value;
+    const outQtyInput = row.querySelector('.prd-out-qty');
+
+    // Jika hasil matang belum pernah diubah manual oleh pengguna,
+    // OTOMATIS IKUT TERISI PERSIS SAMA DENGAN JUMLAH BAHAN!
+    if (outQtyInput && outQtyInput.getAttribute('data-manually-changed') !== 'true') {
+      outQtyInput.value = rawQtyVal;
+    }
+
+    this.recalcProductionTotals();
+  }
+
+  onProductionOutQtyInput(inputEl) {
+    // Tandai bahwa pengguna mengubah hasil matang secara manual (misal jika ada yang susut/rusak)
+    inputEl.setAttribute('data-manually-changed', 'true');
+    this.recalcProductionTotals();
   }
 
   recalcProductionTotals() {
-    let rawTotalCost = 0;
-    const ingRows = document.querySelectorAll('#prdIngredientsContainer .repeater-row');
-    ingRows.forEach(row => {
-      const select = row.querySelector('.prd-ing-select');
-      const qtyInput = row.querySelector('.prd-ing-qty');
-      const subcostEl = row.querySelector('.prd-ing-subcost');
+    let totalRawCost = 0;
+    const rows = document.querySelectorAll('#prdUnifiedRowsContainer .prd-row');
+    const rowCalculations = [];
 
-      const selectedOpt = select.options[select.selectedIndex];
-      const unitCost = selectedOpt ? Number(selectedOpt.getAttribute('data-cost')) || 0 : 0;
-      const qty = Number(qtyInput.value) || 0;
-      const sub = qty * unitCost;
+    rows.forEach(row => {
+      const rawSelect = row.querySelector('.prd-raw-select');
+      const rawQtyInput = row.querySelector('.prd-raw-qty');
+      const fgSelect = row.querySelector('.prd-fg-select');
+      const outQtyInput = row.querySelector('.prd-out-qty');
+      const rawSubcostEl = row.querySelector('.prd-raw-subcost');
+      const hppEl = row.querySelector('.prd-row-hpp');
 
-      rawTotalCost += sub;
-      subcostEl.textContent = this.formatRupiah(sub);
+      if (!rawSelect || !rawQtyInput || !fgSelect || !outQtyInput) return;
+
+      const raw = store.getRawMaterialById(rawSelect.value);
+      const fg = store.getFinishedGoodById(fgSelect.value);
+      const rawQty = Number(rawQtyInput.value) || 0;
+      const outQty = Number(outQtyInput.value) || 0;
+
+      const unitCost = raw ? (Number(raw.avgPrice) || 0) : 0;
+      const lineCost = Math.round(rawQty * unitCost);
+      totalRawCost += lineCost;
+
+      if (rawSubcostEl && raw) {
+        rawSubcostEl.textContent = `Biaya: ${this.formatRupiah(lineCost)} (@ ${this.formatRupiah(unitCost)}/${raw.unit})`;
+      }
+
+      rowCalculations.push({
+        row,
+        lineCost,
+        outQty,
+        fgUnit: fg ? fg.unit : 'unit',
+        hppEl
+      });
     });
 
     const addCost = Number(document.getElementById('prdAdditionalCost').value) || 0;
-    const totalBatchCost = rawTotalCost + addCost;
+    const totalBatchCost = totalRawCost + addCost;
     document.getElementById('prdTotalCostDisplay').textContent = this.formatRupiah(totalBatchCost);
 
-    // Outputs cost percent calculation
-    let totalPct = 0;
-    const outRows = document.querySelectorAll('#prdOutputsContainer .repeater-row');
+    // Hitung HPP tiap baris dengan membagi proporsional biaya tambahan jika ada
     const breakdownTexts = [];
+    rowCalculations.forEach(item => {
+      const extraShare = totalRawCost > 0
+        ? Math.round((item.lineCost / totalRawCost) * addCost)
+        : (rowCalculations.length > 0 ? Math.round(addCost / rowCalculations.length) : 0);
 
-    outRows.forEach(row => {
-      const select = row.querySelector('.prd-out-select');
-      const qtyInput = row.querySelector('.prd-out-qty');
-      const pctInput = row.querySelector('.prd-out-pct');
+      const totalLineCost = item.lineCost + extraShare;
+      const unitHpp = item.outQty > 0 ? Math.round(totalLineCost / item.outQty) : 0;
 
-      const prodName = select.options[select.selectedIndex]?.text || '';
-      const qty = Number(qtyInput.value) || 0;
-      const pct = Number(pctInput.value) || 0;
-      totalPct += pct;
+      if (item.hppEl) {
+        item.hppEl.innerHTML = `${this.formatRupiah(unitHpp)} <span style="font-size:0.74rem; font-weight:normal; color:var(--text-muted);">/${item.fgUnit}</span>`;
+      }
 
-      const allocated = totalBatchCost * (pct / 100);
-      const unitHpp = qty > 0 ? Math.round(allocated / qty) : 0;
-
-      if (qty > 0) {
-        breakdownTexts.push(`${prodName}: Est HPP ${this.formatRupiah(unitHpp)}/unit`);
+      if (item.outQty > 0) {
+        breakdownTexts.push(`HPP: <strong>${this.formatRupiah(unitHpp)}/${item.fgUnit}</strong>`);
       }
     });
 
-    const pctDisplay = document.getElementById('prdTotalAllocationDisplay');
-    pctDisplay.textContent = `${totalPct}%`;
-    if (Math.round(totalPct) === 100) {
-      pctDisplay.className = 'badge badge-success';
-    } else {
-      pctDisplay.className = 'badge badge-danger';
-    }
-
     const breakdownEl = document.getElementById('prdResultHppBreakdown');
-    if (breakdownTexts.length > 0) {
-      breakdownEl.textContent = breakdownTexts.join(' | ');
-    } else {
-      breakdownEl.textContent = 'Masukkan hasil aktual dan persentase alokasi untuk melihat estimasi HPP per unit.';
+    if (breakdownEl) {
+      if (breakdownTexts.length > 0) {
+        breakdownEl.innerHTML = breakdownTexts.join(' &bull; ');
+      } else {
+        breakdownEl.textContent = 'HPP dihitung otomatis tanpa perlu repot mengisi persentase biaya.';
+      }
     }
   }
 
@@ -953,40 +1202,49 @@ class PalawijaApp {
     const additionalCost = Number(document.getElementById('prdAdditionalCost').value) || 0;
     const notes = document.getElementById('prdNotes').value;
 
-    const ingredients = [];
-    document.querySelectorAll('#prdIngredientsContainer .repeater-row').forEach(row => {
-      const select = row.querySelector('.prd-ing-select');
-      const qtyInput = row.querySelector('.prd-ing-qty');
-      ingredients.push({
-        rawMaterialId: select.value,
-        qty: Number(qtyInput.value) || 0
-      });
+    const rows = document.querySelectorAll('#prdUnifiedRowsContainer .prd-row');
+    const items = [];
+
+    rows.forEach(row => {
+      const rawSelect = row.querySelector('.prd-raw-select');
+      const rawQtyInput = row.querySelector('.prd-raw-qty');
+      const fgSelect = row.querySelector('.prd-fg-select');
+      const outQtyInput = row.querySelector('.prd-out-qty');
+
+      const rawId = rawSelect?.value;
+      const rawQty = Number(rawQtyInput?.value) || 0;
+      const fgId = fgSelect?.value;
+      const outputQty = Number(outQtyInput?.value) || 0;
+
+      if (rawId && fgId && rawQty > 0 && outputQty > 0) {
+        items.push({
+          rawMaterialId: rawId,
+          rawQty,
+          finishedGoodId: fgId,
+          outputQty
+        });
+      }
     });
 
-    const outputs = [];
-    document.querySelectorAll('#prdOutputsContainer .repeater-row').forEach(row => {
-      const select = row.querySelector('.prd-out-select');
-      const qtyInput = row.querySelector('.prd-out-qty');
-      const pctInput = row.querySelector('.prd-out-pct');
-      outputs.push({
-        finishedGoodId: select.value,
-        qty: Number(qtyInput.value) || 0,
-        costPercent: Number(pctInput.value) || 0
-      });
-    });
+    if (items.length === 0) {
+      this.showToast('Harap isi jumlah bahan dan hasil matang minimal 1 menu!', 'error');
+      return;
+    }
 
     try {
       const record = store.recordProduction({
         date,
-        ingredients,
+        items,
         additionalCost,
-        outputs,
         notes
       });
 
       this.closeModal('modalProduction');
-      this.showToast(`Batch produksi ${record.batchNo} berhasil dicatat! Stok & HPP produk telah diperbarui.`, 'success');
+      this.showToast(`Batch produksi ${record.batchNo} berhasil disimpan! Stok makanan siap jual telah diperbarui.`, 'success');
       this.renderProduction();
+      this.renderFinishedGoods();
+      this.renderRawMaterials();
+      this.renderDashboard();
     } catch (err) {
       this.showToast(err.message, 'error');
     }

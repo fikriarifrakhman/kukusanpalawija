@@ -261,90 +261,177 @@ class PalawijaStore {
   // ==========================================
 
   /**
-   * Catat Produksi dengan Alokasi Biaya Multi-Hasil
-   * @param {Object} param0
-   *   date: string (YYYY-MM-DD)
-   *   ingredients: [{ rawMaterialId, qty }]
-   *   additionalCost: number (bumbu, air, dll)
-   *   outputs: [{ finishedGoodId, qty, costPercent }] (costPercent sum must be 100)
-   *   notes: string
+   * Catat Produksi Dapur Kukus
+   * Mendukung mode satu tabel praktis (items: [{ rawMaterialId, rawQty, finishedGoodId, outputQty }])
+   * atau mode klasik (ingredients + outputs).
+   * Alokasi biaya otomatis dihitung proporsional tanpa mengharuskan input persen manual.
    */
-  recordProduction({ date, ingredients, additionalCost = 0, outputs, notes }) {
+  recordProduction({ date, items, ingredients, additionalCost = 0, outputs, notes }) {
     additionalCost = Number(additionalCost) || 0;
 
-    // 1. Validasi alokasi persentase total harus 100%
-    const totalPercent = outputs.reduce((sum, o) => sum + (Number(o.costPercent) || 0), 0);
-    if (Math.round(totalPercent) !== 100) {
-      throw new Error(`Total persentase alokasi biaya harus pas 100% (saat ini ${totalPercent}%).`);
-    }
-
-    // 2. Hitung biaya bahan baku dan kurangi stok bahan baku
-    let rawMaterialTotalCost = 0;
     const resolvedIngredients = [];
-
-    for (const ing of ingredients) {
-      const raw = this.getRawMaterialById(ing.rawMaterialId);
-      if (!raw) throw new Error(`Bahan baku ID "${ing.rawMaterialId}" tidak ditemukan.`);
-      
-      const qtyUsed = Number(ing.qty);
-      if (qtyUsed <= 0) throw new Error(`Jumlah bahan "${raw.name}" harus lebih dari 0.`);
-      
-      const costPerUnit = Number(raw.avgPrice) || 0;
-      const totalCost = Math.round(qtyUsed * costPerUnit);
-      rawMaterialTotalCost += totalCost;
-
-      // Kurangi stok bahan mentah
-      raw.currentStock = Math.max(0, parseFloat((raw.currentStock - qtyUsed).toFixed(3)));
-
-      resolvedIngredients.push({
-        rawMaterialId: raw.id,
-        rawMaterialName: raw.name,
-        qty: qtyUsed,
-        unit: raw.unit,
-        unitCost: costPerUnit,
-        totalCost
-      });
-    }
-
-    // 3. Total biaya produksi batch
-    const totalProductionCost = rawMaterialTotalCost + additionalCost;
-
-    // 4. Alokasikan biaya ke setiap produk output dan hitung MWA HPP produk jadi
     const resolvedOutputs = [];
+    let totalProductionCost = 0;
 
-    for (const out of outputs) {
-      const fg = this.getFinishedGoodById(out.finishedGoodId);
-      if (!fg) throw new Error(`Produk jadi ID "${out.finishedGoodId}" tidak ditemukan.`);
-      
-      const outputQty = Number(out.qty);
-      if (outputQty <= 0) throw new Error(`Hasil produksi produk "${fg.name}" harus lebih dari 0.`);
+    // 1. JIKA MENGGUNAKAN MODE TERPADU (ITEMS)
+    if (items && Array.isArray(items) && items.length > 0) {
+      let totalRawCost = 0;
+      const intermediateRows = [];
 
-      const costPercent = Number(out.costPercent);
-      const allocatedCost = Math.round(totalProductionCost * (costPercent / 100));
-      const unitHpp = Math.round(allocatedCost / outputQty);
+      for (const row of items) {
+        const raw = this.getRawMaterialById(row.rawMaterialId);
+        if (!raw) throw new Error(`Bahan baku ID "${row.rawMaterialId}" tidak ditemukan.`);
+        
+        const rawQty = Number(row.rawQty);
+        if (rawQty <= 0) throw new Error(`Jumlah bahan mentah "${raw.name}" harus lebih dari 0.`);
 
-      // Update stok produk jadi & Moving Weighted Average HPP
-      const oldStock = Number(fg.currentStock) || 0;
-      const oldHpp = Number(fg.avgHpp) || 0;
-      const newStock = oldStock + outputQty;
+        const fg = this.getFinishedGoodById(row.finishedGoodId);
+        if (!fg) throw new Error(`Produk jadi ID "${row.finishedGoodId}" tidak ditemukan.`);
 
-      let newAvgHpp = unitHpp;
-      if (newStock > 0) {
-        newAvgHpp = Math.round(((oldStock * oldHpp) + allocatedCost) / newStock);
+        const outputQty = Number(row.outputQty);
+        if (outputQty <= 0) throw new Error(`Hasil matang produk "${fg.name}" harus lebih dari 0.`);
+
+        const unitCost = Number(raw.avgPrice) || 0;
+        const lineRawCost = Math.round(rawQty * unitCost);
+        totalRawCost += lineRawCost;
+
+        // Kurangi stok bahan mentah
+        raw.currentStock = Math.max(0, parseFloat((raw.currentStock - rawQty).toFixed(3)));
+
+        intermediateRows.push({
+          raw,
+          fg,
+          rawQty,
+          outputQty,
+          unitCost,
+          lineRawCost
+        });
+
+        resolvedIngredients.push({
+          rawMaterialId: raw.id,
+          rawMaterialName: raw.name,
+          qty: rawQty,
+          unit: raw.unit,
+          unitCost,
+          totalCost: lineRawCost
+        });
       }
 
-      fg.currentStock = newStock;
-      fg.avgHpp = newAvgHpp;
+      totalProductionCost = totalRawCost + additionalCost;
 
-      resolvedOutputs.push({
-        finishedGoodId: fg.id,
-        productName: fg.name,
-        qty: outputQty,
-        unit: fg.unit,
-        costPercent,
-        allocatedCost,
-        unitHpp
-      });
+      // Alokasikan biaya dan perbarui stok produk jadi
+      for (const row of intermediateRows) {
+        // Porsi biaya tambahan dibagi proporsional berdasarkan biaya bahan masing-masing
+        const extraShare = totalRawCost > 0 
+          ? Math.round((row.lineRawCost / totalRawCost) * additionalCost)
+          : Math.round(additionalCost / intermediateRows.length);
+
+        const allocatedCost = row.lineRawCost + extraShare;
+        const unitHpp = Math.round(allocatedCost / row.outputQty);
+        const costPercent = totalProductionCost > 0 
+          ? Math.round((allocatedCost / totalProductionCost) * 100)
+          : Math.round(100 / intermediateRows.length);
+
+        // Update stok produk jadi & Moving Weighted Average HPP
+        const oldStock = Number(row.fg.currentStock) || 0;
+        const oldHpp = Number(row.fg.avgHpp) || 0;
+        const newStock = oldStock + row.outputQty;
+
+        let newAvgHpp = unitHpp;
+        if (newStock > 0) {
+          newAvgHpp = Math.round(((oldStock * oldHpp) + allocatedCost) / newStock);
+        }
+
+        row.fg.currentStock = newStock;
+        row.fg.avgHpp = newAvgHpp;
+
+        resolvedOutputs.push({
+          finishedGoodId: row.fg.id,
+          productName: row.fg.name,
+          qty: row.outputQty,
+          unit: row.fg.unit,
+          costPercent,
+          allocatedCost,
+          unitHpp
+        });
+      }
+    } else {
+      // 2. MODE FALLBACK (KLASIK INGREDIENTS & OUTPUTS)
+      if (!ingredients || ingredients.length === 0) {
+        throw new Error('Bahan baku yang dimasak belum dipilih.');
+      }
+      if (!outputs || outputs.length === 0) {
+        throw new Error('Hasil produk jadi belum ditentukan.');
+      }
+
+      // Hitung biaya bahan baku dan kurangi stok bahan baku
+      let rawMaterialTotalCost = 0;
+      for (const ing of ingredients) {
+        const raw = this.getRawMaterialById(ing.rawMaterialId);
+        if (!raw) throw new Error(`Bahan baku ID "${ing.rawMaterialId}" tidak ditemukan.`);
+        
+        const qtyUsed = Number(ing.qty);
+        if (qtyUsed <= 0) throw new Error(`Jumlah bahan "${raw.name}" harus lebih dari 0.`);
+        
+        const costPerUnit = Number(raw.avgPrice) || 0;
+        const totalCost = Math.round(qtyUsed * costPerUnit);
+        rawMaterialTotalCost += totalCost;
+
+        raw.currentStock = Math.max(0, parseFloat((raw.currentStock - qtyUsed).toFixed(3)));
+
+        resolvedIngredients.push({
+          rawMaterialId: raw.id,
+          rawMaterialName: raw.name,
+          qty: qtyUsed,
+          unit: raw.unit,
+          unitCost: costPerUnit,
+          totalCost
+        });
+      }
+
+      totalProductionCost = rawMaterialTotalCost + additionalCost;
+
+      // Otomatis hitung costPercent jika tidak ada atau tidak 100%
+      const givenTotalPercent = outputs.reduce((sum, o) => sum + (Number(o.costPercent) || 0), 0);
+      const needAutoPercent = Math.round(givenTotalPercent) !== 100;
+
+      for (let i = 0; i < outputs.length; i++) {
+        const out = outputs[i];
+        const fg = this.getFinishedGoodById(out.finishedGoodId);
+        if (!fg) throw new Error(`Produk jadi ID "${out.finishedGoodId}" tidak ditemukan.`);
+        
+        const outputQty = Number(out.qty);
+        if (outputQty <= 0) throw new Error(`Hasil produksi produk "${fg.name}" harus lebih dari 0.`);
+
+        const costPercent = needAutoPercent 
+          ? (i === outputs.length - 1 ? (100 - Math.round(100 / outputs.length) * (outputs.length - 1)) : Math.round(100 / outputs.length))
+          : Number(out.costPercent);
+
+        const allocatedCost = Math.round(totalProductionCost * (costPercent / 100));
+        const unitHpp = Math.round(allocatedCost / outputQty);
+
+        const oldStock = Number(fg.currentStock) || 0;
+        const oldHpp = Number(fg.avgHpp) || 0;
+        const newStock = oldStock + outputQty;
+
+        let newAvgHpp = unitHpp;
+        if (newStock > 0) {
+          newAvgHpp = Math.round(((oldStock * oldHpp) + allocatedCost) / newStock);
+        }
+
+        fg.currentStock = newStock;
+        fg.avgHpp = newAvgHpp;
+
+        resolvedOutputs.push({
+          finishedGoodId: fg.id,
+          productName: fg.name,
+          qty: outputQty,
+          unit: fg.unit,
+          costPercent,
+          allocatedCost,
+          unitHpp
+        });
+      }
     }
 
     // 5. Simpan riwayat produksi
@@ -378,8 +465,76 @@ class PalawijaStore {
   }
 
   // ==========================================
-  // 4. PENJUALAN LAPAK (POS Kasir Cepat)
+  // 4. PENJUALAN LAPAK (REKAP HARIAN & SISA STOK)
   // ==========================================
+
+  /**
+   * Catat Rekap Penjualan Harian Lapak
+   * Pengguna cukup memasukkan total pendapatan uang hari ini dan stok sisa fisik di lapak.
+   * Terjual = Stok Sebelum Tutup - Sisa Fisik.
+   * Total HPP = sum(Terjual * HPP).
+   * Laba Kotor = Total Pendapatan - Total HPP.
+   */
+  recordDailyClosingLapak({ date, totalRevenue, paymentMethod, items, notes }) {
+    totalRevenue = Number(totalRevenue) || 0;
+    if (totalRevenue < 0) throw new Error('Total pendapatan tidak boleh kurang dari 0.');
+
+    let totalHpp = 0;
+    const processedItems = [];
+
+    for (const item of items) {
+      const fg = this.getFinishedGoodById(item.finishedGoodId);
+      if (!fg) continue;
+
+      const stockBefore = Number(fg.currentStock) || 0;
+      const remainingStock = Math.max(0, Number(item.remainingStock) || 0);
+      const soldQty = Math.max(0, stockBefore - remainingStock);
+      const hppPerUnit = Number(fg.avgHpp) || 0;
+      const itemTotalHpp = soldQty * hppPerUnit;
+
+      // Update stok produk jadi menjadi sisa fisik di lapak
+      fg.currentStock = remainingStock;
+      totalHpp += itemTotalHpp;
+
+      processedItems.push({
+        finishedGoodId: fg.id,
+        productName: fg.name,
+        unit: fg.unit,
+        unitPrice: fg.sellingPrice,
+        stockBefore,
+        remainingStock,
+        soldQty,
+        qty: soldQty,
+        hppPerUnit,
+        totalHpp: itemTotalHpp
+      });
+    }
+
+    const grossProfit = totalRevenue - totalHpp;
+    const count = (this.data.salesLapak || []).length + 1;
+    const dStr = (date || new Date().toISOString().split('T')[0]).replace(/-/g, '');
+    const invoiceNo = `REKAP-${dStr}-${String(count).padStart(3, '0')}`;
+
+    const saleRecord = {
+      id: this.generateId('slp'),
+      invoiceNo,
+      date: date || new Date().toISOString().split('T')[0],
+      time: new Date().toTimeString().split(' ')[0].substring(0, 5),
+      items: processedItems,
+      totalRevenue,
+      totalHpp,
+      grossProfit,
+      paymentMethod: paymentMethod || 'Tunai',
+      cashReceived: totalRevenue,
+      changeAmount: 0,
+      notes: notes || 'Rekap Penjualan Harian Lapak'
+    };
+
+    if (!this.data.salesLapak) this.data.salesLapak = [];
+    this.data.salesLapak.unshift(saleRecord);
+    this.saveData();
+    return saleRecord;
+  }
 
   recordSaleLapak({ date, time, items, paymentMethod, cashReceived, notes }) {
     if (!items || items.length === 0) {
@@ -452,21 +607,33 @@ class PalawijaStore {
   }
 
   deleteSaleLapak(id) {
+    const sale = (this.data.salesLapak || []).find(s => s.id === id);
+    if (sale && sale.items) {
+      sale.items.forEach(it => {
+        const fg = this.getFinishedGoodById(it.finishedGoodId);
+        if (fg) {
+          if (it.stockBefore !== undefined) {
+            fg.currentStock = it.stockBefore;
+          } else if (it.qty) {
+            fg.currentStock += it.qty;
+          }
+        }
+      });
+    }
     this.data.salesLapak = this.data.salesLapak.filter(s => s.id !== id);
     this.saveData();
   }
 
   // ==========================================
-  // 5. PENJUALAN GOFOOD (Metode Ringkas)
+  // 5. PENJUALAN GOFOOD (Metode Ringkas & Simpel)
   // ==========================================
 
-  recordSaleGoFood({ date, grossSales, appFee, paymentMethod, orderCount, notes }) {
-    grossSales = Number(grossSales) || 0;
-    appFee = Number(appFee) || 0;
-    const netReceived = grossSales - appFee;
+  recordSaleGoFood({ date, netReceived, totalSales, grossSales, appFee, paymentMethod, orderCount, notes }) {
+    // Pengguna langsung memasukkan uang bersih yang murni diterima di GoPay/GoBiz
+    const net = Number(netReceived !== undefined ? netReceived : (totalSales !== undefined ? totalSales : (Number(grossSales || 0) - Number(appFee || 0)))) || 0;
 
-    if (grossSales <= 0) {
-      throw new Error('Total penjualan kotor GoFood harus lebih dari 0.');
+    if (net <= 0) {
+      throw new Error('Total uang penjualan GoFood harus lebih dari 0.');
     }
 
     const count = (this.data.salesGoFood || []).length + 1;
@@ -476,10 +643,10 @@ class PalawijaStore {
       id: this.generateId('gof'),
       orderNo,
       date: date || new Date().toISOString().split('T')[0],
-      grossSales,
-      appFee,
-      netReceived,
-      paymentMethod: paymentMethod || 'Transfer GoPay',
+      grossSales: net,
+      appFee: 0,
+      netReceived: net,
+      paymentMethod: paymentMethod || 'Saldo GoPay Partner',
       orderCount: Number(orderCount) || 1,
       notes: notes || ''
     };

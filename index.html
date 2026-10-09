@@ -31,8 +31,8 @@
         </li>
         <li>
           <a class="nav-item" data-view="pos" id="navPos">
-            <span class="icon">🛒</span>
-            <span>Kasir Lapak (POS)</span>
+            <span class="icon">📝</span>
+            <span>Rekap Penjualan Lapak</span>
           </a>
         </li>
         <li>
@@ -125,13 +125,13 @@
         </div>
       </header>
 
-      <!-- RECURRING ALERTS (GAJI TGL 19 & SEWA TGL 16) -->
-      <div id="recurringAlertContainer" class="recurring-alert-container"></div>
-
       <!-- ========================================================
            VIEW 1: DASHBOARD
            ======================================================== -->
       <section id="viewDashboard" class="view-section active">
+        <!-- RECURRING ALERTS (GAJI TGL 19 & SEWA TGL 16) -->
+        <div id="recurringAlertContainer" class="recurring-alert-container"></div>
+
         <!-- QUICK ACTION BAR -->
         <div class="quick-action-bar">
           <div class="quick-action-left">
@@ -139,7 +139,7 @@
             <p>Pilih pencatatan cepat tanpa berpindah-pindah menu</p>
           </div>
           <div class="quick-buttons-row">
-            <button class="btn-quick" onclick="app.openModal('modalSaleLapakQuick')">🛒 Jual Lapak</button>
+            <button class="btn-quick" onclick="app.switchView('pos')">📝 Rekap Lapak</button>
             <button class="btn-quick" onclick="app.openModal('modalGoFood')">🛵 GoFood</button>
             <button class="btn-quick" onclick="app.openModal('modalProduction')">♨️ Masak/Kukus</button>
             <button class="btn-quick" onclick="app.openModal('modalPurchase')">🧺 Beli Bahan</button>
@@ -272,103 +272,151 @@
       </section>
 
       <!-- ========================================================
-           VIEW 2: KASIR LAPAK (POS CEPAT)
+           VIEW 2: REKAP PENJUALAN LAPAK (TUTUP HARIAN)
            ======================================================== -->
       <section id="viewPos" class="view-section">
-        <div class="pos-container">
-          <!-- Left: Product Grid Selector -->
-          <div class="pos-product-section">
-            <div class="card" style="margin-bottom:0;">
-              <div class="product-picker-header">
-                <div>
-                  <h3 class="card-title">🛒 Pilih Menu Siap Jual</h3>
-                  <div class="card-subtitle">Klik item untuk menambahkan langsung ke keranjang kasir</div>
-                </div>
-                <input type="text" id="posSearchInput" class="search-input" placeholder="🔍 Cari menu palawija..." oninput="app.filterPosProducts(this.value)">
-              </div>
-              <div class="product-grid" id="posProductGrid">
-                <!-- Populated by JS -->
+        
+        <!-- Bar Kontrol Rekap Harian Lapak -->
+        <div class="card" style="margin-bottom: 20px;">
+          <div class="card-header" style="margin-bottom:14px; padding-bottom:10px;">
+            <div>
+              <h3 class="card-title">📝 Rekap Penjualan & Tutup Harian Lapak</h3>
+              <div class="card-subtitle">
+                Cukup catat total uang hasil penjualan hari ini dan sisa stok fisik di lapak. Sistem otomatis menghitung jumlah produk terjual, HPP, serta laba kotor hari ini.
               </div>
             </div>
-
-            <!-- Riwayat Penjualan Lapak Hari Ini -->
-            <div class="card" style="margin-top:20px;">
-              <div class="card-header">
-                <h3 class="card-title">📋 Riwayat Nota Lapak Hari Ini</h3>
-              </div>
-              <div class="table-responsive">
-                <table class="data-table">
-                  <thead>
-                    <tr>
-                      <th>No Nota</th>
-                      <th>Jam</th>
-                      <th>Detail Item</th>
-                      <th class="text-right">Total Jual</th>
-                      <th class="text-right">HPP</th>
-                      <th class="text-right">Laba Kotor</th>
-                      <th class="text-center">Aksi</th>
-                    </tr>
-                  </thead>
-                  <tbody id="posSalesHistoryTable">
-                    <!-- Populated by JS -->
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </div>
-
-          <!-- Right: Cart & Checkout Panel -->
-          <div class="pos-cart-panel">
-            <div class="cart-title">
-              <span>🛒 Keranjang Pembeli</span>
-              <button class="btn btn-secondary btn-sm" onclick="app.posClearCart()">Kosongkan</button>
-            </div>
-
-            <div class="cart-items-list" id="posCartItemsList">
-              <!-- Cart items -->
-            </div>
-
-            <div class="cart-summary-box">
-              <div class="cart-summary-row">
-                <span>Total Item</span>
-                <span id="posCartItemCount">0 porsi/biji</span>
-              </div>
-              <div class="cart-summary-row">
-                <span>Estimasi HPP Total</span>
-                <span id="posCartHppTotal" class="num">Rp 0</span>
-              </div>
-              <div class="cart-summary-row total">
-                <span>Total Tagihan</span>
-                <span id="posCartTotalAmount" class="num">Rp 0</span>
-              </div>
-            </div>
-
-            <div class="pos-payment-inputs">
-              <div class="form-group" style="margin-bottom:8px;">
-                <label class="form-label">Metode Pembayaran</label>
-                <select id="posPaymentMethod" class="form-select">
-                  <option value="Tunai">💵 Tunai (Cash)</option>
-                  <option value="QRIS">📱 QRIS</option>
-                  <option value="Transfer">🏦 Transfer Bank</option>
-                </select>
-              </div>
-
-              <div class="form-group" style="margin-bottom:8px;">
-                <label class="form-label">Uang Diterima (Rp)</label>
-                <input type="number" id="posCashReceived" class="form-control" placeholder="0" oninput="app.calculatePosChange()">
-              </div>
-
-              <div class="cart-summary-row" style="font-weight:700; color:var(--primary-700); margin-bottom:12px;">
-                <span>Kembalian:</span>
-                <span id="posChangeDisplay" class="num">Rp 0</span>
-              </div>
-
-              <button class="btn btn-primary btn-lg" style="width:100%;" onclick="app.posSubmitSale()">
-                ✅ Simpan Transaksi Lapak
+            <div style="display:flex; gap:10px; align-items:center;">
+              <button class="btn btn-secondary btn-sm" type="button" onclick="app.setAllRekapZero()">
+                ⚡ Tandai Semua Sisa = 0 (Habis)
               </button>
             </div>
           </div>
+
+          <form id="formDailyClosing" onsubmit="app.handleDailyClosingSubmit(event)">
+            <!-- Form Grid: Tanggal, Total Pendapatan, Metode Bayar -->
+            <div class="form-row-3" style="margin-bottom: 16px;">
+              <div class="form-group" style="margin-bottom:0;">
+                <label class="form-label">📅 Tanggal Rekap / Tutup</label>
+                <input type="date" id="rekapDate" class="form-control" required>
+              </div>
+
+              <div class="form-group" style="margin-bottom:0;">
+                <label class="form-label">💵 Total Pendapatan Lapak (Rp) *</label>
+                <input type="number" id="rekapTotalRevenue" class="form-control" placeholder="Contoh: 250000" min="0" required oninput="app.recalcDailyClosingTotals()" style="font-weight:700; font-size:1.05rem; color:var(--primary-800);">
+                <div class="form-hint">Total uang tunai + QRIS yang masuk hari ini</div>
+              </div>
+
+              <div class="form-group" style="margin-bottom:0;">
+                <label class="form-label">💳 Metode Penerimaan Kas</label>
+                <select id="rekapPaymentMethod" class="form-select">
+                  <option value="Tunai">💵 Tunai (Cash)</option>
+                  <option value="QRIS">📱 QRIS / E-Wallet</option>
+                  <option value="Campuran (Tunai + QRIS)">🔄 Campuran (Tunai + QRIS)</option>
+                  <option value="Transfer">🏦 Transfer Bank</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Live KPI Summary Bar -->
+            <div class="stats-grid" style="margin-bottom: 20px; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));">
+              <div class="stat-card highlight-cash" style="padding:14px;">
+                <div class="stat-card-title">Total Omset Lapak</div>
+                <div class="stat-card-value num" id="rekapLiveOmset" style="font-size:1.35rem; color:var(--primary-800);">Rp 0</div>
+                <div class="stat-card-subtitle">Pendapatan kotor hari ini</div>
+              </div>
+              <div class="stat-card gold" style="padding:14px;">
+                <div class="stat-card-title">Total Terjual</div>
+                <div class="stat-card-value num" id="rekapLiveQtySold" style="font-size:1.35rem; color:var(--accent-gold);">0 porsi</div>
+                <div class="stat-card-subtitle">Selisih stok - sisa lapak</div>
+              </div>
+              <div class="stat-card accent" style="padding:14px;">
+                <div class="stat-card-title">Total HPP Terjual</div>
+                <div class="stat-card-value num" id="rekapLiveHpp" style="font-size:1.35rem; color:var(--accent-terracotta);">Rp 0</div>
+                <div class="stat-card-subtitle">Beban modal produk terjual</div>
+              </div>
+              <div class="stat-card highlight-profit" style="padding:14px;">
+                <div class="stat-card-title">Laba Kotor Lapak</div>
+                <div class="stat-card-value num" id="rekapLiveGrossProfit" style="font-size:1.35rem; color:var(--primary-700);">Rp 0</div>
+                <div class="stat-card-subtitle" id="rekapLiveMarginPct">Margin: 0%</div>
+              </div>
+            </div>
+
+            <!-- Tabel Pengecekan Sisa Stok & Terjual -->
+            <div class="card-header" style="margin-bottom:10px; padding-bottom:8px; border-bottom:1px solid var(--border-light);">
+              <div>
+                <h4 style="font-size:0.95rem; font-weight:700; color:var(--text-primary);">
+                  📦 Cek Sisa Produk di Lapak
+                </h4>
+                <span style="font-size:0.8rem; color:var(--text-muted);" id="rekapTableSubHint">
+                  Hanya menampilkan menu yang memiliki stok siap jual. Cukup isi sisa produk di lapak.
+                </span>
+              </div>
+              <div style="display:flex; gap:8px;">
+                <button type="button" class="btn btn-secondary btn-sm" id="btnToggleShowAllRekap" onclick="app.toggleShowAllRekapProducts()">
+                  👁️ Tampilkan Semua Menu
+                </button>
+              </div>
+            </div>
+
+            <div class="table-responsive" style="margin-bottom: 20px;">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Menu Produk</th>
+                    <th class="text-center" style="width:140px;">Stok Siap Jual</th>
+                    <th class="text-center" style="width:180px; background:rgba(64,145,108,0.08);">Sisa di Lapak (Fisik)</th>
+                    <th class="text-center" style="width:140px;">Terjual (Selisih)</th>
+                    <th class="text-center" style="width:120px;">Aksi Cepat</th>
+                  </tr>
+                </thead>
+                <tbody id="dailyClosingTableBody">
+                  <!-- Populated by JS -->
+                </tbody>
+              </table>
+            </div>
+
+            <div class="form-group" style="margin-bottom: 16px;">
+              <label class="form-label">Catatan Rekap Harian (Opsional)</label>
+              <input type="text" id="rekapNotes" class="form-control" placeholder="Contoh: Lapak ramai saat sore, cuaca cerah">
+            </div>
+
+            <div style="display:flex; justify-content:flex-end; gap:12px;">
+              <button type="submit" class="btn btn-primary btn-lg" style="padding:12px 28px;">
+                ✅ Simpan Rekap Penjualan & Update Sisa Stok
+              </button>
+            </div>
+          </form>
         </div>
+
+        <!-- Riwayat Rekap Penjualan Harian Lapak -->
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <h3 class="card-title">📋 Riwayat Rekap Penjualan Harian Lapak</h3>
+              <div class="card-subtitle">Daftar penutupan rekap harian beserta omset, total HPP, dan laba kotor yang diperoleh</div>
+            </div>
+          </div>
+          <div class="table-responsive">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>No Rekap</th>
+                  <th>Tanggal & Jam</th>
+                  <th>Rincian Produk Terjual</th>
+                  <th class="text-right">Total Omset</th>
+                  <th class="text-right">Total HPP</th>
+                  <th class="text-right">Laba Kotor</th>
+                  <th>Metode Bayar</th>
+                  <th class="text-center">Aksi</th>
+                </tr>
+              </thead>
+              <tbody id="dailyClosingHistoryTableBody">
+                <!-- Populated by JS -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
       </section>
 
       <!-- ========================================================
@@ -379,25 +427,23 @@
           <div class="card-header">
             <div>
               <h3 class="card-title">🛵 Pencatatan Penjualan GoFood</h3>
-              <div class="card-subtitle">Metode ringkas: catat omset kotor, potongan fee, dan uang bersih diterima tanpa repot input per item</div>
+              <div class="card-subtitle">Cukup catat total uang bersih yang murni Anda terima di aplikasi GoPay / GoBiz</div>
             </div>
             <button class="btn btn-gofood" onclick="app.openModal('modalGoFood')">
               + Catat Rekap GoFood
             </button>
           </div>
 
-          <div class="stats-grid" style="grid-template-columns: repeat(3, 1fr); margin-bottom:20px;">
-            <div class="stat-card">
-              <span class="stat-card-title">Total Omset Kotor GoFood</span>
-              <div class="stat-card-value num" id="gfTotalGross">Rp 0</div>
-            </div>
-            <div class="stat-card accent">
-              <span class="stat-card-title">Total Potongan Fee Aplikasi</span>
-              <div class="stat-card-value num" id="gfTotalFee" style="color:var(--danger-600)">Rp 0</div>
-            </div>
+          <div class="stats-grid" style="grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); margin-bottom:20px;">
             <div class="stat-card highlight-profit">
-              <span class="stat-card-title">Uang Bersih Diterima</span>
+              <span class="stat-card-title">Total Uang Bersih Diterima</span>
               <div class="stat-card-value num" id="gfTotalNet" style="color:var(--gofood-green)">Rp 0</div>
+              <div class="stat-card-subtitle">Uang riil yang masuk dari GoFood</div>
+            </div>
+            <div class="stat-card gold">
+              <span class="stat-card-title">Total Transaksi / Pesanan</span>
+              <div class="stat-card-value num" id="gfTotalOrders">0 order</div>
+              <div class="stat-card-subtitle">Akumulasi pesanan GoFood</div>
             </div>
           </div>
 
@@ -407,10 +453,8 @@
                 <tr>
                   <th>No Pesanan</th>
                   <th>Tanggal</th>
-                  <th>Jumlah Order</th>
-                  <th class="text-right">Penjualan Kotor</th>
-                  <th class="text-right">Fee Aplikasi</th>
-                  <th class="text-right">Diterima Bersih</th>
+                  <th class="text-center">Jumlah Order</th>
+                  <th class="text-right">Total Uang Diterima Bersih</th>
                   <th>Metode Masuk</th>
                   <th>Catatan</th>
                   <th class="text-center">Aksi</th>
@@ -1071,9 +1115,9 @@
     </div>
   </div>
 
-  <!-- MODAL: PROSES PRODUKSI (DAPUR KUKUS & ALOKASI BIAYA) -->
+  <!-- MODAL: PROSES PRODUKSI (DAPUR KUKUS) -->
   <div class="modal-backdrop" id="modalProduction">
-    <div class="modal-dialog" style="max-width:760px;">
+    <div class="modal-dialog" style="max-width:840px;">
       <div class="modal-header">
         <h3 class="modal-title">♨️ Catat Proses Produksi (Dapur Kukus)</h3>
         <button class="btn-close" onclick="app.closeModal('modalProduction')">&times;</button>
@@ -1091,32 +1135,34 @@
             </div>
           </div>
 
-          <!-- Section 1: Bahan Baku yang Digunakan -->
-          <div class="repeater-box">
-            <div class="repeater-header">
-              <span>🧺 1. BAHAN BAKU YANG DIGUNAKAN (INPUT)</span>
-              <button type="button" class="btn btn-secondary btn-sm" onclick="app.addProductionIngredientRow()">+ Tambah Bahan</button>
+          <!-- Tabel Masak Terpadu & Simpel -->
+          <div class="repeater-box" style="background:#fff; border:1px solid var(--border-light); padding:16px;">
+            <div class="repeater-header" style="border-bottom:1px solid var(--border-light); padding-bottom:10px; margin-bottom:12px;">
+              <div>
+                <span style="font-size:0.95rem; font-weight:700; color:var(--primary-900);">🍲 DAFTAR MENU YANG DIKUKUS</span>
+                <div style="font-size:0.75rem; color:var(--text-secondary); font-weight:normal; margin-top:2px;">
+                  Pilih bahan mentah & isi jumlahnya. Hasil matang otomatis terisi sama & tetap bisa diubah jika ada yang susut.
+                </div>
+              </div>
+              <button type="button" class="btn btn-primary btn-sm" onclick="app.addProductionRow()">+ Tambah Menu</button>
             </div>
-            <div id="prdIngredientsContainer">
-              <!-- Dynamic ingredient rows -->
-            </div>
-          </div>
 
-          <!-- Section 2: Hasil Produksi Aktual & Alokasi Persentase Biaya -->
-          <div class="repeater-box">
-            <div class="repeater-header">
-              <span>🍠 2. HASIL PRODUK JADI AKTUAL (OUTPUT)</span>
-              <button type="button" class="btn btn-secondary btn-sm" onclick="app.addProductionOutputRow()">+ Tambah Produk Hasil</button>
-            </div>
-            <p style="font-size:0.75rem; color:var(--text-secondary); margin-bottom:8px;">
-              Jika menghasilkan lebih dari 1 produk (misal Edamame & Kacang), bagi persentase alokasi biayanya (Total wajib 100%).
-            </p>
-            <div id="prdOutputsContainer">
-              <!-- Dynamic output rows -->
-            </div>
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-top:8px; font-size:0.85rem; font-weight:700;">
-              <span>Total Alokasi Biaya:</span>
-              <span id="prdTotalAllocationDisplay" class="badge badge-success">100%</span>
+            <div class="table-responsive">
+              <table class="data-table" style="font-size:0.86rem;">
+                <thead>
+                  <tr>
+                    <th style="min-width:180px;">Bahan Mentah Dipakai</th>
+                    <th style="width:110px;" class="text-center">Jumlah Mentah</th>
+                    <th style="min-width:180px;">Menjadi Menu Matang</th>
+                    <th style="width:110px;" class="text-center">Hasil Matang</th>
+                    <th style="min-width:110px;" class="text-right">Est. HPP/Unit</th>
+                    <th style="width:36px;" class="text-center"></th>
+                  </tr>
+                </thead>
+                <tbody id="prdUnifiedRowsContainer">
+                  <!-- Dynamic unified rows -->
+                </tbody>
+              </table>
             </div>
           </div>
 
@@ -1125,28 +1171,30 @@
             <div class="alert-card-left">
               <span class="alert-icon">📊</span>
               <div class="alert-card-text">
-                <div style="font-weight:700; font-size:0.88rem;">Total Biaya Produksi Batch: <span id="prdTotalCostDisplay" class="num">Rp 0</span></div>
-                <div style="font-size:0.76rem; color:var(--text-secondary);" id="prdResultHppBreakdown">
-                  HPP per unit produk akan dihitung otomatis dan memperbarui rata-rata stok produk jadi.
+                <div style="font-weight:700; font-size:0.92rem;">
+                  Total Biaya Produksi Batch: <span id="prdTotalCostDisplay" class="num" style="color:var(--primary-800)">Rp 0</span>
+                </div>
+                <div style="font-size:0.78rem; color:var(--text-secondary);" id="prdResultHppBreakdown">
+                  HPP dihitung otomatis tanpa perlu repot mengisi persentase biaya.
                 </div>
               </div>
             </div>
           </div>
 
           <div class="form-group" style="margin-top:12px;">
-            <label class="form-label">Catatan Batch</label>
-            <input type="text" id="prdNotes" class="form-control" placeholder="Contoh: Produksi sesi pagi 20 porsi">
+            <label class="form-label">Catatan Batch (Opsional)</label>
+            <input type="text" id="prdNotes" class="form-control" placeholder="Contoh: Produksi sesi pagi siap jual">
           </div>
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" onclick="app.closeModal('modalProduction')">Batal</button>
-          <button type="submit" class="btn btn-primary">Simpan Produksi</button>
+          <button type="submit" class="btn btn-primary btn-lg">✅ Simpan Produksi & Update Stok</button>
         </div>
       </form>
     </div>
   </div>
 
-  <!-- MODAL: PENJUALAN GOFOOD (RINGKAS) -->
+  <!-- MODAL: PENJUALAN GOFOOD (RINGKAS & SIMPEL) -->
   <div class="modal-backdrop" id="modalGoFood">
     <div class="modal-dialog">
       <div class="modal-header">
@@ -1162,51 +1210,32 @@
             </div>
             <div class="form-group">
               <label class="form-label">Jumlah Transaksi / Pesanan</label>
-              <input type="number" id="gfOrderCount" class="form-control" value="1" min="1">
-            </div>
-          </div>
-
-          <div class="form-row">
-            <div class="form-group">
-              <label class="form-label">Penjualan Kotor (Gross) (Rp)</label>
-              <input type="number" id="gfGrossSales" class="form-control" required placeholder="Contoh: 100000" oninput="app.calculateGoFoodNet()">
-            </div>
-            <div class="form-group">
-              <label class="form-label">Potongan Fee GoFood (Rp)</label>
-              <input type="number" id="gfAppFee" class="form-control" required placeholder="Contoh: 20000" oninput="app.calculateGoFoodNet()">
-            </div>
-          </div>
-
-          <div class="alert-card info" style="margin-bottom:14px;">
-            <div class="alert-card-left">
-              <span class="alert-icon">💵</span>
-              <div class="alert-card-text">
-                <div style="font-weight:800; font-size:1rem; color:var(--gofood-green)">
-                  Diterima Bersih (Masuk Kas): <span id="gfNetDisplay" class="num">Rp 0</span>
-                </div>
-                <div style="font-size:0.75rem; color:var(--text-secondary);">
-                  Angka bersih ini yang dicatat sebagai uang masuk nyata.
-                </div>
-              </div>
+              <input type="number" id="gfOrderCount" class="form-control" value="1" min="1" placeholder="1">
             </div>
           </div>
 
           <div class="form-group">
-            <label class="form-label">Metode Pencairan</label>
+            <label class="form-label">💵 Total Uang Diterima Bersih (Rp) *</label>
+            <input type="number" id="gfNetSales" class="form-control" required min="1" placeholder="Contoh: 85000" style="font-size:1.1rem; font-weight:700; color:var(--gofood-green);">
+            <div class="form-hint">Masukkan langsung total uang bersih yang tertampil di aplikasi GoPay / GoBiz Anda. Tidak perlu menghitung potongan aplikasi.</div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Metode Pencairan / Masuk Kas</label>
             <select id="gfPaymentMethod" class="form-select">
-              <option value="Transfer GoPay Saldo">📱 Saldo GoPay Partner</option>
+              <option value="Saldo GoPay Partner">📱 Saldo GoPay Partner / GoBiz</option>
               <option value="Transfer Rekening Bank">🏦 Transfer Bank Rekening</option>
             </select>
           </div>
 
           <div class="form-group">
-            <label class="form-label">Catatan Pesanan</label>
+            <label class="form-label">Catatan Pesanan (Opsional)</label>
             <input type="text" id="gfNotes" class="form-control" placeholder="Contoh: Penjualan GoFood sesi siang">
           </div>
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" onclick="app.closeModal('modalGoFood')">Batal</button>
-          <button type="submit" class="btn btn-gofood">Simpan GoFood</button>
+          <button type="submit" class="btn btn-gofood">✅ Simpan GoFood</button>
         </div>
       </form>
     </div>
@@ -1568,19 +1597,19 @@
     </div>
   </div>
 
-  <!-- MODAL: STRUK PENJUALAN LAPAK (PRINT VIEW) -->
+  <!-- MODAL: STRUK / DETAIL REKAP PENJUALAN LAPAK -->
   <div class="modal-backdrop" id="modalReceipt">
-    <div class="modal-dialog" style="max-width:380px;">
+    <div class="modal-dialog" style="max-width:560px;">
       <div class="modal-header">
-        <h3 class="modal-title">🧾 Struk Pembelian</h3>
+        <h3 class="modal-title">📑 Rincian Rekap Penjualan Lapak</h3>
         <button class="btn-close" onclick="app.closeModal('modalReceipt')">&times;</button>
       </div>
-      <div class="modal-body" id="receiptPrintArea" style="font-family:monospace; font-size:0.85rem;">
+      <div class="modal-body" id="receiptPrintArea">
         <!-- Populated by JS -->
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" onclick="app.closeModal('modalReceipt')">Tutup</button>
-        <button type="button" class="btn btn-primary" onclick="window.print()">🖨️ Cetak Struk</button>
+        <button type="button" class="btn btn-primary" onclick="window.print()">🖨️ Cetak Rekap</button>
       </div>
     </div>
   </div>
