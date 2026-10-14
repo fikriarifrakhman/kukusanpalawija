@@ -1,0 +1,3781 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Kukusan Palawija - Catatan Owner</title>
+    <link rel="icon" type="image/jpeg" href="/static/logo.jpg">
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet">
+
+    <style>
+        :root {
+            --primary: #15803d;
+            --primary-dark: #14532d;
+            --primary-light: #f0fdf4;
+            --primary-border: #bbf7d0;
+            --primary-text: #166534;
+            --bg: #f8fafc;
+            --surface: #ffffff;
+            --border: #e2e8f0;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --danger: #dc2626;
+            --danger-light: #fef2f2;
+            --warning: #d97706;
+            --warning-light: #fffbeb;
+            --radius-md: 10px;
+            --radius-lg: 14px;
+            --radius-xl: 18px;
+            --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 12px -2px rgba(0, 0, 0, 0.06), 0 2px 6px -1px rgba(0, 0, 0, 0.03);
+            --shadow-lg: 0 10px 25px -3px rgba(0, 0, 0, 0.08), 0 4px 10px -2px rgba(0, 0, 0, 0.04);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: var(--bg);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            line-height: 1.5;
+            padding-bottom: 75px;
+        }
+
+        /* NAVIGATION BAR */
+        .top-navbar {
+            background: #ffffff;
+            border-bottom: 1px solid var(--border);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .nav-inner {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 10px 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            overflow-x: auto;
+        }
+
+        .brand-badge {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 800;
+            font-size: 17px;
+            color: var(--primary-dark);
+            white-space: nowrap;
+            text-decoration: none;
+            padding-right: 14px;
+            border-right: 1px solid var(--border);
+            flex-shrink: 0;
+        }
+
+        .brand-logo {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            background-color: #ffffff;
+            padding: 4px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            object-fit: contain;
+            display: block;
+            border: 1px solid rgba(0, 0, 0, 0.06);
+            flex-shrink: 0;
+        }
+
+        .brand-name {
+            display: inline-block;
+            vertical-align: middle;
+            font-weight: 800;
+            letter-spacing: -0.2px;
+            line-height: 1.2;
+        }
+
+        .nav-items {
+            display: flex;
+            gap: 6px;
+            overflow-x: auto;
+            scrollbar-width: none;
+        }
+
+        .nav-items::-webkit-scrollbar {
+            display: none;
+        }
+
+        .nav-btn {
+            background: transparent;
+            border: none;
+            padding: 8px 14px;
+            border-radius: var(--radius-md);
+            font-size: 13.5px;
+            font-weight: 600;
+            color: var(--text-muted);
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .nav-btn:hover {
+            background: #f1f5f9;
+            color: var(--text-main);
+        }
+
+        .nav-btn.active {
+            background: var(--primary-light);
+            color: var(--primary-text);
+            border: 1px solid var(--primary-border);
+        }
+
+        .btn-warning-outline {
+            background: transparent;
+            color: var(--warning);
+            border-color: #fde68a;
+        }
+
+        .btn-warning-outline:hover {
+            background: var(--warning-light);
+        }
+
+        /* COMING SOON PAGE */
+        .coming-soon-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 40vh;
+            text-align: center;
+            gap: 16px;
+            padding: 40px 20px;
+        }
+
+        .coming-soon-icon {
+            font-size: 60px;
+            line-height: 1;
+        }
+
+        .coming-soon-title {
+            font-size: 22px;
+            font-weight: 800;
+            color: #0f172a;
+        }
+
+        .coming-soon-desc {
+            font-size: 14px;
+            color: var(--text-muted);
+            max-width: 380px;
+            line-height: 1.6;
+        }
+
+        /* MAIN CONTAINER */
+        .main-container {
+            max-width: 1200px;
+            width: 100%;
+            margin: 0 auto;
+            padding: 20px 16px 40px;
+            flex: 1;
+        }
+
+        /* CARDS */
+        .card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-xl);
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .page-header {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            gap: 14px;
+            margin-bottom: 20px;
+        }
+
+        .page-header h1 {
+            font-size: 22px;
+            font-weight: 800;
+            color: #0f172a;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .page-header p {
+            color: var(--text-muted);
+            font-size: 13.5px;
+            margin-top: 2px;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        /* CALLOUT BANNER */
+        .notice-callout {
+            background: var(--primary-light);
+            border: 1px solid var(--primary-border);
+            border-left: 4px solid var(--primary);
+            border-radius: var(--radius-md);
+            padding: 13px 16px;
+            margin-bottom: 18px;
+            display: flex;
+            gap: 12px;
+            align-items: flex-start;
+        }
+
+        .notice-callout .notice-icon {
+            font-size: 18px;
+            flex-shrink: 0;
+            line-height: 1.2;
+        }
+
+        .notice-callout .notice-text {
+            font-size: 13px;
+            color: #14532d;
+            line-height: 1.45;
+        }
+
+        .notice-callout .notice-title {
+            font-weight: 700;
+            margin-bottom: 2px;
+        }
+
+        /* DRAFT PERSISTENCE BANNER */
+        .draft-banner {
+            background: #f0fdfa;
+            border: 1px solid #99f6e4;
+            border-radius: var(--radius-md);
+            padding: 9px 14px;
+            margin-bottom: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            font-size: 12.5px;
+            color: #0f766e;
+        }
+
+        .draft-banner.dirty {
+            background: #fffbeb;
+            border-color: #fde68a;
+            color: #b45309;
+        }
+
+        /* BUTTONS */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 7px;
+            padding: 9px 16px;
+            border-radius: var(--radius-md);
+            font-size: 13.5px;
+            font-weight: 600;
+            border: 1px solid transparent;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            text-decoration: none;
+            white-space: nowrap;
+        }
+
+        .btn:active {
+            transform: scale(0.98);
+        }
+
+        .btn-primary {
+            background: var(--primary-dark);
+            color: #ffffff;
+            border-color: var(--primary-dark);
+        }
+
+        .btn-primary:hover {
+            background: #0f3d20;
+        }
+
+        .btn-secondary {
+            background: #ffffff;
+            color: var(--text-main);
+            border-color: var(--border);
+        }
+
+        .btn-secondary:hover {
+            background: #f1f5f9;
+        }
+
+        .btn-danger-outline {
+            background: transparent;
+            color: var(--danger);
+            border-color: #fecaca;
+        }
+
+        .btn-danger-outline:hover {
+            background: var(--danger-light);
+        }
+
+        .btn-sm {
+            padding: 5px 10px;
+            font-size: 12px;
+            border-radius: 7px;
+        }
+
+        .modal-footer {
+            gap: 8px;
+        }
+
+        /* COMMODITY PREPOPULATED CARDS (NO DROPDOWNS) */
+        .commodity-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 12px;
+            margin-top: 14px;
+        }
+
+        .commodity-card {
+            background: #ffffff;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 13px 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            transition: all 0.15s ease;
+        }
+
+        .commodity-card.has-data {
+            border-color: #86efac;
+            background: #fbfdfb;
+            box-shadow: 0 2px 8px rgba(22, 101, 52, 0.05);
+        }
+
+        .commodity-card.warning-stock {
+            border-color: #fca5a5;
+            background: #fffafa;
+        }
+
+        .commodity-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .commodity-title {
+            font-weight: 700;
+            font-size: 14.5px;
+            color: #0f172a;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .commodity-meta {
+            font-size: 11.5px;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        .commodity-inputs-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .input-group label {
+            font-size: 11.5px;
+            font-weight: 600;
+            color: #475569;
+        }
+
+        .input-with-unit {
+            display: flex;
+            align-items: center;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            background: #ffffff;
+            overflow: hidden;
+            transition: border-color 0.15s;
+        }
+
+        .input-with-unit:focus-within {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px rgba(21, 128, 61, 0.12);
+        }
+
+        .input-with-unit input {
+            width: 100%;
+            border: none;
+            padding: 8px 10px;
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--text-main);
+            outline: none;
+            font-family: inherit;
+        }
+
+        .input-with-unit .unit-tag {
+            background: #f8fafc;
+            color: #64748b;
+            padding: 8px 10px;
+            font-size: 12px;
+            font-weight: 700;
+            border-left: 1px solid var(--border);
+            white-space: nowrap;
+        }
+
+        .commodity-calc-info {
+            background: #f8fafc;
+            border-radius: 8px;
+            padding: 7px 10px;
+            font-size: 11.5px;
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+            color: #334155;
+            border: 1px dashed var(--border);
+        }
+
+        .commodity-calc-info .calc-line {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .calc-hpp-highlight {
+            font-weight: 700;
+            color: var(--primary-dark);
+        }
+
+        /* STICKY BOTTOM SUMMARY BAR */
+        .bottom-summary-bar {
+            position: sticky;
+            bottom: 0;
+            background: #ffffff;
+            border-top: 1px solid var(--border);
+            box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.06);
+            padding: 12px 18px;
+            border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+            margin-top: 18px;
+            z-index: 90;
+        }
+
+        .summary-bar-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .summary-stats {
+            display: flex;
+            gap: 18px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .summary-item {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .summary-item .label {
+            font-size: 11px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            font-weight: 700;
+            letter-spacing: 0.04em;
+        }
+
+        .summary-item .val {
+            font-size: 16px;
+            font-weight: 800;
+            color: #0f172a;
+        }
+
+        /* TABLES */
+        .table-responsive {
+            width: 100%;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--border);
+            background: #ffffff;
+        }
+
+        table.data-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+            text-align: left;
+        }
+
+        table.data-table th {
+            background: #f8fafc;
+            color: #475569;
+            font-weight: 700;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            padding: 12px 14px;
+            border-bottom: 1px solid var(--border);
+            white-space: nowrap;
+        }
+
+        table.data-table td {
+            padding: 13px 14px;
+            border-bottom: 1px solid var(--border);
+            vertical-align: middle;
+        }
+
+        table.data-table tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        table.data-table tbody tr:hover {
+            background: #f8fafc;
+        }
+
+        table.data-table tfoot tr {
+            background: #f8fafc;
+            border-top: 2px solid #cbd5e1;
+        }
+
+        table.data-table tfoot td {
+            font-weight: 800;
+            color: #0f172a;
+            padding: 13px 14px;
+            border-bottom: none;
+        }
+
+        /* BADGES */
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 3px 8px;
+            border-radius: 6px;
+            font-size: 11.5px;
+            font-weight: 600;
+        }
+
+        .badge-green {
+            background: var(--primary-light);
+            color: var(--primary-text);
+            border: 1px solid var(--primary-border);
+        }
+
+        .badge-gray {
+            background: #f1f5f9;
+            color: #475569;
+            border: 1px solid #e2e8f0;
+        }
+
+        .badge-amber {
+            background: var(--warning-light);
+            color: #92400e;
+            border: 1px solid #fde68a;
+        }
+
+        /* METRICS */
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 14px;
+            margin-bottom: 20px;
+        }
+
+        .metric-card {
+            background: #ffffff;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 16px 18px;
+        }
+
+        .metric-label {
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 4px;
+        }
+
+        .metric-value {
+            font-size: 24px;
+            font-weight: 800;
+            color: #0f172a;
+        }
+
+        .metric-sub {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-top: 3px;
+        }
+
+        /* STANDARD INPUTS */
+        .standard-input {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            font-size: 13.5px;
+            font-family: inherit;
+            color: var(--text-main);
+            outline: none;
+            background: #ffffff;
+        }
+
+        .standard-input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px rgba(21, 128, 61, 0.12);
+        }
+
+        /* MODAL */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(15, 23, 42, 0.55);
+            backdrop-filter: blur(3px);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s ease;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .modal-card {
+            background: #ffffff;
+            border-radius: var(--radius-xl);
+            max-width: 600px;
+            width: 100%;
+            max-height: 90vh;
+            display: flex;
+            flex-direction: column;
+            box-shadow: var(--shadow-lg);
+            border: 1px solid var(--border);
+            overflow: hidden;
+        }
+
+        .modal-header {
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h3 {
+            font-size: 16px;
+            font-weight: 800;
+        }
+
+        .modal-body {
+            padding: 18px 20px;
+            overflow-y: auto;
+            flex: 1;
+        }
+
+        .modal-footer {
+            padding: 12px 20px;
+            border-top: 1px solid var(--border);
+            display: flex;
+            justify-content: flex-end;
+            background: #f8fafc;
+        }
+
+        /* TOAST */
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #0f172a;
+            color: #ffffff;
+            padding: 12px 18px;
+            border-radius: var(--radius-md);
+            font-size: 13.5px;
+            font-weight: 600;
+            box-shadow: var(--shadow-lg);
+            z-index: 2000;
+            opacity: 0;
+            transform: translateY(-10px);
+            transition: all 0.25s ease;
+            pointer-events: none;
+        }
+
+        .toast.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        @media (max-width: 768px) {
+            .commodity-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .summary-bar-content {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .summary-bar-content .btn {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- TOP NAVIGATION -->
+    <header class="top-navbar">
+        <div class="nav-inner">
+            <a href="#" class="brand-badge" onclick="showPage('dapur-kukus'); return false;">
+                <img src="/static/logo.jpg" alt="Logo Kukusan Palawija" class="brand-logo">
+                <span class="brand-name">Kukusan Palawija</span>
+            </a>
+            <nav class="nav-items">
+                <button class="nav-btn active" id="nav-btn-dapur-kukus" onclick="showPage('dapur-kukus')">
+                    ♨️ Produksi
+                </button>
+                <button class="nav-btn" id="nav-btn-beli-bahan" onclick="showPage('beli-bahan')">
+                    🛒 Beli Bahan Mentah
+                </button>
+                <button class="nav-btn" id="nav-btn-modal" onclick="showPage('modal')">
+                    💵 Modal
+                </button>
+                <button class="nav-btn" id="nav-btn-stok-rekap" onclick="showPage('stok-rekap')">
+                    📦 Stok
+                </button>
+                <button class="nav-btn" id="nav-btn-keuangan" onclick="showPage('keuangan')">
+                    📊 Keuangan
+                </button>
+            </nav>
+        </div>
+    </header>
+
+    <main class="main-container">
+
+        <!-- ========================================================= -->
+        <!-- 1. DAPUR KUKUS (CATAT MASAK)                              -->
+        <!-- ========================================================= -->
+        <div id="page-dapur-kukus" class="app-page">
+            <div class="page-header">
+                <div>
+                    <h1>♨️ Produksi</h1>
+                    <p>Konversi bahan baku mentah menjadi produk jadi matang dengan MWA HPP</p>
+                </div>
+                <div class="header-actions">
+                    <button class="btn btn-secondary" onclick="loadProductionHistory()">
+                        🔄 Segarkan
+                    </button>
+                    <button class="btn btn-danger-outline" onclick="openResetConfirmModal()">
+                        🗑️ Kosongkan Seluruh Data
+                    </button>
+                    <button class="btn btn-primary" onclick="toggleCookingForm()">
+                        <span id="btn-toggle-kukus-icon">➕</span> <span id="btn-toggle-kukus-text">Catat Masak / Kukus
+                            Baru</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- CALLOUT BANNER PRINSIP -->
+            <div class="notice-callout">
+                <div class="notice-icon">💡</div>
+                <div class="notice-text">
+                    <div class="notice-title">Prinsip Produksi Kukusan Palawija</div>
+                    Hasil aktual dicatat nyata (misal 2 kg telur menghasilkan 20 butir matang). Jika memasak 2 produk
+                    atau lebih sekaligus, biaya dialokasikan otomatis sesuai proporsi bahan mentah (total wajib 100%).
+                </div>
+            </div>
+
+            <!-- FORM CATAT MASAK -->
+            <div id="cooking-form-container" class="card"
+                style="display: none; border: 2px solid var(--primary-border);">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                    <strong style="font-size: 16px; color: #0f172a;">♨️ Form Masak Palawija Hari Ini</strong>
+                    <button type="button" class="btn btn-sm btn-secondary" onclick="toggleCookingForm()">✕
+                        Tutup</button>
+                </div>
+
+                <div id="draft-banner-kukus" class="draft-banner">
+                    <div>🟢 Draf tersimpan otomatis di HP (aman saat minimize / refresh).</div>
+                    <button type="button" class="btn btn-sm btn-danger-outline"
+                        onclick="resetCookingForm(true)">Kosongkan Form</button>
+                </div>
+
+                <div
+                    style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; margin-bottom: 14px;">
+                    <div class="input-group">
+                        <label>Tanggal & Waktu Masak</label>
+                        <input type="datetime-local" id="kukus-date" class="standard-input">
+                    </div>
+                    <div class="input-group">
+                        <label>Catatan Batch (Opsional)</label>
+                        <input type="text" id="kukus-notes" class="standard-input"
+                            placeholder="Misal: Batch pagi, kukus telur & ubi madu">
+                    </div>
+                </div>
+
+                <div style="font-weight: 700; font-size: 13.5px; margin: 14px 0 6px; color: #0f172a;">
+                    📋 Daftar Semua Bahan (Cukup Masukkan Jumlah Mentah & Hasil Matang):
+                </div>
+
+                <!-- PREPOPULATED COMMODITIES (NO DROPDOWNS) -->
+                <div id="kukus-commodities-container" class="commodity-grid">
+                    <!-- Populated dynamically -->
+                </div>
+
+                <!-- STICKY SUMMARY & SUBMIT -->
+                <div class="bottom-summary-bar">
+                    <div class="summary-bar-content">
+                        <div class="summary-stats">
+                            <div class="summary-item">
+                                <span class="label">Bahan Dimasak</span>
+                                <span class="val" id="summary-kukus-count">0 Jenis</span>
+                            </div>
+                            <div class="summary-item">
+                                <span class="label">Total Biaya Bahan</span>
+                                <span class="val" id="summary-kukus-cost" style="color: var(--primary);">Rp0</span>
+                            </div>
+                            <div class="summary-item">
+                                <span class="label">Alokasi HPP</span>
+                                <span class="val"><span class="badge badge-green">100% Otomatis</span></span>
+                            </div>
+                        </div>
+                        <div style="display: flex; gap: 8px;">
+                            <button type="button" class="btn btn-secondary"
+                                onclick="resetCookingForm(true)">Kosongkan</button>
+                            <button type="button" class="btn btn-primary" id="btn-save-kukus"
+                                onclick="submitCookingBatch()">
+                                💾 Simpan Masak
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- RIWAYAT PROSES PRODUKSI -->
+            <div class="card">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
+                    <div>
+                        <strong style="font-size: 16px; color: #0f172a;">♨️ Proses Produksi Dapur Kukus</strong>
+                        <p style="font-size: 12.5px; color: var(--text-muted);">Riwayat konversi bahan mentah menjadi
+                            produk jadi siap jual</p>
+                    </div>
+                    <button class="btn btn-sm btn-primary" onclick="openCookingForm()">➕ Masak Baru</button>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>TANGGAL</th>
+                                <th>MODAL</th>
+                                <th style="text-align: center;">RINCIAN</th>
+                            </tr>
+                        </thead>
+                        <tbody id="kukus-history-tbody">
+                            <tr>
+                                <td colspan="3" style="text-align: center; padding: 30px;">Memuat riwayat produksi...
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- ========================================================= -->
+        <!-- 2. BELI BAHAN (PEMBELIAN BAHAN MENTAH)                     -->
+        <!-- ========================================================= -->
+        <div id="page-beli-bahan" class="app-page" style="display: none;">
+            <div class="page-header">
+                <div>
+                    <h1>🛒 Pembelian Bahan Mentah</h1>
+                    <p>Catat pengadaan bahan belanja dari pasar / supplier langsung dengan satuan baku</p>
+                </div>
+                <div class="header-actions">
+                    <button class="btn btn-secondary" onclick="loadPurchaseHistory()">🔄 Segarkan</button>
+                    <button class="btn btn-danger-outline" onclick="openClearPurchaseModal()">🗑️ Kosongkan Data Pembelian</button>
+                    <button class="btn btn-primary" onclick="togglePurchaseForm()">
+                        <span id="btn-toggle-beli-icon">➕</span> <span id="btn-toggle-beli-text">Catat Belanja
+                            Baru</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- FORM BELI BAHAN (NO DROPDOWNS) -->
+            <div id="purchase-form-container" class="card"
+                style="display: none; border: 2px solid var(--primary-border);">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                    <strong style="font-size: 16px; color: #0f172a;">🛒 Form Belanja Bahan Mentah</strong>
+                    <button type="button" class="btn btn-sm btn-secondary" onclick="togglePurchaseForm()">✕
+                        Tutup</button>
+                </div>
+
+                <div id="draft-banner-beli" class="draft-banner">
+                    <div>🟢 Draf belanja tersimpan otomatis di HP (aman saat minimize / refresh).</div>
+                    <button type="button" class="btn btn-sm btn-danger-outline"
+                        onclick="resetPurchaseForm(true)">Kosongkan Form</button>
+                </div>
+
+                <div
+                    style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; margin-bottom: 14px;">
+                    <div class="input-group">
+                        <label>Tanggal Pembelian</label>
+                        <input type="datetime-local" id="beli-date" class="standard-input">
+                    </div>
+                    <div class="input-group">
+                        <label>Catatan (Opsional)</label>
+                        <input type="text" id="beli-notes" class="standard-input" placeholder="Catatan belanja...">
+                    </div>
+                </div>
+
+                <div style="font-weight: 700; font-size: 13.5px; margin: 14px 0 6px; color: #0f172a;">
+                    📋 Daftar Semua Bahan (Isi Jumlah Beli & Harga Satuan, yang tidak dibeli biarkan 0):
+                </div>
+
+                <!-- PREPOPULATED COMMODITIES UNTUK BELI -->
+                <div id="beli-commodities-container" class="commodity-grid">
+                    <!-- Populated dynamically -->
+                </div>
+
+                <!-- STICKY SUMMARY & SUBMIT -->
+                <div class="bottom-summary-bar">
+                    <div class="summary-bar-content">
+                        <div class="summary-stats">
+                            <div class="summary-item">
+                                <span class="label">Bahan Dibeli</span>
+                                <span class="val" id="summary-beli-count">0 Jenis</span>
+                            </div>
+                            <div class="summary-item">
+                                <span class="label">Total Pengeluaran Belanja</span>
+                                <span class="val" id="summary-beli-total" style="color: var(--primary);">Rp0</span>
+                            </div>
+                        </div>
+                        <div style="display: flex; gap: 8px;">
+                            <button type="button" class="btn btn-secondary"
+                                onclick="resetPurchaseForm(true)">Kosongkan</button>
+                            <button type="button" class="btn btn-primary" id="btn-save-beli" onclick="submitPurchase()">
+                                💾 Simpan Pembelian
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- RIWAYAT PEMBELIAN -->
+            <div class="card">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
+                    <div>
+                        <strong style="font-size: 16px; color: #0f172a;">🛒 Riwayat Pembelian Bahan Baku</strong>
+                        <p style="font-size: 12.5px; color: var(--text-muted);">Daftar transaksi belanja bahan mentah
+                            yang tersimpan</p>
+                    </div>
+                    <button class="btn btn-sm btn-primary" onclick="openPurchaseForm()">➕ Belanja Baru</button>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>TANGGAL</th>
+                                <th>BAHAN DIBELI</th>
+                                <th>TOTAL BELANJA</th>
+                                <th>CATATAN</th>
+                                <th style="text-align: center;">AKSI</th>
+                            </tr>
+                        </thead>
+                        <tbody id="beli-history-tbody">
+                            <tr>
+                                <td colspan="5" style="text-align: center; padding: 30px;">Memuat riwayat pembelian...
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- ========================================================= -->
+        <!-- 3. MODAL (PENCATATAN & RIWAYAT MODAL USAHA HARIAN)        -->
+        <!-- ========================================================= -->
+        <div id="page-modal" class="app-page" style="display: none;">
+            <div class="page-header">
+                <div>
+                    <h1>💵 Modal Usaha Harian</h1>
+                    <p>Pencatatan modal produksi & biaya operasional lapak per tanggal</p>
+                </div>
+                <div class="header-actions">
+                    <button class="btn btn-secondary" onclick="loadModalHistory()">🔄 Segarkan</button>
+                    <button class="btn btn-danger-outline" onclick="openClearModalModal()">🗑️ Kosongkan Seluruh Riwayat Modal</button>
+                </div>
+            </div>
+
+            <!-- BAGIAN 1: TAMBAH MODAL HARIAN -->
+            <div class="card" style="border: 2px solid var(--primary-border); margin-bottom: 24px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                    <div>
+                        <strong style="font-size: 16px; color: #0f172a;">➕ Tambah Modal Harian</strong>
+                        <p style="font-size: 12.5px; color: var(--text-muted);">
+                            Modal produksi otomatis terhitung dari total biaya riwayat produksi pada tanggal yang dipilih.
+                        </p>
+                    </div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-bottom: 16px;">
+                    <div class="input-group">
+                        <label for="modal-date"><strong>📅 Tanggal Modal</strong></label>
+                        <input type="date" id="modal-date" class="standard-input" onchange="onModalDateChange()">
+                    </div>
+
+                    <div class="input-group">
+                        <label for="modal-prod-cost-display"><strong>♨️ Modal Produksi (Otomatis)</strong></label>
+                        <div style="position: relative;">
+                            <input type="text" id="modal-prod-cost-display" class="standard-input" readonly
+                                style="background: #f8fafc; font-weight: 700; color: #0f172a;" value="Rp0">
+                            <input type="hidden" id="modal-prod-cost-val" value="0">
+                        </div>
+                        <div id="modal-prod-hint" style="font-size: 11.5px; color: var(--text-muted); margin-top: 4px;">
+                            Memeriksa data produksi...
+                        </div>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="modal-ops-cost"><strong>🛠️ Biaya Operasional (Manual)</strong></label>
+                        <div class="input-with-unit" style="display: flex; align-items: center; border: 1px solid var(--border); border-radius: var(--radius-md); background: #fff;">
+                            <span style="padding: 0 10px; font-weight: 700; color: var(--text-muted); font-size: 13px;">Rp</span>
+                            <input type="number" id="modal-ops-cost" min="0" step="1000" placeholder="0"
+                                style="width: 100%; border: none; padding: 9px 10px; font-size: 14px; font-weight: 700; outline: none; font-family: inherit;"
+                                oninput="calculateModalTotal()">
+                        </div>
+                        <div style="font-size: 11.5px; color: var(--text-muted); margin-top: 4px;">
+                            Contoh: gas, plastik, kantong, bensin, es batu, dll.
+                        </div>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="modal-notes"><strong>📝 Catatan (Opsional)</strong></label>
+                        <input type="text" id="modal-notes" class="standard-input" placeholder="Misal: Gas 1 tabung + operasional lapak">
+                    </div>
+                </div>
+
+                <!-- TOTAL MODAL HARIAN HIGHLIGHT BAR -->
+                <div style="background: #f0fdf4; border: 1.5px solid var(--primary-border); border-radius: var(--radius-lg); padding: 14px 18px; margin-bottom: 6px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+                    <div>
+                        <div style="font-size: 12px; font-weight: 700; color: var(--primary-text); text-transform: uppercase; letter-spacing: 0.5px;">
+                            Total Modal Harian (Modal Produksi + Biaya Operasional)
+                        </div>
+                        <div id="modal-total-display" style="font-size: 26px; font-weight: 800; color: var(--primary); margin-top: 2px;">
+                            Rp0
+                        </div>
+                    </div>
+                    <div style="display: flex; gap: 8px;">
+                        <button type="button" class="btn btn-secondary" onclick="resetModalForm()">🔄 Reset Form</button>
+                        <button type="button" class="btn btn-primary" id="btn-save-modal" onclick="submitModal()">
+                            💾 Simpan Modal
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- BAGIAN 2: RIWAYAT MODAL -->
+            <div class="card">
+                <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin-bottom: 16px;">
+                    <div>
+                        <strong style="font-size: 16px; color: #0f172a;">📋 Riwayat Modal</strong>
+                        <p style="font-size: 12.5px; color: var(--text-muted);">Data modal harian yang tersimpan dan siap dipanggil modul keuangan</p>
+                    </div>
+
+                    <!-- FILTER RENTANG TANGGAL -->
+                    <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                        <div style="display: flex; align-items: center; gap: 6px;">
+                            <label style="font-size: 12px; font-weight: 600; color: var(--text-muted);">Dari:</label>
+                            <input type="date" id="filter-modal-start" class="standard-input" style="padding: 6px 10px; font-size: 12.5px;">
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 6px;">
+                            <label style="font-size: 12px; font-weight: 600; color: var(--text-muted);">Sampai:</label>
+                            <input type="date" id="filter-modal-end" class="standard-input" style="padding: 6px 10px; font-size: 12.5px;">
+                        </div>
+                        <button class="btn btn-sm btn-primary" onclick="loadModalHistory()">🔍 Filter</button>
+                        <button class="btn btn-sm btn-secondary" onclick="resetModalFilter()">Semua</button>
+                    </div>
+                </div>
+
+                <!-- RINGKASAN REKAP MODAL -->
+                <div id="modal-summary-box" style="display: flex; gap: 16px; margin-bottom: 16px; padding: 12px 16px; background: #f8fafc; border: 1px solid var(--border); border-radius: var(--radius-md); flex-wrap: wrap;">
+                    <div>
+                        <span style="font-size: 11.5px; color: var(--text-muted); font-weight: 600;">TOTAL MODAL:</span>
+                        <div id="sum-modal-total" style="font-size: 18px; font-weight: 800; color: var(--primary);">Rp0</div>
+                    </div>
+                    <div style="border-left: 1px solid var(--border); padding-left: 16px;">
+                        <span style="font-size: 11.5px; color: var(--text-muted); font-weight: 600;">TOTAL PRODUKSI:</span>
+                        <div id="sum-modal-prod" style="font-size: 18px; font-weight: 700; color: #0f172a;">Rp0</div>
+                    </div>
+                    <div style="border-left: 1px solid var(--border); padding-left: 16px;">
+                        <span style="font-size: 11.5px; color: var(--text-muted); font-weight: 600;">TOTAL OPERASIONAL:</span>
+                        <div id="sum-modal-ops" style="font-size: 18px; font-weight: 700; color: #0f172a;">Rp0</div>
+                    </div>
+                </div>
+
+                <!-- TABEL DATA RIWAYAT MODAL -->
+                <div class="table-responsive">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>TANGGAL</th>
+                                <th>MODAL PRODUKSI</th>
+                                <th>BIAYA OPERASIONAL</th>
+                                <th>TOTAL MODAL</th>
+                                <th>CATATAN</th>
+                                <th style="text-align: center;">AKSI</th>
+                            </tr>
+                        </thead>
+                        <tbody id="modal-history-tbody">
+                            <tr>
+                                <td colspan="6" style="text-align: center; padding: 30px;">Memuat riwayat modal...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- ========================================================= -->
+        <!-- 4. STOK & RINGKASAN (DASHBOARD SIMPEL OWNER)               -->
+        <!-- ========================================================= -->
+        <div id="page-stok-rekap" class="app-page" style="display: none;">
+            <div class="page-header">
+                <div>
+                    <h1>📦 Stok & Ringkasan Kukusan Palawija</h1>
+                    <p>Posisi stok bahan mentah & produk matang serta ringkasan keuangan</p>
+                </div>
+                <div class="header-actions">
+                    <button class="btn btn-secondary" onclick="loadStockAndDashboard()">🔄 Segarkan</button>
+                    <button class="btn btn-danger-outline" onclick="openClearAllStockModal()">🗑️ Kosongkan Seluruh Stok</button>
+                </div>
+            </div>
+
+            <!-- METRIC CARDS -->
+            <div class="metrics-grid">
+                <div class="metric-card">
+                    <div class="metric-label">PENJUALAN HARI INI</div>
+                    <div class="metric-value" id="rekap-today-sales">Rp0</div>
+                    <div class="metric-sub" id="rekap-today-tx">0 transaksi</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">PENJUALAN BULAN INI</div>
+                    <div class="metric-value" id="rekap-month-sales">Rp0</div>
+                    <div class="metric-sub">Bulan berjalan</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">PENGELUARAN BULAN INI</div>
+                    <div class="metric-value" id="rekap-month-expense">Rp0</div>
+                    <div class="metric-sub">Total biaya</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">SALDO KAS</div>
+                    <div class="metric-value" id="rekap-cash-balance">Rp0</div>
+                    <div class="metric-sub">Kas fisik & transfer</div>
+                </div>
+            </div>
+
+            <!-- TABEL STOK TERPADU 13 KOMODITAS -->
+            <div class="card">
+                <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 14px;">
+                    <div>
+                        <strong style="font-size: 16px; color: #0f172a;">🥔 Posisi Stok Komoditas Palawija</strong>
+                        <p style="font-size: 12.5px; color: var(--text-muted); margin-top: 2px;">Pantauan stok bahan mentah dan produk matang siap jual</p>
+                    </div>
+                    <div style="display: flex; gap: 8px;">
+                        <button class="btn btn-sm btn-secondary" onclick="loadStockAndDashboard()">🔄 Segarkan</button>
+                        <button class="btn btn-sm btn-danger-outline" onclick="openClearAllStockModal()">🗑️ Kosongkan Seluruh Stok</button>
+                    </div>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>NAMA KOMODITAS</th>
+                                <th>STOK MENTAH</th>
+                                <th>HARGA MWA MENTAH</th>
+                                <th>STOK MATANG</th>
+                                <th>HARGA JUAL STANDAR</th>
+                                <th>STATUS</th>
+                                <th style="text-align: center;">AKSI</th>
+                            </tr>
+                        </thead>
+                        <tbody id="rekap-stock-tbody">
+                            <tr>
+                                <td colspan="7" style="text-align: center; padding: 30px;">Memuat stok palawija...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- ========================================================= -->
+        <!-- 5. KEUANGAN & RANGKUMAN LAPORAN                           -->
+        <!-- ========================================================= -->
+        <div id="page-keuangan" class="app-page" style="display: none;">
+            <div class="page-header">
+                <div>
+                    <h1>📊 Keuangan & Laba Rugi</h1>
+                    <p>Pencatatan omset harian, penarikan modal otomatis, dan rangkuman profit bersih usaha</p>
+                </div>
+                <div class="header-actions">
+                    <button class="btn btn-secondary" onclick="loadFinanceHistory()">
+                        🔄 Segarkan
+                    </button>
+                    <button class="btn btn-danger-outline" onclick="openClearFinanceModal()">
+                        🗑️ Kosongkan Seluruh Data Keuangan
+                    </button>
+                </div>
+            </div>
+
+            <!-- BAGIAN 1: INPUT KEUANGAN HARIAN -->
+            <div class="card" style="border: 2px solid var(--primary-border); margin-bottom: 20px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 8px;">
+                    <div>
+                        <strong style="font-size: 16px; color: #0f172a;">💰 Input Keuangan Harian</strong>
+                        <p style="font-size: 12.5px; color: var(--text-muted); margin-top: 2px;">
+                            Pilih tanggal penjualan. Modal otomatis terisi dari menu Modal, dan Profit terhitung secara real-time.
+                        </p>
+                    </div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; margin-bottom: 16px;">
+                    <!-- Tanggal Penjualan -->
+                    <div class="input-group">
+                        <label for="finance-date"><strong>📅 Tanggal Penjualan</strong></label>
+                        <input type="date" id="finance-date" class="standard-input" onchange="onFinanceDateChange()">
+                        <div id="finance-date-status" style="font-size: 11.5px; color: var(--text-muted); margin-top: 4px;">
+                            Pilih tanggal untuk memuat data modal otomatis.
+                        </div>
+                    </div>
+
+                    <!-- Modal (Otomatis dari Menu Modal) -->
+                    <div class="input-group">
+                        <label for="finance-modal-display"><strong>💵 Modal (Otomatis dari Menu Modal)</strong></label>
+                        <div style="position: relative;">
+                            <input type="text" id="finance-modal-display" class="standard-input" readonly
+                                style="background: #f8fafc; font-weight: 700; color: #0f172a;" value="Rp0">
+                            <input type="hidden" id="finance-modal-val" value="0">
+                        </div>
+                        <div id="finance-modal-hint" style="font-size: 11.5px; color: var(--text-muted); margin-top: 4px;">
+                            Memeriksa modal harian...
+                        </div>
+                    </div>
+
+                    <!-- Omset / Pendapatan Kotor (Manual) -->
+                    <div class="input-group">
+                        <label for="finance-omset"><strong>📈 Pendapatan Kotor / Omset (Manual)</strong></label>
+                        <div class="input-with-unit" style="display: flex; align-items: center; border: 1px solid var(--border); border-radius: var(--radius-md); background: #fff;">
+                            <span style="padding: 0 10px; font-weight: 700; color: var(--text-muted); font-size: 13px;">Rp</span>
+                            <input type="number" id="finance-omset" min="0" step="1000" placeholder="0"
+                                style="width: 100%; border: none; padding: 9px 10px; font-size: 14px; font-weight: 700; outline: none; font-family: inherit;"
+                                oninput="calculateFinanceProfit()">
+                        </div>
+                        <div style="font-size: 11.5px; color: var(--text-muted); margin-top: 4px;">
+                            Total uang masuk dari penjualan palawija hari ini.
+                        </div>
+                    </div>
+
+                    <!-- Catatan (Opsional) -->
+                    <div class="input-group">
+                        <label for="finance-notes"><strong>📝 Catatan (Opsional)</strong></label>
+                        <input type="text" id="finance-notes" class="standard-input" placeholder="Misal: Penjualan ramai di lapak CFD / pasar">
+                        <div style="font-size: 11.5px; color: var(--text-muted); margin-top: 4px;">
+                            Catatan kondisi jualan / event harian.
+                        </div>
+                    </div>
+                </div>
+
+                <!-- REAL-TIME PROFIT HIGHLIGHT BAR -->
+                <div id="finance-profit-bar" style="background: #f0fdf4; border: 1.5px solid var(--primary-border); border-radius: var(--radius-lg); padding: 14px 18px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 14px; transition: all 0.2s ease;">
+                    <div>
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <span style="font-size: 12px; font-weight: 700; color: #334155; text-transform: uppercase; letter-spacing: 0.5px;">
+                                Profit Bersih Harian (Pendapatan Kotor - Modal)
+                            </span>
+                            <span id="finance-profit-badge" class="badge badge-green">Netral</span>
+                        </div>
+                        <div id="finance-profit-display" style="font-size: 26px; font-weight: 800; color: var(--primary); margin-top: 2px;">
+                            Rp0
+                        </div>
+                        <div id="finance-formula-text" style="font-size: 11.5px; color: var(--text-muted); margin-top: 2px;">
+                            Omset Rp0 - Modal Rp0 = Profit Rp0
+                        </div>
+                    </div>
+                    <div style="display: flex; gap: 8px;">
+                        <button type="button" class="btn btn-secondary" onclick="resetFinanceForm()">🔄 Reset Form</button>
+                        <button type="button" class="btn btn-primary" id="btn-save-finance" onclick="submitFinance()">
+                            💾 Simpan Catatan Keuangan
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- BAGIAN 2: RANGKUMAN KEUANGAN -->
+            <div class="card">
+                <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin-bottom: 16px;">
+                    <div>
+                        <strong style="font-size: 16px; color: #0f172a;">📋 Rangkuman Keuangan</strong>
+                        <p style="font-size: 12.5px; color: var(--text-muted); margin-top: 2px;">
+                            Daftar catatan harian dan total kalkulasi performa pada rentang tanggal yang dipilih
+                        </p>
+                    </div>
+
+                    <!-- FILTER RENTANG TANGGAL -->
+                    <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                        <div style="display: flex; align-items: center; gap: 6px;">
+                            <label style="font-size: 12px; font-weight: 600; color: var(--text-muted);">Dari:</label>
+                            <input type="date" id="filter-finance-start" class="standard-input" style="padding: 6px 10px; font-size: 12.5px;">
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 6px;">
+                            <label style="font-size: 12px; font-weight: 600; color: var(--text-muted);">Sampai:</label>
+                            <input type="date" id="filter-finance-end" class="standard-input" style="padding: 6px 10px; font-size: 12.5px;">
+                        </div>
+                        <button class="btn btn-sm btn-primary" onclick="loadFinanceHistory()">🔍 Filter</button>
+                        <button class="btn btn-sm btn-secondary" onclick="resetFinanceFilter()">Semua</button>
+                    </div>
+                </div>
+
+                <!-- METRICS SUMMARY CARDS -->
+                <div class="metrics-grid" style="margin-bottom: 16px;">
+                    <div class="metric-card" style="border-left: 4px solid #64748b;">
+                        <div class="metric-label">TOTAL MODAL</div>
+                        <div id="sum-finance-modal" style="font-size: 20px; font-weight: 800; color: #0f172a;">Rp0</div>
+                        <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px;">Produksi + Operasional</div>
+                    </div>
+                    <div class="metric-card" style="border-left: 4px solid var(--primary);">
+                        <div class="metric-label">TOTAL PENDAPATAN (OMSET)</div>
+                        <div id="sum-finance-omset" style="font-size: 20px; font-weight: 800; color: var(--primary);">Rp0</div>
+                        <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px;">Kotor seluruh hari</div>
+                    </div>
+                    <div class="metric-card" id="card-sum-profit" style="border-left: 4px solid var(--primary);">
+                        <div class="metric-label">TOTAL PROFIT (LABA BERSIH)</div>
+                        <div id="sum-finance-profit" style="font-size: 20px; font-weight: 800; color: var(--primary);">Rp0</div>
+                        <div id="sum-finance-profit-note" style="font-size: 11px; color: var(--text-muted); margin-top: 4px;">Omset - Modal</div>
+                    </div>
+                    <div class="metric-card" style="border-left: 4px solid #f59e0b;">
+                        <div class="metric-label">MARGIN PROFIT</div>
+                        <div id="sum-finance-margin" style="font-size: 20px; font-weight: 800; color: #0f172a;">0%</div>
+                        <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px;">Profit ÷ Omset</div>
+                    </div>
+                </div>
+
+                <!-- TABEL DATA KEUANGAN DENGAN FOOTER KALKULASI OTOMATIS -->
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>TANGGAL</th>
+                                <th>MODAL</th>
+                                <th>OMSET (PENDAPATAN)</th>
+                                <th>PROFIT BERSIH</th>
+                                <th>CATATAN</th>
+                                <th style="text-align: center;">AKSI</th>
+                            </tr>
+                        </thead>
+                        <tbody id="finance-history-tbody">
+                            <tr>
+                                <td colspan="6" style="text-align: center; padding: 30px;">Memuat rangkuman keuangan...</td>
+                            </tr>
+                        </tbody>
+                        <tfoot id="finance-history-tfoot" style="background: #f8fafc; border-top: 2px solid #cbd5e1;">
+                            <tr>
+                                <td style="font-weight: 800; color: #0f172a; text-transform: uppercase;">
+                                    📊 TOTAL RANGKUMAN (<span id="tfoot-sum-days">0</span> HARI)
+                                </td>
+                                <td id="tfoot-sum-modal" style="font-weight: 800; color: #0f172a;">Rp0</td>
+                                <td id="tfoot-sum-omset" style="font-weight: 800; color: var(--primary);">Rp0</td>
+                                <td id="tfoot-sum-profit" style="font-weight: 800; color: var(--primary); font-size: 14.5px;">Rp0</td>
+                                <td id="tfoot-sum-notes" style="color: var(--text-muted); font-size: 12px;">-</td>
+                                <td style="text-align: center; color: var(--text-muted);">-</td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- MODAL DETAIL BATCH PRODUKSI -->
+    <div id="batch-detail-modal" class="modal-overlay">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h3 id="modal-batch-title">Rincian Batch Produksi</h3>
+                <button type="button" class="btn btn-sm btn-secondary" onclick="closeBatchModal()">✕</button>
+            </div>
+            <div class="modal-body" id="modal-batch-body"></div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="closeBatchModal()">Tutup</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL KONFIRMASI RESET SELURUH DATA PRODUKSI -->
+    <div id="reset-confirm-modal" class="modal-overlay">
+        <div class="modal-card" style="max-width: 420px;">
+            <div class="modal-header" style="border-bottom-color: #fecaca;">
+                <h3 style="color: var(--danger);">🗑️ Kosongkan Seluruh Data Produksi</h3>
+                <button type="button" class="btn btn-sm btn-secondary" onclick="closeResetConfirmModal()">✕</button>
+            </div>
+            <div class="modal-body">
+                <div
+                    style="background: var(--danger-light); border: 1px solid #fecaca; border-radius: var(--radius-md); padding: 14px 16px; margin-bottom: 14px;">
+                    <div style="font-weight: 700; color: var(--danger); margin-bottom: 6px;">⚠️ Tindakan ini tidak dapat
+                        dibatalkan!</div>
+                    <div style="font-size: 13px; color: #7f1d1d; line-height: 1.5;">
+                        Seluruh riwayat produksi akan dihapus permanen dari database.
+                        Stok bahan mentah dan produk jadi <strong>tidak akan dikembalikan</strong>.
+                    </div>
+                </div>
+                <div style="font-size: 13.5px; color: var(--text-main);">Apakah Anda yakin ingin menghapus seluruh data
+                    riwayat produksi?</div>
+            </div>
+            <div class="modal-footer" style="gap: 8px; display: flex; justify-content: flex-end;">
+                <button type="button" class="btn btn-secondary" onclick="closeResetConfirmModal()">Tidak, Batal</button>
+                <button type="button" class="btn" id="btn-confirm-reset"
+                    style="background: var(--danger); color: #fff; border-color: var(--danger);"
+                    onclick="executeResetAllProductions()">Ya, Hapus Semua</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL KONFIRMASI HAPUS BARIS PEMBELIAN -->
+    <div id="delete-purchase-modal" class="modal-overlay">
+        <div class="modal-card" style="max-width: 420px;">
+            <div class="modal-header" style="border-bottom-color: #fecaca;">
+                <h3 style="color: var(--danger);">🗑️ Hapus Data Pembelian</h3>
+                <button type="button" class="btn btn-sm btn-secondary" onclick="closeDeletePurchaseModal()">✕</button>
+            </div>
+            <div class="modal-body">
+                <div style="background: var(--danger-light); border: 1px solid #fecaca; border-radius: var(--radius-md); padding: 14px 16px; margin-bottom: 14px;">
+                    <div style="font-weight: 700; color: var(--danger); margin-bottom: 6px;">⚠️ Tindakan ini tidak dapat dibatalkan!</div>
+                    <div style="font-size: 13px; color: #7f1d1d; line-height: 1.5;">
+                        Data pembelian ini akan dihapus permanen. Stok bahan yang sudah masuk <strong>tidak akan dikembalikan</strong>.
+                    </div>
+                </div>
+                <div id="delete-purchase-info" style="font-size: 13.5px; color: var(--text-main); background: #f8fafc; padding: 10px 12px; border-radius: 8px;"></div>
+            </div>
+            <div class="modal-footer" style="gap: 8px; display: flex; justify-content: flex-end;">
+                <button type="button" class="btn btn-secondary" onclick="closeDeletePurchaseModal()">Tidak, Batal</button>
+                <button type="button" class="btn" id="btn-confirm-delete-purchase"
+                    style="background: var(--danger); color: #fff; border-color: var(--danger);"
+                    onclick="executeDeletePurchase()">Ya, Hapus</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL KONFIRMASI KOSONGKAN SEMUA DATA PEMBELIAN -->
+    <div id="clear-purchase-modal" class="modal-overlay">
+        <div class="modal-card" style="max-width: 420px;">
+            <div class="modal-header" style="border-bottom-color: #fecaca;">
+                <h3 style="color: var(--danger);">🗑️ Kosongkan Semua Data Pembelian</h3>
+                <button type="button" class="btn btn-sm btn-secondary" onclick="closeClearPurchaseModal()">✕</button>
+            </div>
+            <div class="modal-body">
+                <div style="background: var(--danger-light); border: 1px solid #fecaca; border-radius: var(--radius-md); padding: 14px 16px; margin-bottom: 14px;">
+                    <div style="font-weight: 700; color: var(--danger); margin-bottom: 6px;">⚠️ Tindakan ini tidak dapat dibatalkan!</div>
+                    <div style="font-size: 13px; color: #7f1d1d; line-height: 1.5;">
+                        Seluruh riwayat pembelian bahan baku akan dihapus permanen dari database.
+                        Stok bahan yang sudah masuk <strong>tidak akan dikembalikan</strong>.
+                    </div>
+                </div>
+                <div style="font-size: 13.5px; color: var(--text-main);">Apakah Anda yakin ingin menghapus seluruh data riwayat pembelian?</div>
+            </div>
+            <div class="modal-footer" style="gap: 8px; display: flex; justify-content: flex-end;">
+                <button type="button" class="btn btn-secondary" onclick="closeClearPurchaseModal()">Tidak, Batal</button>
+                <button type="button" class="btn" id="btn-confirm-clear-purchase"
+                    style="background: var(--danger); color: #fff; border-color: var(--danger);"
+                    onclick="executeClearAllPurchases()">Ya, Hapus Semua</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL KONFIRMASI HAPUS MODAL PER TANGGAL -->
+    <div id="delete-modal-entry-modal" class="modal-overlay">
+        <div class="modal-card" style="max-width: 420px;">
+            <div class="modal-header" style="border-bottom-color: #fecaca;">
+                <h3 style="color: var(--danger);">🗑️ Hapus Data Modal</h3>
+                <button type="button" class="btn btn-sm btn-secondary" onclick="closeDeleteModalModal()">✕</button>
+            </div>
+            <div class="modal-body">
+                <div style="background: var(--danger-light); border: 1px solid #fecaca; border-radius: var(--radius-md); padding: 14px 16px; margin-bottom: 14px;">
+                    <div style="font-weight: 700; color: var(--danger); margin-bottom: 6px;">⚠️ Tindakan ini tidak dapat dibatalkan!</div>
+                    <div style="font-size: 13px; color: #7f1d1d; line-height: 1.5;">
+                        Data modal pada tanggal ini akan dihapus permanen dari database.
+                    </div>
+                </div>
+                <div id="delete-modal-info" style="font-size: 13.5px; color: var(--text-main); background: #f8fafc; padding: 10px 12px; border-radius: 8px;"></div>
+            </div>
+            <div class="modal-footer" style="gap: 8px; display: flex; justify-content: flex-end;">
+                <button type="button" class="btn btn-secondary" onclick="closeDeleteModalModal()">Tidak, Batal</button>
+                <button type="button" class="btn" id="btn-confirm-delete-modal"
+                    style="background: var(--danger); color: #fff; border-color: var(--danger);"
+                    onclick="executeDeleteModal()">Ya, Hapus</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL KONFIRMASI KOSONGKAN SELURUH RIWAYAT MODAL -->
+    <div id="clear-all-modal-modal" class="modal-overlay">
+        <div class="modal-card" style="max-width: 420px;">
+            <div class="modal-header" style="border-bottom-color: #fecaca;">
+                <h3 style="color: var(--danger);">🗑️ Kosongkan Seluruh Riwayat Modal</h3>
+                <button type="button" class="btn btn-sm btn-secondary" onclick="closeClearModalModal()">✕</button>
+            </div>
+            <div class="modal-body">
+                <div style="background: var(--danger-light); border: 1px solid #fecaca; border-radius: var(--radius-md); padding: 14px 16px; margin-bottom: 14px;">
+                    <div style="font-weight: 700; color: var(--danger); margin-bottom: 6px;">⚠️ Tindakan ini tidak dapat dibatalkan!</div>
+                    <div style="font-size: 13px; color: #7f1d1d; line-height: 1.5;">
+                        Seluruh riwayat modal harian usaha akan dihapus permanen dari database.
+                    </div>
+                </div>
+                <div style="font-size: 13.5px; color: var(--text-main);">Apakah Anda yakin ingin menghapus seluruh data riwayat modal?</div>
+            </div>
+            <div class="modal-footer" style="gap: 8px; display: flex; justify-content: flex-end;">
+                <button type="button" class="btn btn-secondary" onclick="closeClearModalModal()">Tidak, Batal</button>
+                <button type="button" class="btn" id="btn-confirm-clear-all-modal"
+                    style="background: var(--danger); color: #fff; border-color: var(--danger);"
+                    onclick="executeClearAllModal()">Ya, Hapus Semua</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL KONFIRMASI HAPUS CATATAN KEUANGAN PER TANGGAL -->
+    <div id="delete-finance-entry-modal" class="modal-overlay">
+        <div class="modal-card" style="max-width: 440px;">
+            <div class="modal-header" style="border-bottom-color: #fecaca;">
+                <h3 style="color: var(--danger);">🗑️ Hapus Catatan Keuangan</h3>
+                <button type="button" class="btn btn-sm btn-secondary" onclick="closeDeleteFinanceModal()">✕</button>
+            </div>
+            <div class="modal-body">
+                <div style="background: var(--danger-light); border: 1px solid #fecaca; border-radius: var(--radius-md); padding: 12px 14px; margin-bottom: 14px;">
+                    <div style="font-weight: 700; color: var(--danger); margin-bottom: 4px;">⚠️ Konfirmasi Penghapusan</div>
+                    <div style="font-size: 13px; color: #7f1d1d; line-height: 1.5;">
+                        Data keuangan pada tanggal ini akan dihapus permanen. Data di menu Modal dan Produksi tidak akan terpengaruh.
+                    </div>
+                </div>
+                <div id="delete-finance-info" style="font-size: 13px; color: var(--text-main); background: #f8fafc; padding: 12px; border-radius: 8px; line-height: 1.6;"></div>
+            </div>
+            <div class="modal-footer" style="gap: 8px; display: flex; justify-content: flex-end;">
+                <button type="button" class="btn btn-secondary" onclick="closeDeleteFinanceModal()">Tidak, Batal</button>
+                <button type="button" class="btn" id="btn-confirm-delete-finance"
+                    style="background: var(--danger); color: #fff; border-color: var(--danger);"
+                    onclick="executeDeleteFinance()">Ya, Hapus</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL KONFIRMASI KOSONGKAN SELURUH DATA KEUANGAN -->
+    <div id="clear-all-finance-modal" class="modal-overlay">
+        <div class="modal-card" style="max-width: 440px;">
+            <div class="modal-header" style="border-bottom-color: #fecaca;">
+                <h3 style="color: var(--danger);">🗑️ Kosongkan Seluruh Data Keuangan</h3>
+                <button type="button" class="btn btn-sm btn-secondary" onclick="closeClearFinanceModal()">✕</button>
+            </div>
+            <div class="modal-body">
+                <div style="background: var(--danger-light); border: 1px solid #fecaca; border-radius: var(--radius-md); padding: 14px 16px; margin-bottom: 14px;">
+                    <div style="font-weight: 700; color: var(--danger); margin-bottom: 6px;">⚠️ Tindakan ini tidak dapat dibatalkan!</div>
+                    <div style="font-size: 13px; color: #7f1d1d; line-height: 1.5;">
+                        Seluruh catatan harian omset dan kalkulasi profit pada modul Keuangan akan dihapus permanen dari database.
+                    </div>
+                </div>
+                <div style="font-size: 13.5px; color: var(--text-main);">Apakah Anda yakin ingin mengosongkan seluruh data keuangan?</div>
+            </div>
+            <div class="modal-footer" style="gap: 8px; display: flex; justify-content: flex-end;">
+                <button type="button" class="btn btn-secondary" onclick="closeClearFinanceModal()">Tidak, Batal</button>
+                <button type="button" class="btn" id="btn-confirm-clear-all-finance"
+                    style="background: var(--danger); color: #fff; border-color: var(--danger);"
+                    onclick="executeClearAllFinance()">Ya, Hapus Semua</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL KONFIRMASI KOSONGKAN SELURUH STOK -->
+    <div id="clear-all-stock-modal" class="modal-overlay">
+        <div class="modal-card" style="max-width: 440px;">
+            <div class="modal-header" style="border-bottom-color: #fecaca;">
+                <h3 style="color: var(--danger);">🗑️ Kosongkan Seluruh Stok</h3>
+                <button type="button" class="btn btn-sm btn-secondary" onclick="closeClearAllStockModal()">✕</button>
+            </div>
+            <div class="modal-body">
+                <div style="background: var(--danger-light); border: 1px solid #fecaca; border-radius: var(--radius-md); padding: 14px 16px; margin-bottom: 14px;">
+                    <div style="font-weight: 700; color: var(--danger); margin-bottom: 6px;">⚠️ Konfirmasi Pengosongan Stok</div>
+                    <div style="font-size: 13px; color: #7f1d1d; line-height: 1.5;">
+                        Apakah Anda yakin ingin mengosongkan seluruh stok yang tersisa? Tindakan ini akan mencatat seluruh sisa stok mentah &amp; matang saat ini sebagai Terbuang/Rusak.
+                    </div>
+                </div>
+                <div style="font-size: 13.5px; color: var(--text-main); line-height: 1.5;">
+                    Seluruh sisa stok komoditas palawija akan otomatis menjadi <strong>0 (Habis)</strong> dan dicatat ke dalam riwayat barang terbuang/rusak.
+                </div>
+            </div>
+            <div class="modal-footer" style="gap: 8px; display: flex; justify-content: flex-end;">
+                <button type="button" class="btn btn-secondary" onclick="closeClearAllStockModal()">Batal</button>
+                <button type="button" class="btn" id="btn-confirm-clear-all-stock"
+                    style="background: var(--danger); color: #fff; border-color: var(--danger);"
+                    onclick="executeClearAllStock()">Ya, Kosongkan</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL CATAT TERBUANG / RUSAK (PER KOMODITAS DENGAN SHORTCUT) -->
+    <div id="waste-stock-modal" class="modal-overlay">
+        <div class="modal-card" style="max-width: 490px;">
+            <div class="modal-header" style="border-bottom-color: #fde68a;">
+                <h3 style="color: var(--warning);">🗑️ Catat Terbuang / Rusak</h3>
+                <button type="button" class="btn btn-sm btn-secondary" onclick="closeWasteStockModal()">✕</button>
+            </div>
+            <div class="modal-body">
+                <div style="background: var(--warning-light); border: 1px solid #fde68a; border-radius: var(--radius-md); padding: 12px 14px; margin-bottom: 14px; font-size: 13px; color: #92400e; line-height: 1.5;">
+                    ⚠️ Stok komoditas terkait akan <strong>dikurangi otomatis</strong> sebesar jumlah yang dicatat terbuang/rusak.
+                </div>
+                <div id="waste-stock-item-info" style="font-size: 14px; color: #0f172a; margin-bottom: 12px; background: #f8fafc; padding: 10px 12px; border-radius: var(--radius-md); border: 1px solid var(--border);"></div>
+
+                <!-- SHORTCUT CEPAT BUANG SEMUA SISA -->
+                <div style="background: #f1f5f9; border: 1.5px dashed #94a3b8; border-radius: var(--radius-md); padding: 12px; margin-bottom: 14px;">
+                    <div style="font-size: 11.5px; font-weight: 700; color: #334155; text-transform: uppercase; margin-bottom: 8px; letter-spacing: 0.5px;">
+                        ⚡ Tombol Cepat (Shortcut Buang Sisa):
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                        <button type="button" id="btn-shortcut-raw" class="btn btn-sm"
+                            style="background: #ffffff; border: 1.5px solid #cbd5e1; color: #0f172a; font-weight: 700; padding: 8px 10px; font-size: 12.5px; text-align: left; display: flex; flex-direction: column; gap: 2px;"
+                            onclick="applyWasteShortcut('RAW')">
+                            <span>⚡ Buang Semua Sisa Mentah</span>
+                            <span id="shortcut-raw-val" style="font-size: 11px; color: var(--text-muted); font-weight: 600;">(0 kg)</span>
+                        </button>
+                        <button type="button" id="btn-shortcut-cooked" class="btn btn-sm"
+                            style="background: #ffffff; border: 1.5px solid #cbd5e1; color: #0f172a; font-weight: 700; padding: 8px 10px; font-size: 12.5px; text-align: left; display: flex; flex-direction: column; gap: 2px;"
+                            onclick="applyWasteShortcut('COOKED')">
+                            <span>⚡ Buang Semua Sisa Matang</span>
+                            <span id="shortcut-cooked-val" style="font-size: 11px; color: var(--text-muted); font-weight: 600;">(0 porsi)</span>
+                        </button>
+                    </div>
+                    <div style="font-size: 11px; color: var(--text-muted); margin-top: 6px;">
+                        Klik tombol di atas untuk mengisi jumlah otomatis sesuai sisa stok tanpa mengetik manual.
+                    </div>
+                </div>
+
+                <!-- PILIHAN TIPE BAHAN -->
+                <div class="input-group" style="margin-bottom: 12px;">
+                    <label>Pilih Jenis Yang Dicatat:</label>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                        <button type="button" id="btn-waste-type-raw" class="btn btn-sm"
+                            style="border: 2px solid var(--primary); background: #f0fdf4; color: var(--primary); font-weight: 700;"
+                            onclick="selectWasteType('RAW')">
+                            🥔 Bahan Mentah
+                        </button>
+                        <button type="button" id="btn-waste-type-cooked" class="btn btn-sm"
+                            style="border: 1px solid var(--border); background: #f8fafc; color: #475569; font-weight: 600;"
+                            onclick="selectWasteType('COOKED')">
+                            ♨️ Produk Matang
+                        </button>
+                    </div>
+                </div>
+
+                <div style="display: flex; flex-direction: column; gap: 12px;">
+                    <div class="input-group">
+                        <label id="waste-stock-qty-label">Jumlah Terbuang / Rusak (Mentah):</label>
+                        <div class="input-with-unit">
+                            <input type="number" id="waste-stock-qty" min="0.01" step="any" placeholder="0"
+                                style="width: 100%; border: none; padding: 8px 10px; font-size: 14px; font-weight: 700; outline: none; font-family: inherit;">
+                            <span class="unit-tag" id="waste-stock-unit-tag">kg</span>
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <label>Catatan (Opsional):</label>
+                        <input type="text" id="waste-stock-notes" class="standard-input" placeholder="Misal: Busuk, basi, sisa jualan, jatuh, dll.">
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer" style="gap: 8px; display: flex; justify-content: flex-end;">
+                <button type="button" class="btn btn-secondary" onclick="closeWasteStockModal()">Batal</button>
+                <button type="button" class="btn" id="btn-confirm-waste-stock"
+                    style="background: var(--warning); color: #fff; border-color: var(--warning);"
+                    onclick="executeWasteStock()">✔ Catat Terbuang</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- TOAST NOTIFIKASI -->
+    <div id="toast-notify" class="toast">Notifikasi</div>
+
+    <!-- SCRIPT LOGIC -->
+    <script>
+        // =========================================================
+        // CONSTANTS & KEYS
+        // =========================================================
+        const ACTIVE_TAB_KEY = "kukusan_active_tab_owner";
+        const DRAFT_KUKUS_KEY = "kukusan_draft_kukus_v2";
+        const DRAFT_BELI_KEY = "kukusan_draft_beli_v2";
+
+        let masterItems = [];       // 13 Palawija commodities with stock & MWA
+        let kukusHistory = [];
+        let beliHistory = [];
+
+        let debounceKukusTimer = null;
+        let debounceBeliTimer = null;
+
+        // State untuk modal hapus pembelian
+        let pendingDeletePurchaseId = null;
+
+        // State untuk modal catat terbuang
+        let currentWasteItem = null;
+        let currentWasteType = "RAW"; // "RAW" or "COOKED"
+
+        // =========================================================
+        // FORMATTERS
+        // =========================================================
+        function formatRupiah(val) {
+            const num = parseFloat(val) || 0;
+            return new Intl.NumberFormat("id-ID", {
+                style: "currency",
+                currency: "IDR",
+                maximumFractionDigits: 0
+            }).format(num);
+        }
+
+        function formatNumber(val, decimals = 1) {
+            const num = parseFloat(val) || 0;
+            if (num % 1 === 0) return num.toString();
+            return num.toFixed(decimals);
+        }
+
+        function formatDateTime(isoString) {
+            if (!isoString) return "-";
+            const date = new Date(isoString);
+            return date.toLocaleDateString("id-ID", {
+                day: "2-digit",
+                month: "short",
+                year: "numeric",
+                hour: "2-digit",
+                minute: "2-digit"
+            });
+        }
+
+        function showToast(msg, isSuccess = true) {
+            const toast = document.getElementById("toast-notify");
+            toast.textContent = msg;
+            toast.style.background = isSuccess ? "#14532d" : "#991b1b";
+            toast.classList.add("show");
+            setTimeout(() => toast.classList.remove("show"), 3200);
+        }
+
+        // =========================================================
+        // PAGE NAVIGATION
+        // =========================================================
+        function showPage(pageId) {
+            document.querySelectorAll(".app-page").forEach(function(p) { p.style.display = "none"; });
+            document.querySelectorAll(".nav-btn").forEach(function(b) { b.classList.remove("active"); });
+
+            var targetPage = document.getElementById("page-" + pageId);
+            var targetBtn = document.getElementById("nav-btn-" + pageId);
+
+            if (targetPage) targetPage.style.display = "block";
+            if (targetBtn) targetBtn.classList.add("active");
+
+            localStorage.setItem(ACTIVE_TAB_KEY, pageId);
+
+            if (pageId === "dapur-kukus") {
+                initDapurKukus();
+            } else if (pageId === "beli-bahan") {
+                initBeliBahan();
+            } else if (pageId === "modal") {
+                initModal();
+            } else if (pageId === "stok-rekap") {
+                loadStockAndDashboard();
+            } else if (pageId === "keuangan") {
+                initFinance();
+            }
+        }
+
+        // =========================================================
+        // LOAD UNIFIED MASTER ITEMS (13 Palawija Commodities)
+        // =========================================================
+        async function fetchMasterItems() {
+            try {
+                const res = await fetch("/api/production/recipe-items");
+                if (!res.ok) throw new Error("Gagal mengambil master bahan");
+                masterItems = await res.json();
+                return masterItems;
+            } catch (err) {
+                console.error(err);
+                return [];
+            }
+        }
+
+        // =========================================================
+        // 1. DAPUR KUKUS CONTROLLER
+        // =========================================================
+        async function initDapurKukus() {
+            const dateInput = document.getElementById("kukus-date");
+            if (dateInput && !dateInput.value) {
+                const now = new Date();
+                const offset = now.getTimezoneOffset() * 60000;
+                dateInput.value = new Date(now - offset).toISOString().slice(0, 16);
+            }
+
+            await Promise.all([
+                fetchMasterItems().then(renderKukusCommodityCards),
+                loadProductionHistory()
+            ]);
+
+            restoreKukusDraft();
+        }
+
+        function renderKukusCommodityCards() {
+            const container = document.getElementById("kukus-commodities-container");
+            container.innerHTML = "";
+
+            masterItems.forEach(function(item) {
+                const hasStock = item.current_stock > 0;
+                const card = document.createElement("div");
+                card.className = "commodity-card";
+                card.id = "kukus-card-" + item.ingredient_id;
+                card.dataset.id = item.ingredient_id;
+
+                card.innerHTML =
+                    '<div class="commodity-header">' +
+                    '<div class="commodity-title">🥔 ' + item.ingredient_name + '</div>' +
+                    '<span class="badge ' + (hasStock ? 'badge-green' : 'badge-gray') + '">' +
+                    'Stok: ' + formatNumber(item.current_stock) + ' ' + item.ingredient_symbol +
+                    '</span>' +
+                    '</div>' +
+                    '<div class="commodity-meta">' +
+                    'Harga Rata-rata MWA: <strong>' + formatRupiah(item.average_cost) + '</strong> / ' + item.ingredient_symbol +
+                    '</div>' +
+                    '<div class="commodity-inputs-row">' +
+                    '<div class="input-group">' +
+                    '<label>Jumlah Mentah (' + item.ingredient_symbol + ')</label>' +
+                    '<div class="input-with-unit">' +
+                    '<input type="number" class="kukus-raw-input" min="0" step="0.1" placeholder="0" ' +
+                    'oninput="onKukusInputChange(\'' + item.ingredient_id + '\')">' +
+                    '<span class="unit-tag">' + item.ingredient_symbol + '</span>' +
+                    '</div>' +
+                    '</div>' +
+                    '<div class="input-group">' +
+                    '<label>Hasil Matang (' + item.product_symbol + ')</label>' +
+                    '<div class="input-with-unit">' +
+                    '<input type="number" class="kukus-cooked-input" min="0" step="1" placeholder="0" ' +
+                    'oninput="onKukusInputChange(\'' + item.ingredient_id + '\')">' +
+                    '<span class="unit-tag">' + item.product_symbol + '</span>' +
+                    '</div>' +
+                    '</div>' +
+                    '</div>' +
+                    '<div class="commodity-calc-info">' +
+                    '<div class="calc-line">' +
+                    '<span>Biaya Mentah:</span>' +
+                    '<strong id="kukus-subtotal-' + item.ingredient_id + '">Rp0</strong>' +
+                    '</div>' +
+                    '<div class="calc-line">' +
+                    '<span>Estimasi HPP:</span>' +
+                    '<span class="calc-hpp-highlight" id="kukus-hpp-' + item.ingredient_id + '">-</span>' +
+                    '</div>' +
+                    '<div id="kukus-warning-' + item.ingredient_id + '" style="color: var(--danger); font-size: 11px; display: none; font-weight: 600;">' +
+                    '⚠️ Melebihi stok (' + formatNumber(item.current_stock) + ' ' + item.ingredient_symbol + ')' +
+                    '</div>' +
+                    '</div>';
+
+                container.appendChild(card);
+            });
+
+            calculateKukusTotals();
+        }
+
+        function onKukusInputChange(id) {
+            calculateKukusTotals();
+            clearTimeout(debounceKukusTimer);
+            debounceKukusTimer = setTimeout(saveKukusDraft, 250);
+        }
+
+        function calculateKukusTotals() {
+            let totalCost = 0;
+            let activeCount = 0;
+            const filled = [];
+
+            masterItems.forEach(function(item) {
+                const card = document.getElementById("kukus-card-" + item.ingredient_id);
+                if (!card) return;
+
+                const rawInput = card.querySelector(".kukus-raw-input");
+                const cookedInput = card.querySelector(".kukus-cooked-input");
+                const rawVal = parseFloat(rawInput ? rawInput.value : 0) || 0;
+                const cookedVal = parseFloat(cookedInput ? cookedInput.value : 0) || 0;
+
+                const subtotal = rawVal * item.average_cost;
+                const subtotalEl = document.getElementById("kukus-subtotal-" + item.ingredient_id);
+                if (subtotalEl) subtotalEl.textContent = formatRupiah(subtotal);
+
+                const warnEl = document.getElementById("kukus-warning-" + item.ingredient_id);
+                if (warnEl) {
+                    warnEl.style.display = rawVal > item.current_stock ? "block" : "none";
+                }
+
+                if (rawVal > 0 || cookedVal > 0) {
+                    card.classList.add("has-data");
+                    activeCount++;
+                    filled.push({ item: item, rawVal: rawVal, cookedVal: cookedVal, subtotal: subtotal });
+                    totalCost += subtotal;
+                } else {
+                    card.classList.remove("has-data");
+                    const hppEl2 = document.getElementById("kukus-hpp-" + item.ingredient_id);
+                    if (hppEl2) hppEl2.textContent = "-";
+                }
+            });
+
+            // Calculate proportional allocation & HPP
+            if (filled.length > 0) {
+                let allocSum = 0;
+                filled.forEach(function(f, idx) {
+                    let pct;
+                    if (filled.length === 1) {
+                        pct = 100;
+                    } else if (totalCost > 0) {
+                        pct = (f.subtotal / totalCost) * 100;
+                    } else {
+                        pct = 100 / filled.length;
+                    }
+                    if (idx === filled.length - 1) {
+                        pct = Math.max(0, 100 - allocSum);
+                    } else {
+                        pct = Math.round(pct * 10) / 10;
+                        allocSum += pct;
+                    }
+
+                    const allocCost = totalCost * (pct / 100);
+                    const hpp = f.cookedVal > 0 ? (allocCost / f.cookedVal) : 0;
+                    const hppEl = document.getElementById("kukus-hpp-" + f.item.ingredient_id);
+                    if (hppEl) {
+                        hppEl.textContent = f.cookedVal > 0
+                            ? (formatRupiah(hpp) + " / " + f.item.product_symbol)
+                            : "(Isi hasil matang)";
+                    }
+                });
+            }
+
+            document.getElementById("summary-kukus-count").textContent = activeCount + " Jenis";
+            document.getElementById("summary-kukus-cost").textContent = formatRupiah(totalCost);
+        }
+
+        async function submitCookingBatch() {
+            const btn = document.getElementById("btn-save-kukus");
+            const dateEl = document.getElementById("kukus-date");
+            const dateVal = dateEl ? dateEl.value : "";
+            if (!dateVal) {
+                alert("Isi tanggal & jam masak terlebih dahulu.");
+                return;
+            }
+
+            const inputs = [];
+            const outputs = [];
+            const filled = [];
+            let totalCost = 0;
+
+            masterItems.forEach(function(item) {
+                const card = document.getElementById("kukus-card-" + item.ingredient_id);
+                if (!card) return;
+                const rawInput = card.querySelector(".kukus-raw-input");
+                const cookedInput = card.querySelector(".kukus-cooked-input");
+                const rawVal = parseFloat(rawInput ? rawInput.value : 0) || 0;
+                const cookedVal = parseFloat(cookedInput ? cookedInput.value : 0) || 0;
+                if (rawVal > 0 || cookedVal > 0) {
+                    filled.push({ item: item, rawVal: rawVal, cookedVal: cookedVal, subtotal: rawVal * item.average_cost });
+                    totalCost += (rawVal * item.average_cost);
+                }
+            });
+
+            if (filled.length === 0) {
+                alert("Silakan masukkan setidaknya 1 bahan yang dimasak.");
+                return;
+            }
+
+            for (var fi = 0; fi < filled.length; fi++) {
+                const f = filled[fi];
+                if (f.rawVal <= 0 || f.cookedVal <= 0) {
+                    alert("Jumlah mentah dan hasil matang untuk " + f.item.ingredient_name + " harus lebih dari 0.");
+                    return;
+                }
+            }
+
+            let allocSum = 0;
+            filled.forEach(function(f, idx) {
+                let pct;
+                if (filled.length === 1) {
+                    pct = 100;
+                } else if (totalCost > 0) {
+                    pct = (f.subtotal / totalCost) * 100;
+                } else {
+                    pct = 100 / filled.length;
+                }
+                if (idx === filled.length - 1) {
+                    pct = Math.round((100 - allocSum) * 100) / 100;
+                } else {
+                    pct = Math.round(pct * 100) / 100;
+                    allocSum += pct;
+                }
+
+                inputs.push({
+                    ingredient_id: f.item.ingredient_id,
+                    unit_id: f.item.stock_unit_id,
+                    quantity: f.rawVal
+                });
+
+                outputs.push({
+                    product_id: f.item.product_id,
+                    unit_id: f.item.selling_unit_id,
+                    quantity: f.cookedVal,
+                    allocation_percentage: pct
+                });
+            });
+
+            const notesEl = document.getElementById("kukus-notes");
+            const payload = {
+                production_date: new Date(dateVal).toISOString(),
+                notes: notesEl ? notesEl.value || null : null,
+                additional_cost: 0,
+                inputs: inputs,
+                outputs: outputs
+            };
+
+            btn.disabled = true;
+            btn.textContent = "⏳ Menyimpan...";
+
+            try {
+                const res = await fetch("/api/productions", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(payload)
+                });
+                const result = await res.json();
+                if (!res.ok) throw new Error(result.detail || "Gagal menyimpan");
+
+                localStorage.removeItem(DRAFT_KUKUS_KEY);
+                showToast("✅ Berhasil! Proses dapur kukus telah disimpan.", true);
+                resetCookingForm(false);
+                toggleCookingForm();
+
+                await Promise.all([
+                    fetchMasterItems().then(renderKukusCommodityCards),
+                    loadProductionHistory()
+                ]);
+            } catch (err) {
+                alert("Gagal: " + err.message);
+            } finally {
+                btn.disabled = false;
+                btn.textContent = "💾 Simpan Masak";
+            }
+        }
+
+        async function loadProductionHistory() {
+            const tbody = document.getElementById("kukus-history-tbody");
+            try {
+                const res = await fetch("/api/productions");
+                kukusHistory = res.ok ? await res.json() : [];
+                renderKukusHistoryTable();
+            } catch (err) {
+                tbody.innerHTML = '<tr><td colspan="3" style="text-align: center; color: var(--danger);">Gagal memuat: ' + err.message + '</td></tr>';
+            }
+        }
+
+        function renderKukusHistoryTable() {
+            const tbody = document.getElementById("kukus-history-tbody");
+            if (!kukusHistory || kukusHistory.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="3" style="text-align: center; padding: 30px; color: var(--text-muted);">Belum ada riwayat produksi.</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = "";
+            kukusHistory.forEach(function(b) {
+                const tr = document.createElement("tr");
+                tr.innerHTML =
+                    '<td style="white-space: nowrap;">' + formatDateTime(b.production_date) + '</td>' +
+                    '<td style="font-weight: 800;">' + formatRupiah(b.total_cost) + '</td>' +
+                    '<td style="text-align: center;">' +
+                    '<button class="btn btn-sm btn-secondary" onclick="viewBatchDetail(\'' + b.id + '\')">👁️ Rincian</button>' +
+                    '</td>';
+                tbody.appendChild(tr);
+            });
+        }
+
+        // =========================================================
+        // RESET SELURUH DATA PRODUKSI
+        // =========================================================
+        function openResetConfirmModal() {
+            document.getElementById("reset-confirm-modal").classList.add("active");
+        }
+
+        function closeResetConfirmModal() {
+            document.getElementById("reset-confirm-modal").classList.remove("active");
+        }
+
+        async function executeResetAllProductions() {
+            const btn = document.getElementById("btn-confirm-reset");
+            btn.disabled = true;
+            btn.textContent = "⏳ Menghapus...";
+
+            try {
+                const res = await fetch("/api/productions/reset", {
+                    method: "DELETE"
+                });
+                const result = await res.json();
+                if (!res.ok) throw new Error(result.detail || "Gagal menghapus data");
+
+                closeResetConfirmModal();
+                showToast("✅ Seluruh data produksi berhasil dihapus.", true);
+                kukusHistory = [];
+                renderKukusHistoryTable();
+            } catch (err) {
+                showToast("❌ Gagal: " + err.message, false);
+            } finally {
+                btn.disabled = false;
+                btn.textContent = "Ya, Hapus Semua";
+            }
+        }
+
+        function toggleCookingForm() {
+            const el = document.getElementById("cooking-form-container");
+            const isHidden = el.style.display === "none";
+            el.style.display = isHidden ? "block" : "none";
+            document.getElementById("btn-toggle-kukus-icon").textContent = isHidden ? "✕" : "➕";
+            document.getElementById("btn-toggle-kukus-text").textContent = isHidden ? "Tutup Form" : "Catat Masak / Kukus Baru";
+            if (isHidden) el.scrollIntoView({ behavior: "smooth", block: "start" });
+        }
+
+        function openCookingForm() {
+            const el = document.getElementById("cooking-form-container");
+            el.style.display = "block";
+            document.getElementById("btn-toggle-kukus-icon").textContent = "✕";
+            document.getElementById("btn-toggle-kukus-text").textContent = "Tutup Form";
+            el.scrollIntoView({ behavior: "smooth", block: "start" });
+        }
+
+        function saveKukusDraft() {
+            const draft = {
+                date: document.getElementById("kukus-date") ? document.getElementById("kukus-date").value : "",
+                notes: document.getElementById("kukus-notes") ? document.getElementById("kukus-notes").value : "",
+                items: {}
+            };
+            document.querySelectorAll("#kukus-commodities-container .commodity-card").forEach(function(card) {
+                const id = card.dataset.id;
+                const rawEl = card.querySelector(".kukus-raw-input");
+                const cookedEl = card.querySelector(".kukus-cooked-input");
+                const raw = rawEl ? rawEl.value : "";
+                const cooked = cookedEl ? cookedEl.value : "";
+                if (raw || cooked) draft.items[id] = { raw: raw, cooked: cooked };
+            });
+            localStorage.setItem(DRAFT_KUKUS_KEY, JSON.stringify(draft));
+        }
+
+        function restoreKukusDraft() {
+            try {
+                const rawStored = localStorage.getItem(DRAFT_KUKUS_KEY);
+                if (!rawStored) return;
+                const draft = JSON.parse(rawStored);
+                const dateEl = document.getElementById("kukus-date");
+                const notesEl = document.getElementById("kukus-notes");
+                if (draft.date && dateEl) dateEl.value = draft.date;
+                if (draft.notes && notesEl) notesEl.value = draft.notes;
+
+                if (draft.items) {
+                    let hasData = false;
+                    Object.keys(draft.items).forEach(function(id) {
+                        const card = document.getElementById("kukus-card-" + id);
+                        if (card) {
+                            const rawEl = card.querySelector(".kukus-raw-input");
+                            const cookedEl = card.querySelector(".kukus-cooked-input");
+                            if (draft.items[id].raw && rawEl) rawEl.value = draft.items[id].raw;
+                            if (draft.items[id].cooked && cookedEl) cookedEl.value = draft.items[id].cooked;
+                            hasData = true;
+                        }
+                    });
+                    if (hasData) {
+                        calculateKukusTotals();
+                        openCookingForm();
+                    }
+                }
+            } catch (e) { console.error(e); }
+        }
+
+        function resetCookingForm(askConfirm) {
+            if (askConfirm === undefined) askConfirm = true;
+            if (askConfirm && !confirm("Kosongkan form masak?")) return;
+            document.querySelectorAll("#kukus-commodities-container .commodity-card").forEach(function(card) {
+                const rawEl = card.querySelector(".kukus-raw-input");
+                const cookedEl = card.querySelector(".kukus-cooked-input");
+                if (rawEl) rawEl.value = "";
+                if (cookedEl) cookedEl.value = "";
+                card.classList.remove("has-data");
+            });
+            const notesEl2 = document.getElementById("kukus-notes");
+            if (notesEl2) notesEl2.value = "";
+            localStorage.removeItem(DRAFT_KUKUS_KEY);
+            calculateKukusTotals();
+        }
+
+        // =========================================================
+        // 2. BELI BAHAN CONTROLLER (PEMBELIAN)
+        // =========================================================
+        async function initBeliBahan() {
+            const dateInput = document.getElementById("beli-date");
+            if (dateInput && !dateInput.value) {
+                const now = new Date();
+                const offset = now.getTimezoneOffset() * 60000;
+                dateInput.value = new Date(now - offset).toISOString().slice(0, 16);
+            }
+
+            await Promise.all([
+                fetchMasterItems().then(renderBeliCommodityCards),
+                loadPurchaseHistory()
+            ]);
+
+            restoreBeliDraft();
+        }
+
+        function renderBeliCommodityCards() {
+            const container = document.getElementById("beli-commodities-container");
+            container.innerHTML = "";
+
+            masterItems.forEach(function(item) {
+                const card = document.createElement("div");
+                card.className = "commodity-card";
+                card.id = "beli-card-" + item.ingredient_id;
+                card.dataset.id = item.ingredient_id;
+
+                card.innerHTML =
+                    '<div class="commodity-header">' +
+                    '<div class="commodity-title">🥔 ' + item.ingredient_name + '</div>' +
+                    '<span class="badge badge-gray">' +
+                    'Satuan Baku: <strong>' + item.ingredient_symbol + '</strong>' +
+                    '</span>' +
+                    '</div>' +
+                    '<div class="commodity-meta">' +
+                    'Stok Saat Ini: ' + formatNumber(item.current_stock) + ' ' + item.ingredient_symbol +
+                    ' • MWA Terakhir: ' + formatRupiah(item.average_cost) +
+                    '</div>' +
+                    '<div class="commodity-inputs-row">' +
+                    '<div class="input-group">' +
+                    '<label>Jumlah Beli (' + item.ingredient_symbol + ')</label>' +
+                    '<div class="input-with-unit">' +
+                    '<input type="number" class="beli-qty-input" min="0" step="0.1" placeholder="0" ' +
+                    'oninput="onBeliInputChange(\'' + item.ingredient_id + '\')">' +
+                    '<span class="unit-tag">' + item.ingredient_symbol + '</span>' +
+                    '</div>' +
+                    '</div>' +
+                    '<div class="input-group">' +
+                    '<label>Harga Satuan Beli (Rp)</label>' +
+                    '<div class="input-with-unit">' +
+                    '<input type="number" class="beli-price-input" min="0" step="500" placeholder="Rp" ' +
+                    'value="' + (item.average_cost > 0 ? item.average_cost : '') + '" ' +
+                    'oninput="onBeliInputChange(\'' + item.ingredient_id + '\')">' +
+                    '<span class="unit-tag">Rp</span>' +
+                    '</div>' +
+                    '</div>' +
+                    '</div>' +
+                    '<div class="commodity-calc-info">' +
+                    '<div class="calc-line">' +
+                    '<span>Subtotal Belanja:</span>' +
+                    '<strong id="beli-subtotal-' + item.ingredient_id + '">Rp0</strong>' +
+                    '</div>' +
+                    '</div>';
+                container.appendChild(card);
+            });
+
+            calculateBeliTotals();
+        }
+
+        function onBeliInputChange(id) {
+            calculateBeliTotals();
+            clearTimeout(debounceBeliTimer);
+            debounceBeliTimer = setTimeout(saveBeliDraft, 250);
+        }
+
+        function calculateBeliTotals() {
+            let total = 0;
+            let count = 0;
+
+            masterItems.forEach(function(item) {
+                const card = document.getElementById("beli-card-" + item.ingredient_id);
+                if (!card) return;
+
+                const qtyEl = card.querySelector(".beli-qty-input");
+                const priceEl = card.querySelector(".beli-price-input");
+                const qty = parseFloat(qtyEl ? qtyEl.value : 0) || 0;
+                const price = parseFloat(priceEl ? priceEl.value : 0) || 0;
+                const subtotal = qty * price;
+
+                const subtotalEl = document.getElementById("beli-subtotal-" + item.ingredient_id);
+                if (subtotalEl) subtotalEl.textContent = formatRupiah(subtotal);
+
+                if (qty > 0) {
+                    card.classList.add("has-data");
+                    count++;
+                    total += subtotal;
+                } else {
+                    card.classList.remove("has-data");
+                }
+            });
+
+            document.getElementById("summary-beli-count").textContent = count + " Jenis";
+            document.getElementById("summary-beli-total").textContent = formatRupiah(total);
+        }
+
+        async function submitPurchase() {
+            const btn = document.getElementById("btn-save-beli");
+            const dateEl2 = document.getElementById("beli-date");
+            const dateVal = dateEl2 ? dateEl2.value : "";
+            if (!dateVal) {
+                alert("Isi tanggal pembelian terlebih dahulu.");
+                return;
+            }
+
+            const items = [];
+            let validationError = false;
+            masterItems.forEach(function(item) {
+                if (validationError) return;
+                const card = document.getElementById("beli-card-" + item.ingredient_id);
+                if (!card) return;
+                const qtyEl = card.querySelector(".beli-qty-input");
+                const priceEl = card.querySelector(".beli-price-input");
+                const qty = parseFloat(qtyEl ? qtyEl.value : 0) || 0;
+                const price = parseFloat(priceEl ? priceEl.value : 0) || 0;
+
+                if (qty > 0) {
+                    if (price <= 0) {
+                        alert("Harga beli untuk " + item.ingredient_name + " harus lebih dari 0.");
+                        validationError = true;
+                        return;
+                    }
+                    items.push({
+                        ingredient_id: item.ingredient_id,
+                        unit_id: item.stock_unit_id,
+                        quantity: qty,
+                        unit_price: price
+                    });
+                }
+            });
+
+            if (validationError) return;
+
+            if (items.length === 0) {
+                alert("Masukkan setidaknya 1 bahan yang dibeli.");
+                return;
+            }
+
+            const beliNotesEl = document.getElementById("beli-notes");
+            const payload = {
+                purchase_date: new Date(dateVal).toISOString(),
+                supplier_name: null,
+                payment_method: "CASH",
+                notes: beliNotesEl ? beliNotesEl.value || null : null,
+                items: items
+            };
+
+            btn.disabled = true;
+            btn.textContent = "⏳ Menyimpan...";
+
+            try {
+                const res = await fetch("/api/purchases", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(payload)
+                });
+                const result = await res.json();
+                if (!res.ok) throw new Error(result.message || result.detail || "Gagal menyimpan pembelian");
+
+                localStorage.removeItem(DRAFT_BELI_KEY);
+                showToast("✅ Berhasil! Pembelian bahan telah disimpan ke stok.", true);
+                resetPurchaseForm(false);
+                togglePurchaseForm();
+
+                await Promise.all([
+                    fetchMasterItems().then(renderBeliCommodityCards),
+                    loadPurchaseHistory()
+                ]);
+            } catch (err) {
+                alert("Gagal: " + err.message);
+            } finally {
+                btn.disabled = false;
+                btn.textContent = "💾 Simpan Pembelian";
+            }
+        }
+
+        async function loadPurchaseHistory() {
+            const tbody = document.getElementById("beli-history-tbody");
+            try {
+                const res = await fetch("/api/purchases");
+                beliHistory = res.ok ? await res.json() : [];
+                renderPurchaseHistoryTable();
+            } catch (err) {
+                tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: var(--danger);">Gagal memuat: ' + err.message + '</td></tr>';
+            }
+        }
+
+        function renderPurchaseHistoryTable() {
+            const tbody = document.getElementById("beli-history-tbody");
+            if (!beliHistory || beliHistory.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 30px; color: var(--text-muted);">Belum ada riwayat pembelian.</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = "";
+            beliHistory.forEach(function(p) {
+                const tr = document.createElement("tr");
+                const itemsHtml = (p.items || []).map(function(i) {
+                    return '<div><strong>' + i.ingredient_name + '</strong>: ' + formatNumber(i.quantity) + ' ' + i.unit_symbol + ' (@' + formatRupiah(i.unit_price) + ')</div>';
+                }).join("") || "-";
+
+                const safeDateLabel = formatDateTime(p.purchase_date).replace(/"/g, '&quot;').replace(/'/g, "&#39;");
+                const safeTotalLabel = formatRupiah(p.total_amount).replace(/"/g, '&quot;').replace(/'/g, "&#39;");
+                tr.innerHTML =
+                    '<td style="white-space: nowrap;">' + formatDateTime(p.purchase_date) + '</td>' +
+                    '<td>' + itemsHtml + '</td>' +
+                    '<td style="font-weight: 800; color: #0f172a;">' + formatRupiah(p.total_amount) + '</td>' +
+                    '<td>' + (p.notes || "-") + '</td>' +
+                    '<td style="text-align: center; white-space: nowrap;">' +
+                    '<button class="btn btn-sm btn-danger-outline" onclick="openDeletePurchaseModal(\'' + p.id + '\', \'' + safeDateLabel + '\', \'' + safeTotalLabel + '\')">🗑️ Hapus</button>' +
+                    '</td>';
+                tbody.appendChild(tr);
+            });
+        }
+
+        // =========================================================
+        // MODAL KONFIRMASI HAPUS BARIS PEMBELIAN
+        // =========================================================
+        function openDeletePurchaseModal(purchaseId, dateLabel, totalLabel) {
+            pendingDeletePurchaseId = purchaseId;
+            const infoEl = document.getElementById("delete-purchase-info");
+            if (infoEl) {
+                infoEl.innerHTML = '<div style="margin-bottom: 4px;">📅 <strong>Tanggal:</strong> ' + dateLabel + '</div><div>💰 <strong>Total Belanja:</strong> ' + (totalLabel || "-") + '</div>';
+            }
+            document.getElementById("delete-purchase-modal").classList.add("active");
+        }
+
+        function closeDeletePurchaseModal() {
+            pendingDeletePurchaseId = null;
+            document.getElementById("delete-purchase-modal").classList.remove("active");
+        }
+
+        async function executeDeletePurchase() {
+            if (!pendingDeletePurchaseId) return;
+            const btn = document.getElementById("btn-confirm-delete-purchase");
+            btn.disabled = true;
+            btn.textContent = "⏳ Menghapus...";
+
+            try {
+                const res = await fetch("/api/purchases/" + pendingDeletePurchaseId, {
+                    method: "DELETE"
+                });
+                const result = await res.json();
+                if (!res.ok) throw new Error(result.detail || "Gagal menghapus data");
+
+                closeDeletePurchaseModal();
+                showToast("✅ Data pembelian berhasil dihapus.", true);
+                await loadPurchaseHistory();
+            } catch (err) {
+                showToast("❌ Gagal: " + err.message, false);
+            } finally {
+                btn.disabled = false;
+                btn.textContent = "Ya, Hapus";
+            }
+        }
+
+        // =========================================================
+        // MODAL KONFIRMASI KOSONGKAN SEMUA DATA PEMBELIAN
+        // =========================================================
+        function openClearPurchaseModal() {
+            document.getElementById("clear-purchase-modal").classList.add("active");
+        }
+
+        function closeClearPurchaseModal() {
+            document.getElementById("clear-purchase-modal").classList.remove("active");
+        }
+
+        async function executeClearAllPurchases() {
+            const btn = document.getElementById("btn-confirm-clear-purchase");
+            btn.disabled = true;
+            btn.textContent = "⏳ Menghapus...";
+
+            try {
+                const res = await fetch("/api/purchases/reset", {
+                    method: "DELETE"
+                });
+                const result = await res.json();
+                if (!res.ok) throw new Error(result.detail || "Gagal menghapus data pembelian");
+
+                closeClearPurchaseModal();
+                showToast("✅ Seluruh data pembelian berhasil dihapus.", true);
+                beliHistory = [];
+                renderPurchaseHistoryTable();
+            } catch (err) {
+                showToast("❌ Gagal: " + err.message, false);
+            } finally {
+                btn.disabled = false;
+                btn.textContent = "Ya, Hapus Semua";
+            }
+        }
+
+        function togglePurchaseForm() {
+            const el = document.getElementById("purchase-form-container");
+            const isHidden = el.style.display === "none";
+            el.style.display = isHidden ? "block" : "none";
+            document.getElementById("btn-toggle-beli-icon").textContent = isHidden ? "✕" : "➕";
+            document.getElementById("btn-toggle-beli-text").textContent = isHidden ? "Tutup Form" : "Catat Belanja Baru";
+            if (isHidden) el.scrollIntoView({ behavior: "smooth", block: "start" });
+        }
+
+        function openPurchaseForm() {
+            const el = document.getElementById("purchase-form-container");
+            el.style.display = "block";
+            document.getElementById("btn-toggle-beli-icon").textContent = "✕";
+            document.getElementById("btn-toggle-beli-text").textContent = "Tutup Form";
+            el.scrollIntoView({ behavior: "smooth", block: "start" });
+        }
+
+        function saveBeliDraft() {
+            const draft = {
+                date: document.getElementById("beli-date") ? document.getElementById("beli-date").value : "",
+                notes: document.getElementById("beli-notes") ? document.getElementById("beli-notes").value : "",
+                items: {}
+            };
+            document.querySelectorAll("#beli-commodities-container .commodity-card").forEach(function(card) {
+                const id = card.dataset.id;
+                const qtyEl = card.querySelector(".beli-qty-input");
+                const priceEl = card.querySelector(".beli-price-input");
+                const qty = qtyEl ? qtyEl.value : "";
+                const price = priceEl ? priceEl.value : "";
+                if (qty) draft.items[id] = { qty: qty, price: price };
+            });
+            localStorage.setItem(DRAFT_BELI_KEY, JSON.stringify(draft));
+        }
+
+        function restoreBeliDraft() {
+            try {
+                const rawStored2 = localStorage.getItem(DRAFT_BELI_KEY);
+                if (!rawStored2) return;
+                const draft = JSON.parse(rawStored2);
+                const beliDateEl = document.getElementById("beli-date");
+                const beliNotesEl2 = document.getElementById("beli-notes");
+                if (draft.date && beliDateEl) beliDateEl.value = draft.date;
+                if (draft.notes && beliNotesEl2) beliNotesEl2.value = draft.notes;
+
+                if (draft.items) {
+                    let hasData = false;
+                    Object.keys(draft.items).forEach(function(id) {
+                        const card = document.getElementById("beli-card-" + id);
+                        if (card) {
+                            const qtyEl = card.querySelector(".beli-qty-input");
+                            const priceEl = card.querySelector(".beli-price-input");
+                            if (draft.items[id].qty && qtyEl) qtyEl.value = draft.items[id].qty;
+                            if (draft.items[id].price && priceEl) priceEl.value = draft.items[id].price;
+                            hasData = true;
+                        }
+                    });
+                    if (hasData) {
+                        calculateBeliTotals();
+                        openPurchaseForm();
+                    }
+                }
+            } catch (e) { console.error(e); }
+        }
+
+        function resetPurchaseForm(askConfirm) {
+            if (askConfirm === undefined) askConfirm = true;
+            if (askConfirm && !confirm("Kosongkan form belanja?")) return;
+            document.querySelectorAll("#beli-commodities-container .commodity-card").forEach(function(card) {
+                const qtyEl = card.querySelector(".beli-qty-input");
+                if (qtyEl) qtyEl.value = "";
+                card.classList.remove("has-data");
+            });
+            const beliNotesEl3 = document.getElementById("beli-notes");
+            if (beliNotesEl3) beliNotesEl3.value = "";
+            localStorage.removeItem(DRAFT_BELI_KEY);
+            calculateBeliTotals();
+        }
+
+        // =========================================================
+        // 3. MODAL CONTROLLER (TAMBAH MODAL HARIAN & RIWAYAT MODAL)
+        // =========================================================
+        let modalHistory = [];
+        let pendingDeleteModalId = null;
+        let pendingDeleteModalDate = null;
+        let pendingDeleteModalTotal = null;
+
+        async function initModal() {
+            const dateInput = document.getElementById("modal-date");
+            if (dateInput && !dateInput.value) {
+                const now = new Date();
+                const offset = now.getTimezoneOffset() * 60000;
+                dateInput.value = new Date(now - offset).toISOString().slice(0, 10);
+            }
+            await Promise.all([
+                onModalDateChange(),
+                loadModalHistory()
+            ]);
+        }
+
+        async function onModalDateChange() {
+            const dateInput = document.getElementById("modal-date");
+            const dateVal = dateInput ? dateInput.value : "";
+            if (!dateVal) return;
+
+            const prodDisplay = document.getElementById("modal-prod-cost-display");
+            const prodVal = document.getElementById("modal-prod-cost-val");
+            const hintEl = document.getElementById("modal-prod-hint");
+            const btnSave = document.getElementById("btn-save-modal");
+
+            if (hintEl) {
+                hintEl.textContent = "⏳ Memeriksa riwayat produksi tanggal " + dateVal + "...";
+                hintEl.style.color = "var(--text-muted)";
+            }
+
+            try {
+                // 1. Ambil biaya produksi pada tanggal ini
+                const prodRes = await fetch("/api/productions/cost-by-date?date=" + dateVal);
+                let prodCost = 0;
+                let batchCount = 0;
+                if (prodRes.ok) {
+                    const prodData = await prodRes.json();
+                    prodCost = parseFloat(prodData.production_cost) || 0;
+                    batchCount = parseInt(prodData.batch_count) || 0;
+                }
+
+                if (prodVal) prodVal.value = prodCost;
+                if (prodDisplay) prodDisplay.value = formatRupiah(prodCost);
+
+                if (hintEl) {
+                    if (batchCount > 0) {
+                        hintEl.textContent = "✅ Ditemukan " + batchCount + " batch produksi (" + formatRupiah(prodCost) + ")";
+                        hintEl.style.color = "var(--primary-text)";
+                    } else {
+                        hintEl.textContent = "ℹ️ Belum ada catatan produksi pada tanggal ini (" + formatRupiah(0) + ")";
+                        hintEl.style.color = "var(--text-muted)";
+                    }
+                }
+
+                // 2. Cek apakah sudah ada modal tersimpan untuk tanggal ini
+                const modalCheckRes = await fetch("/api/modal/by-date?date=" + dateVal);
+                if (modalCheckRes.ok) {
+                    const existingModal = await modalCheckRes.json();
+                    if (existingModal && existingModal.count > 0) {
+                        const opsInput = document.getElementById("modal-ops-cost");
+                        if (opsInput && (!opsInput.value || opsInput.dataset.autoFilled === "true")) {
+                            opsInput.value = existingModal.operational_cost;
+                            opsInput.dataset.autoFilled = "true";
+                        }
+                        if (btnSave) btnSave.textContent = "💾 Perbarui Modal";
+                        if (hintEl) {
+                            hintEl.innerHTML += ' <span style="color: var(--warning); font-weight: 600;">(Modal tanggal ini sudah pernah dicatat, menyimpan akan memperbarui data)</span>';
+                        }
+                    } else {
+                        if (btnSave) btnSave.textContent = "💾 Simpan Modal";
+                    }
+                }
+
+                calculateModalTotal();
+            } catch (err) {
+                console.error("Gagal memeriksa data tanggal:", err);
+                if (hintEl) {
+                    hintEl.textContent = "⚠️ Gagal memuat data produksi: " + err.message;
+                    hintEl.style.color = "var(--danger)";
+                }
+            }
+        }
+
+        function calculateModalTotal() {
+            const prodValEl = document.getElementById("modal-prod-cost-val");
+            const opsInput = document.getElementById("modal-ops-cost");
+            const totalDisplay = document.getElementById("modal-total-display");
+
+            const prodCost = parseFloat(prodValEl ? prodValEl.value : 0) || 0;
+            const opsCost = parseFloat(opsInput ? opsInput.value : 0) || 0;
+            const total = prodCost + opsCost;
+
+            if (totalDisplay) {
+                totalDisplay.textContent = formatRupiah(total);
+            }
+            return total;
+        }
+
+        function resetModalForm() {
+            const now = new Date();
+            const offset = now.getTimezoneOffset() * 60000;
+            const todayStr = new Date(now - offset).toISOString().slice(0, 10);
+
+            const dateInput = document.getElementById("modal-date");
+            if (dateInput) dateInput.value = todayStr;
+
+            const opsInput = document.getElementById("modal-ops-cost");
+            if (opsInput) {
+                opsInput.value = "";
+                delete opsInput.dataset.autoFilled;
+            }
+
+            const notesInput = document.getElementById("modal-notes");
+            if (notesInput) notesInput.value = "";
+
+            const btnSave = document.getElementById("btn-save-modal");
+            if (btnSave) btnSave.textContent = "💾 Simpan Modal";
+
+            onModalDateChange();
+        }
+
+        async function submitModal() {
+            const btn = document.getElementById("btn-save-modal");
+            const dateInput = document.getElementById("modal-date");
+            const dateVal = dateInput ? dateInput.value : "";
+
+            if (!dateVal) {
+                alert("Pilih tanggal modal terlebih dahulu.");
+                return;
+            }
+
+            const prodValEl = document.getElementById("modal-prod-cost-val");
+            const opsInput = document.getElementById("modal-ops-cost");
+            const notesInput = document.getElementById("modal-notes");
+
+            const prodCost = parseFloat(prodValEl ? prodValEl.value : 0) || 0;
+            const opsCost = parseFloat(opsInput ? opsInput.value : 0) || 0;
+            const totalModal = prodCost + opsCost;
+
+            if (totalModal <= 0) {
+                if (!confirm("Total modal tercatat Rp0. Tetap simpan?")) {
+                    return;
+                }
+            }
+
+            const payload = {
+                entry_date: dateVal,
+                production_cost: prodCost,
+                operational_cost: opsCost,
+                total_modal: totalModal,
+                notes: notesInput ? notesInput.value || null : null
+            };
+
+            btn.disabled = true;
+            btn.textContent = "⏳ Menyimpan...";
+
+            try {
+                const res = await fetch("/api/modal", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(payload)
+                });
+                const result = await res.json();
+                if (!res.ok) throw new Error(result.detail || "Gagal menyimpan data modal");
+
+                showToast("✅ Modal harian tanggal " + dateVal + " (" + formatRupiah(totalModal) + ") berhasil disimpan.", true);
+                await loadModalHistory();
+                await onModalDateChange();
+            } catch (err) {
+                showToast("❌ Gagal: " + err.message, false);
+            } finally {
+                btn.disabled = false;
+                btn.textContent = "💾 Simpan Modal";
+            }
+        }
+
+        async function loadModalHistory() {
+            const tbody = document.getElementById("modal-history-tbody");
+            tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 30px;">Memuat riwayat modal...</td></tr>';
+
+            const startVal = document.getElementById("filter-modal-start") ? document.getElementById("filter-modal-start").value : "";
+            const endVal = document.getElementById("filter-modal-end") ? document.getElementById("filter-modal-end").value : "";
+
+            let url = "/api/modal";
+            const params = [];
+            if (startVal) params.push("start_date=" + encodeURIComponent(startVal));
+            if (endVal) params.push("end_date=" + encodeURIComponent(endVal));
+            if (params.length > 0) url += "?" + params.join("&");
+
+            try {
+                const res = await fetch(url);
+                modalHistory = res.ok ? await res.json() : [];
+                renderModalHistoryTable();
+            } catch (err) {
+                tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: var(--danger);">Gagal memuat: ' + err.message + '</td></tr>';
+            }
+        }
+
+        function resetModalFilter() {
+            const startInput = document.getElementById("filter-modal-start");
+            const endInput = document.getElementById("filter-modal-end");
+            if (startInput) startInput.value = "";
+            if (endInput) endInput.value = "";
+            loadModalHistory();
+        }
+
+        function renderModalHistoryTable() {
+            const tbody = document.getElementById("modal-history-tbody");
+            const sumTotalEl = document.getElementById("sum-modal-total");
+            const sumProdEl = document.getElementById("sum-modal-prod");
+            const sumOpsEl = document.getElementById("sum-modal-ops");
+
+            let sumTotal = 0;
+            let sumProd = 0;
+            let sumOps = 0;
+
+            if (!modalHistory || modalHistory.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 30px; color: var(--text-muted);">Belum ada riwayat modal.</td></tr>';
+                if (sumTotalEl) sumTotalEl.textContent = "Rp0";
+                if (sumProdEl) sumProdEl.textContent = "Rp0";
+                if (sumOpsEl) sumOpsEl.textContent = "Rp0";
+                return;
+            }
+
+            tbody.innerHTML = "";
+            modalHistory.forEach(function(m) {
+                sumTotal += m.total_modal || 0;
+                sumProd += m.production_cost || 0;
+                sumOps += m.operational_cost || 0;
+
+                const tr = document.createElement("tr");
+                const safeDate = m.entry_date;
+                const safeTotal = formatRupiah(m.total_modal).replace(/"/g, '&quot;').replace(/'/g, "&#39;");
+
+                tr.innerHTML =
+                    '<td style="font-weight: 700; white-space: nowrap;">📅 ' + m.entry_date + '</td>' +
+                    '<td style="color: #0f172a;">' + formatRupiah(m.production_cost) + '</td>' +
+                    '<td style="color: #0f172a;">' + formatRupiah(m.operational_cost) + '</td>' +
+                    '<td style="font-weight: 800; color: var(--primary); font-size: 14.5px;">' + formatRupiah(m.total_modal) + '</td>' +
+                    '<td style="color: var(--text-muted);">' + (m.notes || "-") + '</td>' +
+                    '<td style="text-align: center; white-space: nowrap;">' +
+                    '<button class="btn btn-sm btn-danger-outline" onclick="openDeleteModalModal(\'' + m.id + '\', \'' + safeDate + '\', \'' + safeTotal + '\')">' +
+                    '🗑️ Hapus' +
+                    '</button>' +
+                    '</td>';
+                tbody.appendChild(tr);
+            });
+
+            if (sumTotalEl) sumTotalEl.textContent = formatRupiah(sumTotal);
+            if (sumProdEl) sumProdEl.textContent = formatRupiah(sumProd);
+            if (sumOpsEl) sumOpsEl.textContent = formatRupiah(sumOps);
+        }
+
+        // =========================================================
+        // MODAL KONFIRMASI HAPUS MODAL PER TANGGAL
+        // =========================================================
+        function openDeleteModalModal(id, dateLabel, totalLabel) {
+            pendingDeleteModalId = id;
+            pendingDeleteModalDate = dateLabel;
+            pendingDeleteModalTotal = totalLabel;
+
+            const infoEl = document.getElementById("delete-modal-info");
+            if (infoEl) {
+                infoEl.innerHTML = '<div style="margin-bottom: 4px;">📅 <strong>Tanggal:</strong> ' + dateLabel + '</div><div>💰 <strong>Total Modal:</strong> ' + (totalLabel || "-") + '</div>';
+            }
+            document.getElementById("delete-modal-entry-modal").classList.add("active");
+        }
+
+        function closeDeleteModalModal() {
+            pendingDeleteModalId = null;
+            pendingDeleteModalDate = null;
+            pendingDeleteModalTotal = null;
+            document.getElementById("delete-modal-entry-modal").classList.remove("active");
+        }
+
+        async function executeDeleteModal() {
+            if (!pendingDeleteModalId) return;
+
+            const btn = document.getElementById("btn-confirm-delete-modal");
+            btn.disabled = true;
+            btn.textContent = "⏳ Menghapus...";
+
+            try {
+                const res = await fetch("/api/modal/" + pendingDeleteModalId, {
+                    method: "DELETE"
+                });
+                const result = await res.json();
+                if (!res.ok) throw new Error(result.detail || "Gagal menghapus data modal");
+
+                closeDeleteModalModal();
+                showToast("✅ Data modal berhasil dihapus.", true);
+                await loadModalHistory();
+                await onModalDateChange();
+            } catch (err) {
+                showToast("❌ Gagal: " + err.message, false);
+            } finally {
+                btn.disabled = false;
+                btn.textContent = "Ya, Hapus";
+            }
+        }
+
+        // =========================================================
+        // MODAL KONFIRMASI KOSONGKAN SELURUH RIWAYAT MODAL
+        // =========================================================
+        function openClearModalModal() {
+            document.getElementById("clear-all-modal-modal").classList.add("active");
+        }
+
+        function closeClearModalModal() {
+            document.getElementById("clear-all-modal-modal").classList.remove("active");
+        }
+
+        async function executeClearAllModal() {
+            const btn = document.getElementById("btn-confirm-clear-all-modal");
+            btn.disabled = true;
+            btn.textContent = "⏳ Menghapus...";
+
+            try {
+                const res = await fetch("/api/modal/reset", {
+                    method: "DELETE"
+                });
+                const result = await res.json();
+                if (!res.ok) throw new Error(result.detail || "Gagal mengosongkan riwayat modal");
+
+                closeClearModalModal();
+                showToast("✅ Seluruh riwayat modal berhasil dikosongkan.", true);
+                modalHistory = [];
+                renderModalHistoryTable();
+                await onModalDateChange();
+            } catch (err) {
+                showToast("❌ Gagal: " + err.message, false);
+            } finally {
+                btn.disabled = false;
+                btn.textContent = "Ya, Hapus Semua";
+            }
+        }
+
+        // =========================================================
+        // 4. STOK CONTROLLER (termasuk Catat Terbuang & Kosongkan Stok)
+        // =========================================================
+        async function loadStockAndDashboard() {
+            const tbody = document.getElementById("rekap-stock-tbody");
+            tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; padding: 30px;">Memuat posisi stok...</td></tr>';
+
+            try {
+                const results = await Promise.all([
+                    fetchMasterItems(),
+                    fetch("/api/dashboard").then(function(r) { return r.json(); })
+                ]);
+                const items = results[0];
+                masterItems = items;
+                const dashRes = results[1];
+
+                // Metric cards
+                document.getElementById("rekap-today-sales").textContent = formatRupiah(dashRes.today.sales.total_net);
+                document.getElementById("rekap-today-tx").textContent = dashRes.today.sales.transaction_count + " transaksi";
+                document.getElementById("rekap-month-sales").textContent = formatRupiah(dashRes.current_month.sales.total_net);
+                document.getElementById("rekap-month-expense").textContent = formatRupiah(dashRes.current_month.expenses.total);
+                document.getElementById("rekap-cash-balance").textContent = formatRupiah(dashRes.cash_balance);
+
+                // Table
+                tbody.innerHTML = "";
+                items.forEach(function(item) {
+                    const tr = document.createElement("tr");
+                    const rawStock = parseFloat(item.current_stock) || 0;
+                    const cookedStock = parseFloat(item.cooked_stock) || 0;
+
+                    let statusBadge = '<span class="badge badge-green">Tersedia</span>';
+                    if (rawStock <= 0 && cookedStock <= 0) {
+                        statusBadge = '<span class="badge badge-gray">Habis</span>';
+                    } else if (rawStock <= 0 && cookedStock > 0) {
+                        statusBadge = '<span class="badge badge-green">Tersedia (Matang)</span>';
+                    } else if (rawStock <= 1) {
+                        statusBadge = '<span class="badge badge-amber">Menipis</span>';
+                    }
+
+                    tr.innerHTML =
+                        '<td style="font-weight: 700;">🥔 ' + item.ingredient_name + '</td>' +
+                        '<td style="font-weight: 700; color: ' + (rawStock > 0 ? '#0f172a' : 'var(--text-muted)') + '">' +
+                        formatNumber(rawStock) + ' ' + item.ingredient_symbol +
+                        '</td>' +
+                        '<td>' + formatRupiah(item.average_cost) + ' / ' + item.ingredient_symbol + '</td>' +
+                        '<td style="font-weight: 700; color: ' + (cookedStock > 0 ? 'var(--primary)' : 'var(--text-muted)') + '">' +
+                        formatNumber(cookedStock) + ' ' + item.product_symbol +
+                        '</td>' +
+                        '<td>' + formatRupiah(item.selling_price) + ' / ' + item.product_symbol + '</td>' +
+                        '<td>' + statusBadge + '</td>' +
+                        '<td style="text-align: center; white-space: nowrap;">' +
+                        '<button class="btn btn-sm btn-warning-outline" onclick="openWasteStockModal(\'' + item.ingredient_id + '\')">' +
+                        '🗑️ Catat Terbuang/Rusak' +
+                        '</button>' +
+                        '</td>';
+                    tbody.appendChild(tr);
+                });
+            } catch (err) {
+                console.error(err);
+                tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; color: var(--danger);">Gagal memuat: ' + err.message + '</td></tr>';
+            }
+        }
+
+        // =========================================================
+        // MODAL CATAT TERBUANG / RUSAK (PER KOMODITAS DENGAN SHORTCUT)
+        // =========================================================
+        function openWasteStockModal(ingredientId) {
+            const item = (masterItems || []).find(function(m) { return m.ingredient_id === ingredientId; });
+            if (!item) return;
+
+            currentWasteItem = item;
+            currentWasteType = "RAW";
+
+            const rawStock = parseFloat(item.current_stock) || 0;
+            const cookedStock = parseFloat(item.cooked_stock) || 0;
+
+            const infoEl = document.getElementById("waste-stock-item-info");
+            if (infoEl) {
+                infoEl.innerHTML =
+                    '🥔 <strong style="font-size: 15px;">' + item.ingredient_name + '</strong>' +
+                    '<div style="margin-top: 4px; font-size: 12.5px; color: var(--text-muted); display: flex; gap: 14px; flex-wrap: wrap;">' +
+                    '<span>Sisa Mentah: <strong style="color: #0f172a;">' + formatNumber(rawStock) + ' ' + item.ingredient_symbol + '</strong></span>' +
+                    '<span>Sisa Matang: <strong style="color: var(--primary);">' + formatNumber(cookedStock) + ' ' + item.product_symbol + '</strong></span>' +
+                    '</div>';
+            }
+
+            const shortcutRawVal = document.getElementById("shortcut-raw-val");
+            if (shortcutRawVal) shortcutRawVal.textContent = "(" + formatNumber(rawStock) + " " + item.ingredient_symbol + ")";
+
+            const shortcutCookedVal = document.getElementById("shortcut-cooked-val");
+            if (shortcutCookedVal) shortcutCookedVal.textContent = "(" + formatNumber(cookedStock) + " " + item.product_symbol + ")";
+
+            const wQtyEl = document.getElementById("waste-stock-qty");
+            if (wQtyEl) wQtyEl.value = "";
+            const wNotesEl = document.getElementById("waste-stock-notes");
+            if (wNotesEl) wNotesEl.value = "";
+
+            selectWasteType("RAW");
+            document.getElementById("waste-stock-modal").classList.add("active");
+        }
+
+        function selectWasteType(type) {
+            currentWasteType = type;
+            if (!currentWasteItem) return;
+
+            const btnRaw = document.getElementById("btn-waste-type-raw");
+            const btnCooked = document.getElementById("btn-waste-type-cooked");
+            const unitTag = document.getElementById("waste-stock-unit-tag");
+            const qtyLabel = document.getElementById("waste-stock-qty-label");
+
+            if (type === "RAW") {
+                if (btnRaw) {
+                    btnRaw.style.border = "2px solid var(--primary)";
+                    btnRaw.style.background = "#f0fdf4";
+                    btnRaw.style.color = "var(--primary)";
+                    btnRaw.style.fontWeight = "700";
+                }
+                if (btnCooked) {
+                    btnCooked.style.border = "1px solid var(--border)";
+                    btnCooked.style.background = "#f8fafc";
+                    btnCooked.style.color = "#475569";
+                    btnCooked.style.fontWeight = "600";
+                }
+                if (unitTag) unitTag.textContent = currentWasteItem.ingredient_symbol;
+                if (qtyLabel) qtyLabel.textContent = "Jumlah Terbuang / Rusak (Mentah):";
+            } else {
+                if (btnCooked) {
+                    btnCooked.style.border = "2px solid var(--primary)";
+                    btnCooked.style.background = "#f0fdf4";
+                    btnCooked.style.color = "var(--primary)";
+                    btnCooked.style.fontWeight = "700";
+                }
+                if (btnRaw) {
+                    btnRaw.style.border = "1px solid var(--border)";
+                    btnRaw.style.background = "#f8fafc";
+                    btnRaw.style.color = "#475569";
+                    btnRaw.style.fontWeight = "600";
+                }
+                if (unitTag) unitTag.textContent = currentWasteItem.product_symbol;
+                if (qtyLabel) qtyLabel.textContent = "Jumlah Terbuang / Rusak (Matang):";
+            }
+        }
+
+        function applyWasteShortcut(type) {
+            if (!currentWasteItem) return;
+            selectWasteType(type);
+
+            const wQtyEl = document.getElementById("waste-stock-qty");
+            const wNotesEl = document.getElementById("waste-stock-notes");
+
+            if (type === "RAW") {
+                const rawStock = parseFloat(currentWasteItem.current_stock) || 0;
+                if (wQtyEl) wQtyEl.value = rawStock;
+                if (wNotesEl && !wNotesEl.value) wNotesEl.value = "Buang seluruh sisa stok mentah";
+            } else {
+                const cookedStock = parseFloat(currentWasteItem.cooked_stock) || 0;
+                if (wQtyEl) wQtyEl.value = cookedStock;
+                if (wNotesEl && !wNotesEl.value) wNotesEl.value = "Buang seluruh sisa stok matang";
+            }
+        }
+
+        function closeWasteStockModal() {
+            document.getElementById("waste-stock-modal").classList.remove("active");
+            currentWasteItem = null;
+        }
+
+        async function executeWasteStock() {
+            if (!currentWasteItem) return;
+
+            const wQtyEl = document.getElementById("waste-stock-qty");
+            const wNotesEl = document.getElementById("waste-stock-notes");
+            const qty = parseFloat(wQtyEl ? wQtyEl.value : 0) || 0;
+
+            if (qty <= 0) {
+                alert("Masukkan jumlah terbuang/rusak yang valid (lebih dari 0).");
+                return;
+            }
+
+            const availableStock = currentWasteType === "RAW"
+                ? (parseFloat(currentWasteItem.current_stock) || 0)
+                : (parseFloat(currentWasteItem.cooked_stock) || 0);
+            const unitSymbol = currentWasteType === "RAW"
+                ? currentWasteItem.ingredient_symbol
+                : currentWasteItem.product_symbol;
+
+            if (qty > availableStock && availableStock > 0) {
+                if (!confirm("Jumlah terbuang (" + qty + " " + unitSymbol + ") melebihi sisa stok (" + formatNumber(availableStock) + " " + unitSymbol + "). Tetap lanjutkan?")) {
+                    return;
+                }
+            }
+
+            const btnW = document.getElementById("btn-confirm-waste-stock");
+            btnW.disabled = true;
+            btnW.textContent = "⏳ Menyimpan...";
+
+            try {
+                const now = new Date();
+                const payload = {
+                    date: now.toISOString(),
+                    item_type: currentWasteType,
+                    item_id: currentWasteType === "RAW" ? currentWasteItem.ingredient_id : currentWasteItem.product_id,
+                    quantity: qty,
+                    reason: "WASTE",
+                    notes: wNotesEl ? wNotesEl.value || null : null
+                };
+
+                const res = await fetch("/api/waste/stock", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(payload)
+                });
+                const result = await res.json();
+                if (!res.ok) throw new Error(result.detail || "Gagal menyimpan pencatatan terbuang");
+
+                const itemName = currentWasteItem.ingredient_name;
+                const typeLabel = currentWasteType === "RAW" ? "mentah" : "matang";
+                closeWasteStockModal();
+                showToast("✅ Sisa " + typeLabel + " " + itemName + " dikurangi " + formatNumber(qty) + " " + unitSymbol + " (terbuang/rusak).", true);
+                await loadStockAndDashboard();
+            } catch (err) {
+                showToast("❌ Gagal: " + err.message, false);
+            } finally {
+                btnW.disabled = false;
+                btnW.textContent = "✔ Catat Terbuang";
+            }
+        }
+
+        // =========================================================
+        // MODAL KONFIRMASI KOSONGKAN SELURUH STOK
+        // =========================================================
+        function openClearAllStockModal() {
+            document.getElementById("clear-all-stock-modal").classList.add("active");
+        }
+
+        function closeClearAllStockModal() {
+            document.getElementById("clear-all-stock-modal").classList.remove("active");
+        }
+
+        async function executeClearAllStock() {
+            const btn = document.getElementById("btn-confirm-clear-all-stock");
+            btn.disabled = true;
+            btn.textContent = "⏳ Mengosongkan...";
+
+            try {
+                const res = await fetch("/api/stock/clear-all", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" }
+                });
+                const result = await res.json();
+                if (!res.ok) throw new Error(result.detail || "Gagal mengosongkan seluruh stok");
+
+                closeClearAllStockModal();
+                showToast("✅ " + (result.message || "Seluruh sisa stok berhasil dikosongkan dan dicatat sebagai terbuang."), true);
+                await loadStockAndDashboard();
+            } catch (err) {
+                showToast("❌ Gagal: " + err.message, false);
+            } finally {
+                btn.disabled = false;
+                btn.textContent = "Ya, Kosongkan";
+            }
+        }
+
+        // =========================================================
+        // DETAIL MODAL BATCH PRODUKSI
+        // =========================================================
+        function viewBatchDetail(batchId) {
+            const batch = kukusHistory.find(b => b.id === batchId);
+            if (!batch) return;
+
+            document.getElementById("modal-batch-title").textContent = `Rincian Batch #${batch.id.substring(0, 8).toUpperCase()}`;
+
+            const inputsHtml = (batch.inputs || []).map(i => `
+                <tr>
+                    <td style="font-weight: 600;">${i.ingredient_name}</td>
+                    <td>${formatNumber(i.quantity)} ${i.unit_symbol}</td>
+                    <td>${formatRupiah(i.unit_cost)}</td>
+                    <td style="font-weight: 700;">${formatRupiah(i.total_cost)}</td>
+                </tr>
+            `).join("");
+
+            const outputsHtml = (batch.outputs || []).map(o => `
+                <tr>
+                    <td style="font-weight: 600;">${o.product_name}</td>
+                    <td>${formatNumber(o.quantity)} ${o.unit_symbol}</td>
+                    <td><span class="badge badge-green">${o.allocation_percentage}%</span></td>
+                    <td style="font-weight: 700; color: var(--primary);">${formatRupiah(o.cost_per_unit)} / ${o.unit_symbol}</td>
+                    <td style="font-weight: 700;">${formatRupiah(o.total_cost)}</td>
+                </tr>
+            `).join("");
+
+            document.getElementById("modal-batch-body").innerHTML = `
+                <div style="display: flex; justify-content: space-between; margin-bottom: 14px; flex-wrap: wrap; gap: 8px;">
+                    <div>
+                        <div style="font-size: 11px; color: var(--text-muted); font-weight: 700;">WAKTU PRODUKSI</div>
+                        <div style="font-size: 13.5px; font-weight: 600;">${formatDateTime(batch.production_date)}</div>
+                    </div>
+                    <div>
+                        <div style="font-size: 11px; color: var(--text-muted); font-weight: 700;">TOTAL BIAYA BATCH</div>
+                        <div style="font-size: 16px; font-weight: 800; color: var(--primary);">${formatRupiah(batch.total_cost)}</div>
+                    </div>
+                </div>
+
+                ${batch.notes ? `<div style="background: #f8fafc; padding: 10px; border-radius: 8px; margin-bottom: 14px; font-size: 13px;"><strong>Catatan:</strong> ${batch.notes}</div>` : ''}
+
+                <div style="font-weight: 700; font-size: 13px; margin-bottom: 6px;">1. Bahan Mentah Digunakan:</div>
+                <table class="data-table" style="margin-bottom: 14px; border: 1px solid var(--border);">
+                    <thead><tr><th>Bahan</th><th>Jumlah</th><th>Biaya MWA</th><th>Subtotal</th></tr></thead>
+                    <tbody>${inputsHtml}</tbody>
+                </table>
+
+                <div style="font-weight: 700; font-size: 13px; margin-bottom: 6px;">2. Hasil Produk Jadi & HPP Masuk Stok:</div>
+                <table class="data-table" style="border: 1px solid var(--border);">
+                    <thead><tr><th>Produk</th><th>Hasil</th><th>Alokasi</th><th>HPP/Unit</th><th>Total</th></tr></thead>
+                    <tbody>${outputsHtml}</tbody>
+                </table>
+            `;
+
+            document.getElementById("batch-detail-modal").classList.add("active");
+        }
+
+        function closeBatchModal() {
+            document.getElementById("batch-detail-modal").classList.remove("active");
+        }
+
+        // =========================================================
+        // 5. KEUANGAN CONTROLLER (INPUT HARIAN & RANGKUMAN LAPORAN)
+        // =========================================================
+        let financeHistory = [];
+        let pendingDeleteFinanceId = null;
+        let pendingDeleteFinanceDate = null;
+
+        async function initFinance() {
+            const dateInput = document.getElementById("finance-date");
+            if (dateInput && !dateInput.value) {
+                const now = new Date();
+                const offset = now.getTimezoneOffset() * 60000;
+                dateInput.value = new Date(now - offset).toISOString().slice(0, 10);
+            }
+            await Promise.all([
+                onFinanceDateChange(),
+                loadFinanceHistory()
+            ]);
+        }
+
+        async function onFinanceDateChange() {
+            const dateInput = document.getElementById("finance-date");
+            const dateVal = dateInput ? dateInput.value : "";
+            if (!dateVal) return;
+
+            const modalDisplay = document.getElementById("finance-modal-display");
+            const modalVal = document.getElementById("finance-modal-val");
+            const hintEl = document.getElementById("finance-modal-hint");
+            const dateStatusEl = document.getElementById("finance-date-status");
+            const btnSave = document.getElementById("btn-save-finance");
+
+            if (hintEl) {
+                hintEl.textContent = "⏳ Memeriksa data modal tanggal " + dateVal + "...";
+                hintEl.style.color = "var(--text-muted)";
+            }
+
+            try {
+                // 1. Ambil modal harian dari Menu Modal untuk tanggal ini
+                const modalRes = await fetch("/api/modal/by-date?date=" + dateVal);
+                let modalAmount = 0;
+                let modalFound = false;
+
+                if (modalRes.ok) {
+                    const modalData = await modalRes.json();
+                    if (modalData && modalData.count > 0) {
+                        modalAmount = parseFloat(modalData.total_modal) || 0;
+                        modalFound = true;
+                    }
+                }
+
+                if (modalVal) modalVal.value = modalAmount;
+                if (modalDisplay) modalDisplay.value = formatRupiah(modalAmount);
+
+                if (hintEl) {
+                    if (modalFound) {
+                        hintEl.textContent = "✅ Modal harian ditemukan: " + formatRupiah(modalAmount);
+                        hintEl.style.color = "var(--primary-text)";
+                    } else {
+                        hintEl.textContent = "ℹ️ Belum ada modal tercatat pada tanggal ini (" + formatRupiah(0) + "). Anda dapat mencatatnya di menu Modal.";
+                        hintEl.style.color = "var(--text-muted)";
+                    }
+                }
+
+                // 2. Cek apakah sudah ada catatan keuangan tersimpan untuk tanggal ini
+                const finRes = await fetch("/api/finance/by-date?date=" + dateVal);
+                if (finRes.ok) {
+                    const finData = await finRes.json();
+                    if (finData && finData.exists) {
+                        const omsetInput = document.getElementById("finance-omset");
+                        const notesInput = document.getElementById("finance-notes");
+                        if (omsetInput && (!omsetInput.value || omsetInput.dataset.autoFilled === "true")) {
+                            omsetInput.value = finData.omset;
+                            omsetInput.dataset.autoFilled = "true";
+                        }
+                        if (notesInput && (!notesInput.value || notesInput.dataset.autoFilled === "true")) {
+                            notesInput.value = finData.notes || "";
+                            notesInput.dataset.autoFilled = "true";
+                        }
+                        if (btnSave) btnSave.textContent = "💾 Perbarui Catatan Keuangan";
+                        if (dateStatusEl) {
+                            dateStatusEl.innerHTML = '<span style="color: var(--warning); font-weight: 600;">⚠️ Tanggal ini sudah pernah dicatat, menyimpan akan memperbarui data.</span>';
+                        }
+                    } else {
+                        if (btnSave) btnSave.textContent = "💾 Simpan Catatan Keuangan";
+                        if (dateStatusEl) {
+                            dateStatusEl.textContent = "Data baru untuk tanggal " + dateVal + ".";
+                        }
+                    }
+                }
+
+                calculateFinanceProfit();
+            } catch (err) {
+                console.error("Gagal memeriksa data keuangan tanggal:", err);
+                if (hintEl) {
+                    hintEl.textContent = "⚠️ Gagal memuat data modal: " + err.message;
+                    hintEl.style.color = "var(--danger)";
+                }
+            }
+        }
+
+        function calculateFinanceProfit() {
+            const modalValEl = document.getElementById("finance-modal-val");
+            const omsetInput = document.getElementById("finance-omset");
+            const profitDisplay = document.getElementById("finance-profit-display");
+            const profitBadge = document.getElementById("finance-profit-badge");
+            const formulaText = document.getElementById("finance-formula-text");
+            const profitBar = document.getElementById("finance-profit-bar");
+
+            const modal = parseFloat(modalValEl ? modalValEl.value : 0) || 0;
+            const omset = parseFloat(omsetInput ? omsetInput.value : 0) || 0;
+            const profit = omset - modal;
+
+            if (profitDisplay) {
+                profitDisplay.textContent = formatRupiah(profit);
+            }
+
+            if (formulaText) {
+                formulaText.textContent = "Omset " + formatRupiah(omset) + " - Modal " + formatRupiah(modal) + " = Profit " + formatRupiah(profit);
+            }
+
+            if (profitBadge && profitBar && profitDisplay) {
+                if (profit > 0) {
+                    profitBadge.className = "badge badge-green";
+                    profitBadge.style.background = "";
+                    profitBadge.style.color = "";
+                    profitBadge.style.border = "";
+                    profitBadge.textContent = "Untung / Surplus";
+                    profitDisplay.style.color = "var(--primary)";
+                    profitBar.style.background = "#f0fdf4";
+                    profitBar.style.borderColor = "var(--primary-border)";
+                } else if (profit < 0) {
+                    profitBadge.className = "badge";
+                    profitBadge.style.background = "var(--danger-light)";
+                    profitBadge.style.color = "var(--danger)";
+                    profitBadge.style.border = "1px solid #fecaca";
+                    profitBadge.textContent = "Rugi / Defisit";
+                    profitDisplay.style.color = "var(--danger)";
+                    profitBar.style.background = "#fff1f2";
+                    profitBar.style.borderColor = "#fecaca";
+                } else {
+                    profitBadge.className = "badge badge-gray";
+                    profitBadge.style.background = "";
+                    profitBadge.style.color = "";
+                    profitBadge.style.border = "";
+                    profitBadge.textContent = "Impas / Netral";
+                    profitDisplay.style.color = "#334155";
+                    profitBar.style.background = "#f8fafc";
+                    profitBar.style.borderColor = "var(--border)";
+                }
+            }
+
+            return profit;
+        }
+
+        function resetFinanceForm() {
+            const now = new Date();
+            const offset = now.getTimezoneOffset() * 60000;
+            const todayStr = new Date(now - offset).toISOString().slice(0, 10);
+
+            const dateInput = document.getElementById("finance-date");
+            if (dateInput) dateInput.value = todayStr;
+
+            const omsetInput = document.getElementById("finance-omset");
+            if (omsetInput) {
+                omsetInput.value = "";
+                delete omsetInput.dataset.autoFilled;
+            }
+
+            const notesInput = document.getElementById("finance-notes");
+            if (notesInput) {
+                notesInput.value = "";
+                delete notesInput.dataset.autoFilled;
+            }
+
+            const btnSave = document.getElementById("btn-save-finance");
+            if (btnSave) btnSave.textContent = "💾 Simpan Catatan Keuangan";
+
+            onFinanceDateChange();
+        }
+
+        async function submitFinance() {
+            const btn = document.getElementById("btn-save-finance");
+            const dateInput = document.getElementById("finance-date");
+            const dateVal = dateInput ? dateInput.value : "";
+
+            if (!dateVal) {
+                alert("Pilih tanggal penjualan terlebih dahulu.");
+                return;
+            }
+
+            const modalValEl = document.getElementById("finance-modal-val");
+            const omsetInput = document.getElementById("finance-omset");
+            const notesInput = document.getElementById("finance-notes");
+
+            const modal = parseFloat(modalValEl ? modalValEl.value : 0) || 0;
+            const omset = parseFloat(omsetInput ? omsetInput.value : 0) || 0;
+            const profit = omset - modal;
+
+            if (modal === 0 && omset === 0) {
+                if (!confirm("Modal dan Omset tercatat Rp0. Tetap simpan?")) {
+                    return;
+                }
+            }
+
+            const payload = {
+                entry_date: dateVal,
+                modal: modal,
+                omset: omset,
+                profit: profit,
+                notes: notesInput ? notesInput.value || null : null
+            };
+
+            btn.disabled = true;
+            btn.textContent = "⏳ Menyimpan...";
+
+            try {
+                const res = await fetch("/api/finance", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(payload)
+                });
+                const result = await res.json();
+                if (!res.ok) throw new Error(result.detail || "Gagal menyimpan data keuangan");
+
+                showToast("✅ Keuangan tanggal " + dateVal + " (Omset: " + formatRupiah(omset) + ", Profit: " + formatRupiah(profit) + ") berhasil disimpan.", true);
+                await loadFinanceHistory();
+                await onFinanceDateChange();
+            } catch (err) {
+                showToast("❌ Gagal: " + err.message, false);
+            } finally {
+                btn.disabled = false;
+                btn.textContent = "💾 Simpan Catatan Keuangan";
+            }
+        }
+
+        async function loadFinanceHistory() {
+            const tbody = document.getElementById("finance-history-tbody");
+            tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 30px;">Memuat rangkuman keuangan...</td></tr>';
+
+            const startVal = document.getElementById("filter-finance-start") ? document.getElementById("filter-finance-start").value : "";
+            const endVal = document.getElementById("filter-finance-end") ? document.getElementById("filter-finance-end").value : "";
+
+            let url = "/api/finance";
+            const params = [];
+            if (startVal) params.push("start_date=" + encodeURIComponent(startVal));
+            if (endVal) params.push("end_date=" + encodeURIComponent(endVal));
+            if (params.length > 0) url += "?" + params.join("&");
+
+            try {
+                const res = await fetch(url);
+                const data = res.ok ? await res.json() : { records: [], total_modal: 0, total_omset: 0, total_profit: 0 };
+                financeHistory = data.records || [];
+                renderFinanceHistoryTable(data);
+            } catch (err) {
+                tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: var(--danger);">Gagal memuat: ' + err.message + '</td></tr>';
+            }
+        }
+
+        function resetFinanceFilter() {
+            const startInput = document.getElementById("filter-finance-start");
+            const endInput = document.getElementById("filter-finance-end");
+            if (startInput) startInput.value = "";
+            if (endInput) endInput.value = "";
+            loadFinanceHistory();
+        }
+
+        function renderFinanceHistoryTable(data) {
+            const tbody = document.getElementById("finance-history-tbody");
+            const sumModalEl = document.getElementById("sum-finance-modal");
+            const sumOmsetEl = document.getElementById("sum-finance-omset");
+            const sumProfitEl = document.getElementById("sum-finance-profit");
+            const sumProfitNote = document.getElementById("sum-finance-profit-note");
+            const sumMarginEl = document.getElementById("sum-finance-margin");
+            const cardSumProfit = document.getElementById("card-sum-profit");
+
+            // Tfoot elements
+            const tfootModal = document.getElementById("tfoot-sum-modal");
+            const tfootOmset = document.getElementById("tfoot-sum-omset");
+            const tfootProfit = document.getElementById("tfoot-sum-profit");
+            const tfootDays = document.getElementById("tfoot-sum-days");
+            const tfootNotes = document.getElementById("tfoot-sum-notes");
+
+            const records = data.records || [];
+            const totalModal = data.total_modal || 0;
+            const totalOmset = data.total_omset || 0;
+            const totalProfit = data.total_profit || 0;
+            const count = records.length;
+
+            const marginPct = totalOmset > 0 ? ((totalProfit / totalOmset) * 100).toFixed(1) : "0.0";
+
+            // Update Metric Cards
+            if (sumModalEl) sumModalEl.textContent = formatRupiah(totalModal);
+            if (sumOmsetEl) sumOmsetEl.textContent = formatRupiah(totalOmset);
+            if (sumProfitEl) {
+                sumProfitEl.textContent = formatRupiah(totalProfit);
+                sumProfitEl.style.color = totalProfit >= 0 ? "var(--primary)" : "var(--danger)";
+            }
+            if (cardSumProfit) {
+                cardSumProfit.style.borderLeftColor = totalProfit >= 0 ? "var(--primary)" : "var(--danger)";
+            }
+            if (sumProfitNote) {
+                sumProfitNote.textContent = totalProfit >= 0 ? "Surplus (Untung)" : "Defisit (Rugi)";
+            }
+            if (sumMarginEl) sumMarginEl.textContent = marginPct + "%";
+
+            // Update Tfoot Summary Row
+            if (tfootDays) tfootDays.textContent = count;
+            if (tfootModal) tfootModal.textContent = formatRupiah(totalModal);
+            if (tfootOmset) tfootOmset.textContent = formatRupiah(totalOmset);
+            if (tfootProfit) {
+                tfootProfit.textContent = formatRupiah(totalProfit);
+                tfootProfit.style.color = totalProfit >= 0 ? "var(--primary)" : "var(--danger)";
+            }
+            if (tfootNotes) {
+                tfootNotes.textContent = "Margin: " + marginPct + "%";
+            }
+
+            if (records.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 30px; color: var(--text-muted);">Belum ada catatan keuangan pada periode ini.</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = "";
+            records.forEach(function(r) {
+                const tr = document.createElement("tr");
+                const safeDate = r.entry_date;
+                const safeModal = formatRupiah(r.modal).replace(/"/g, '&quot;').replace(/'/g, "&#39;");
+                const safeOmset = formatRupiah(r.omset).replace(/"/g, '&quot;').replace(/'/g, "&#39;");
+                const safeProfit = formatRupiah(r.profit).replace(/"/g, '&quot;').replace(/'/g, "&#39;");
+
+                const profitColor = r.profit > 0 ? "var(--primary)" : (r.profit < 0 ? "var(--danger)" : "#475569");
+                const profitBadge = r.profit > 0
+                    ? '<span class="badge badge-green" style="margin-left: 6px;">Untung</span>'
+                    : (r.profit < 0 ? '<span class="badge" style="margin-left: 6px; background: var(--danger-light); color: var(--danger); border: 1px solid #fecaca;">Rugi</span>' : '');
+
+                tr.innerHTML =
+                    '<td style="font-weight: 700; white-space: nowrap;">📅 ' + r.entry_date + '</td>' +
+                    '<td style="color: #0f172a;">' + formatRupiah(r.modal) + '</td>' +
+                    '<td style="font-weight: 700; color: #0f172a;">' + formatRupiah(r.omset) + '</td>' +
+                    '<td style="font-weight: 800; font-size: 14.5px; color: ' + profitColor + ';">' +
+                        formatRupiah(r.profit) + profitBadge +
+                    '</td>' +
+                    '<td style="color: var(--text-muted);">' + (r.notes || "-") + '</td>' +
+                    '<td style="text-align: center; white-space: nowrap;">' +
+                    '<button class="btn btn-sm btn-danger-outline" onclick="openDeleteFinanceModal(\'' + r.id + '\', \'' + safeDate + '\', \'' + safeModal + '\', \'' + safeOmset + '\', \'' + safeProfit + '\')">' +
+                    '🗑️ Hapus' +
+                    '</button>' +
+                    '</td>';
+                tbody.appendChild(tr);
+            });
+        }
+
+        // =========================================================
+        // MODAL KONFIRMASI HAPUS KEUANGAN PER BARIS / TANGGAL
+        // =========================================================
+        function openDeleteFinanceModal(id, dateLabel, modalLabel, omsetLabel, profitLabel) {
+            pendingDeleteFinanceId = id;
+            pendingDeleteFinanceDate = dateLabel;
+
+            const infoEl = document.getElementById("delete-finance-info");
+            if (infoEl) {
+                infoEl.innerHTML =
+                    '<div style="margin-bottom: 4px;">📅 <strong>Tanggal:</strong> ' + dateLabel + '</div>' +
+                    '<div style="margin-bottom: 4px;">💵 <strong>Modal:</strong> ' + (modalLabel || "-") + '</div>' +
+                    '<div style="margin-bottom: 4px;">📈 <strong>Omset:</strong> ' + (omsetLabel || "-") + '</div>' +
+                    '<div>💰 <strong>Profit:</strong> ' + (profitLabel || "-") + '</div>';
+            }
+            document.getElementById("delete-finance-entry-modal").classList.add("active");
+        }
+
+        function closeDeleteFinanceModal() {
+            pendingDeleteFinanceId = null;
+            pendingDeleteFinanceDate = null;
+            document.getElementById("delete-finance-entry-modal").classList.remove("active");
+        }
+
+        async function executeDeleteFinance() {
+            if (!pendingDeleteFinanceId) return;
+
+            const btn = document.getElementById("btn-confirm-delete-finance");
+            btn.disabled = true;
+            btn.textContent = "⏳ Menghapus...";
+
+            try {
+                const res = await fetch("/api/finance/" + pendingDeleteFinanceId, {
+                    method: "DELETE"
+                });
+                const result = await res.json();
+                if (!res.ok) throw new Error(result.detail || "Gagal menghapus data keuangan");
+
+                closeDeleteFinanceModal();
+                showToast("✅ Data keuangan berhasil dihapus.", true);
+                await loadFinanceHistory();
+                await onFinanceDateChange();
+            } catch (err) {
+                showToast("❌ Gagal: " + err.message, false);
+            } finally {
+                btn.disabled = false;
+                btn.textContent = "Ya, Hapus";
+            }
+        }
+
+        // =========================================================
+        // MODAL KONFIRMASI KOSONGKAN SELURUH DATA KEUANGAN
+        // =========================================================
+        function openClearFinanceModal() {
+            document.getElementById("clear-all-finance-modal").classList.add("active");
+        }
+
+        function closeClearFinanceModal() {
+            document.getElementById("clear-all-finance-modal").classList.remove("active");
+        }
+
+        async function executeClearAllFinance() {
+            const btn = document.getElementById("btn-confirm-clear-all-finance");
+            btn.disabled = true;
+            btn.textContent = "⏳ Menghapus...";
+
+            try {
+                const res = await fetch("/api/finance/reset", {
+                    method: "DELETE"
+                });
+                const result = await res.json();
+                if (!res.ok) throw new Error(result.detail || "Gagal mengosongkan data keuangan");
+
+                closeClearFinanceModal();
+                showToast("✅ Seluruh data keuangan berhasil dikosongkan.", true);
+                financeHistory = [];
+                renderFinanceHistoryTable({ records: [], total_modal: 0, total_omset: 0, total_profit: 0 });
+                await onFinanceDateChange();
+            } catch (err) {
+                showToast("❌ Gagal: " + err.message, false);
+            } finally {
+                btn.disabled = false;
+                btn.textContent = "Ya, Hapus Semua";
+            }
+        }
+
+        // =========================================================
+        // MOBILE LIFECYCLE LISTENERS (ANTI-HILANG SAAT MINIMIZE/LOCK)
+        // =========================================================
+        function saveAllDrafts() {
+            saveKukusDraft();
+            saveBeliDraft();
+        }
+
+        document.addEventListener("visibilitychange", function () {
+            if (document.visibilityState === "hidden") {
+                saveAllDrafts();
+            }
+        });
+        window.addEventListener("pagehide", saveAllDrafts);
+        window.addEventListener("beforeunload", saveAllDrafts);
+
+        // =========================================================
+        // INITIALIZE ON LOAD
+        // =========================================================
+        window.addEventListener("DOMContentLoaded", function() {
+            const validPages = ["dapur-kukus", "beli-bahan", "modal", "stok-rekap", "keuangan"];
+            let saved = localStorage.getItem(ACTIVE_TAB_KEY) || "dapur-kukus";
+            if (!validPages.includes(saved)) {
+                saved = "dapur-kukus";
+            }
+            showPage(saved);
+        });
+    </script>
+</body>
+
+</html>
