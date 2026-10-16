@@ -56,6 +56,18 @@ def init_db_schema():
             ALTER TABLE waste ALTER COLUMN product_id DROP NOT NULL;
             ALTER TABLE waste ADD COLUMN IF NOT EXISTS ingredient_id UUID REFERENCES ingredients(id) ON DELETE SET NULL;
             ALTER TABLE waste ADD COLUMN IF NOT EXISTS item_type VARCHAR(20) DEFAULT 'PRODUCT';
+            INSERT INTO stock_balances (id, ingredient_id, quantity, stock_value, average_cost)
+            SELECT gen_random_uuid(), i.id, 0, 0, 0
+            FROM ingredients i
+            LEFT JOIN stock_balances sb ON i.id = sb.ingredient_id
+            WHERE sb.id IS NULL
+            ON CONFLICT (ingredient_id) DO NOTHING;
+            INSERT INTO finished_goods_stock (id, product_id, quantity, stock_value, average_cost)
+            SELECT gen_random_uuid(), p.id, 0, 0, 0
+            FROM products p
+            LEFT JOIN finished_goods_stock fgs ON p.id = fgs.product_id
+            WHERE fgs.id IS NULL
+            ON CONFLICT (product_id) DO NOTHING;
         """)
         conn.commit()
         cur.close()
@@ -85,6 +97,7 @@ def get_products():
                 seasonal,
                 notes
             FROM products
+            WHERE active IS TRUE
             ORDER BY name;
         """)
 
@@ -130,6 +143,7 @@ def get_ingredients():
                 seasonal,
                 notes
             FROM ingredients
+            WHERE active IS TRUE
             ORDER BY name;
         """)
 
@@ -153,6 +167,248 @@ def get_ingredients():
     finally:
         cursor.close()
         connection.close()
+
+
+class IngredientCreate(BaseModel):
+    name: str
+    stock_unit: str  # unit id, symbol ('kg', 'biji', 'porsi'), or new unit name
+    selling_unit: str  # unit id, symbol, or new unit name
+    selling_price: float
+    minimum_stock: float = 0.0
+    notes: Optional[str] = None
+
+
+@app.post("/api/ingredients")
+def create_ingredient(data: IngredientCreate):
+    name = data.name.strip()
+    if not name:
+        raise HTTPException(status_code=400, detail="Nama bahan / komoditas wajib diisi.")
+
+    if data.selling_price < 0:
+        raise HTTPException(status_code=400, detail="Harga jual standar tidak boleh negatif.")
+
+    conn = get_connection()
+    cur = conn.cursor()
+    try:
+        # 1. Cek apakah komoditas/bahan dengan nama yang sama sudah ada (case-insensitive)
+        cur.execute("SELECT id, name, active FROM ingredients WHERE LOWER(TRIM(name)) = LOWER(TRIM(%s))", (name,))
+        existing_ing = cur.fetchone()
+        if existing_ing and existing_ing[2] is True:
+            raise HTTPException(
+                status_code=400,
+                detail=f"Bahan baku '{existing_ing[1]}' sudah terdaftar dan masih aktif."
+            )
+
+        # 2. Cari unit untuk stock_unit (Satuan Mentah)
+        raw_unit_input = data.stock_unit.strip()
+        cur.execute("""
+            SELECT id, name, symbol FROM units
+            WHERE id::text = %s OR LOWER(TRIM(symbol)) = LOWER(TRIM(%s)) OR LOWER(TRIM(name)) = LOWER(TRIM(%s))
+            LIMIT 1
+        """, (raw_unit_input, raw_unit_input, raw_unit_input))
+        raw_unit_row = cur.fetchone()
+        if not raw_unit_row:
+            # Jika belum ada di tabel units, buat unit baru otomatis
+            cur.execute("""
+                INSERT INTO units (id, name, symbol, type)
+                VALUES (gen_random_uuid(), %s, %s, 'quantity')
+                RETURNING id, name, symbol
+            """, (raw_unit_input.capitalize(), raw_unit_input.lower()))
+            raw_unit_row = cur.fetchone()
+        raw_unit_id, raw_unit_name, raw_unit_symbol = raw_unit_row
+
+        # 3. Cari unit untuk selling_unit (Satuan Matang / Jual)
+        cooked_unit_input = data.selling_unit.strip()
+        cur.execute("""
+            SELECT id, name, symbol FROM units
+            WHERE id::text = %s OR LOWER(TRIM(symbol)) = LOWER(TRIM(%s)) OR LOWER(TRIM(name)) = LOWER(TRIM(%s))
+            LIMIT 1
+        """, (cooked_unit_input, cooked_unit_input, cooked_unit_input))
+        cooked_unit_row = cur.fetchone()
+        if not cooked_unit_row:
+            cur.execute("""
+                INSERT INTO units (id, name, symbol, type)
+                VALUES (gen_random_uuid(), %s, %s, 'quantity')
+                RETURNING id, name, symbol
+            """, (cooked_unit_input.capitalize(), cooked_unit_input.lower()))
+            cooked_unit_row = cur.fetchone()
+        cooked_unit_id, cooked_unit_name, cooked_unit_symbol = cooked_unit_row
+
+        ing_notes = data.notes.strip() if data.notes else f"Dibeli per {raw_unit_symbol}, hasil produksi per {cooked_unit_symbol}"
+
+        # JIKA SUDAH ADA TAPI NONAKTIF: REAKTIFKAN KEMBALI
+        if existing_ing and existing_ing[2] is False:
+            ingredient_id = str(existing_ing[0])
+            cur.execute("""
+                UPDATE ingredients
+                SET stock_unit_id = %s, minimum_stock = %s, active = true, notes = %s, updated_at = NOW()
+                WHERE id = %s
+            """, (raw_unit_id, data.minimum_stock, ing_notes, ingredient_id))
+
+            cur.execute("SELECT id FROM products WHERE LOWER(TRIM(name)) = LOWER(TRIM(%s))", (name,))
+            existing_prod = cur.fetchone()
+            if existing_prod:
+                product_id = str(existing_prod[0])
+                cur.execute("""
+                    UPDATE products
+                    SET selling_unit_id = %s, selling_price = %s, active = true, updated_at = NOW()
+                    WHERE id = %s
+                """, (cooked_unit_id, data.selling_price, product_id))
+            else:
+                cur.execute("""
+                    INSERT INTO products (
+                        id, name, selling_unit_id, selling_price, category, active, seasonal, notes
+                    ) VALUES (
+                        gen_random_uuid(), %s, %s, %s, 'Produk Kukusan', true, false, %s
+                    ) RETURNING id;
+                """, (name, cooked_unit_id, data.selling_price, f"Produk matang {name}"))
+                product_id = str(cur.fetchone()[0])
+
+            cur.execute("""
+                INSERT INTO stock_balances (id, ingredient_id, quantity, stock_value, average_cost)
+                VALUES (gen_random_uuid(), %s, 0, 0, 0)
+                ON CONFLICT (ingredient_id) DO UPDATE SET updated_at = NOW();
+            """, (ingredient_id,))
+
+            cur.execute("""
+                INSERT INTO finished_goods_stock (id, product_id, quantity, stock_value, average_cost)
+                VALUES (gen_random_uuid(), %s, 0, 0, 0)
+                ON CONFLICT (product_id) DO UPDATE SET updated_at = NOW();
+            """, (product_id,))
+
+            conn.commit()
+
+            return {
+                "status": "success",
+                "message": f"Bahan baku '{name}' berhasil diaktifkan kembali dan langsung aktif di seluruh menu.",
+                "data": {
+                    "ingredient_id": ingredient_id,
+                    "product_id": product_id,
+                    "name": name,
+                    "stock_unit": raw_unit_symbol,
+                    "stock_unit_name": raw_unit_name,
+                    "selling_unit": cooked_unit_symbol,
+                    "selling_unit_name": cooked_unit_name,
+                    "selling_price": data.selling_price
+                }
+            }
+
+        # JIKA BARU: INSERT KE INGREDIENTS & PRODUCTS
+        cur.execute("""
+            INSERT INTO ingredients (
+                id, name, stock_unit_id, minimum_stock, active, seasonal, notes
+            ) VALUES (
+                gen_random_uuid(), %s, %s, %s, true, false, %s
+            ) RETURNING id, name, stock_unit_id;
+        """, (name, raw_unit_id, data.minimum_stock, ing_notes))
+        new_ing = cur.fetchone()
+        ingredient_id = str(new_ing[0])
+
+        cur.execute("SELECT id FROM products WHERE LOWER(TRIM(name)) = LOWER(TRIM(%s))", (name,))
+        existing_prod = cur.fetchone()
+        if existing_prod:
+            product_id = str(existing_prod[0])
+            cur.execute("""
+                UPDATE products
+                SET selling_unit_id = %s, selling_price = %s, active = true, updated_at = NOW()
+                WHERE id = %s
+            """, (cooked_unit_id, data.selling_price, product_id))
+        else:
+            cur.execute("""
+                INSERT INTO products (
+                    id, name, selling_unit_id, selling_price, category, active, seasonal, notes
+                ) VALUES (
+                    gen_random_uuid(), %s, %s, %s, 'Produk Kukusan', true, false, %s
+                ) RETURNING id;
+            """, (name, cooked_unit_id, data.selling_price, f"Produk matang {name}"))
+            product_id = str(cur.fetchone()[0])
+
+        # Inisialisasi stok awal 0 di stock_balances (mentah)
+        cur.execute("""
+            INSERT INTO stock_balances (
+                id, ingredient_id, quantity, stock_value, average_cost
+            ) VALUES (
+                gen_random_uuid(), %s, 0, 0, 0
+            ) ON CONFLICT (ingredient_id) DO UPDATE SET updated_at = NOW();
+        """, (ingredient_id,))
+
+        # Inisialisasi stok awal 0 di finished_goods_stock (matang)
+        cur.execute("""
+            INSERT INTO finished_goods_stock (
+                id, product_id, quantity, stock_value, average_cost
+            ) VALUES (
+                gen_random_uuid(), %s, 0, 0, 0
+            ) ON CONFLICT (product_id) DO UPDATE SET updated_at = NOW();
+        """, (product_id,))
+
+        conn.commit()
+
+        return {
+            "status": "success",
+            "message": f"Bahan baku '{name}' berhasil disimpan dan aktif di seluruh menu.",
+            "data": {
+                "ingredient_id": ingredient_id,
+                "product_id": product_id,
+                "name": name,
+                "stock_unit": raw_unit_symbol,
+                "stock_unit_name": raw_unit_name,
+                "selling_unit": cooked_unit_symbol,
+                "selling_unit_name": cooked_unit_name,
+                "selling_price": data.selling_price
+            }
+        }
+    except HTTPException:
+        conn.rollback()
+        raise
+    except Exception as e:
+        conn.rollback()
+        raise HTTPException(status_code=500, detail=f"Gagal menambahkan bahan baku: {str(e)}")
+    finally:
+        cur.close()
+        conn.close()
+
+
+@app.delete("/api/ingredients/{ingredient_id}")
+def delete_ingredient(ingredient_id: str):
+    conn = get_connection()
+    cur = conn.cursor()
+    try:
+        # 1. Cek keberadaan bahan baku
+        cur.execute("SELECT id, name FROM ingredients WHERE id = %s", (ingredient_id,))
+        ing_row = cur.fetchone()
+        if not ing_row:
+            raise HTTPException(status_code=404, detail="Bahan baku tidak ditemukan.")
+        name = ing_row[1]
+
+        # 2. Soft-delete bahan mentah (active = false)
+        cur.execute("""
+            UPDATE ingredients
+            SET active = false, updated_at = NOW()
+            WHERE id = %s
+        """, (ingredient_id,))
+
+        # 3. Soft-delete produk matang terkait dengan nama yang sama (active = false)
+        cur.execute("""
+            UPDATE products
+            SET active = false, updated_at = NOW()
+            WHERE LOWER(TRIM(name)) = LOWER(TRIM(%s))
+        """, (name,))
+
+        conn.commit()
+
+        return {
+            "status": "success",
+            "message": f"Bahan baku '{name}' berhasil dinonaktifkan."
+        }
+    except HTTPException:
+        conn.rollback()
+        raise
+    except Exception as e:
+        conn.rollback()
+        raise HTTPException(status_code=500, detail=f"Gagal menonaktifkan bahan baku: {str(e)}")
+    finally:
+        cur.close()
+        conn.close()
 
 @app.get("/api/packaging")
 def get_packaging():
@@ -1474,20 +1730,21 @@ def get_raw_material_stock():
 
         cursor.execute("""
             SELECT
-                sb.ingredient_id,
+                i.id AS ingredient_id,
                 i.name AS ingredient,
-                sb.quantity,
+                COALESCE(sb.quantity, 0) AS quantity,
                 u.name AS unit,
                 u.symbol,
-                sb.average_cost,
-                sb.stock_value,
+                COALESCE(sb.average_cost, 0) AS average_cost,
+                COALESCE(sb.stock_value, 0) AS stock_value,
                 i.minimum_stock,
                 i.active
-            FROM stock_balances sb
-            JOIN ingredients i
+            FROM ingredients i
+            LEFT JOIN stock_balances sb
                 ON i.id = sb.ingredient_id
             JOIN units u
                 ON u.id = i.stock_unit_id
+            WHERE i.active IS TRUE
             ORDER BY i.name;
         """)
 
@@ -1523,20 +1780,21 @@ def get_finished_goods_stock():
 
         cursor.execute("""
             SELECT
-                fgs.product_id,
+                p.id AS product_id,
                 p.name AS product,
-                fgs.quantity,
+                COALESCE(fgs.quantity, 0) AS quantity,
                 u.name AS unit,
                 u.symbol,
-                fgs.average_cost,
-                fgs.stock_value,
+                COALESCE(fgs.average_cost, 0) AS average_cost,
+                COALESCE(fgs.stock_value, 0) AS stock_value,
                 p.selling_price,
                 p.active
-            FROM finished_goods_stock fgs
-            JOIN products p
+            FROM products p
+            LEFT JOIN finished_goods_stock fgs
                 ON p.id = fgs.product_id
             JOIN units u
                 ON u.id = p.selling_unit_id
+            WHERE p.active IS TRUE
             ORDER BY p.name;
         """)
 
@@ -4582,4 +4840,4 @@ def reset_all_data():
             detail=f"Gagal mengosongkan data: {str(e)}"
         )
     finally:
-        conn.close()
+        conn.close()

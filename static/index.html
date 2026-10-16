@@ -346,6 +346,33 @@
             border-radius: 7px;
         }
 
+        .btn-icon-danger-soft {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            border: 1px solid #e2e8f0;
+            background: #ffffff;
+            color: #94a3b8;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 700;
+            line-height: 1;
+            transition: all 0.15s ease-in-out;
+            padding: 0;
+            flex-shrink: 0;
+            vertical-align: middle;
+        }
+
+        .btn-icon-danger-soft:hover {
+            background: #fee2e2;
+            border-color: #fca5a5;
+            color: #dc2626;
+            transform: scale(1.08);
+        }
+
         .modal-footer {
             gap: 8px;
         }
@@ -1196,6 +1223,7 @@
                     <p>Posisi stok bahan mentah & produk matang serta ringkasan keuangan</p>
                 </div>
                 <div class="header-actions">
+                    <button class="btn btn-primary" onclick="openAddIngredientModal()">➕ Tambah Bahan Baku</button>
                     <button class="btn btn-secondary" onclick="loadStockAndDashboard()">🔄 Segarkan</button>
                     <button class="btn btn-danger-outline" onclick="openClearAllStockModal()">🗑️ Kosongkan Seluruh Stok</button>
                 </div>
@@ -1233,6 +1261,7 @@
                         <p style="font-size: 12.5px; color: var(--text-muted); margin-top: 2px;">Pantauan stok bahan mentah dan produk matang siap jual</p>
                     </div>
                     <div style="display: flex; gap: 8px;">
+                        <button class="btn btn-sm btn-primary" onclick="openAddIngredientModal()">➕ Tambah Bahan Baku</button>
                         <button class="btn btn-sm btn-secondary" onclick="loadStockAndDashboard()">🔄 Segarkan</button>
                         <button class="btn btn-sm btn-danger-outline" onclick="openClearAllStockModal()">🗑️ Kosongkan Seluruh Stok</button>
                     </div>
@@ -1666,6 +1695,115 @@
                 <button type="button" class="btn" id="btn-confirm-clear-all-stock"
                     style="background: var(--danger); color: #fff; border-color: var(--danger);"
                     onclick="executeClearAllStock()">Ya, Kosongkan</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL TAMBAH BAHAN BAKU / KOMODITAS BARU -->
+    <div id="add-ingredient-modal" class="modal-overlay" onclick="if(event.target === this) closeAddIngredientModal();">
+        <div class="modal-card" style="max-width: 490px;">
+            <div class="modal-header" style="border-bottom-color: var(--primary-border);">
+                <h3 style="color: var(--primary); display: flex; align-items: center; gap: 8px;">
+                    <span>🌱</span> <span>Tambah Bahan Baku Baru</span>
+                </h3>
+                <button type="button" class="btn btn-sm btn-secondary" onclick="closeAddIngredientModal()">✕</button>
+            </div>
+            <div class="modal-body">
+                <div style="background: var(--primary-light); border: 1px solid var(--primary-border); border-radius: var(--radius-md); padding: 11px 14px; margin-bottom: 14px; font-size: 12.5px; color: var(--primary-dark); line-height: 1.5;">
+                    💡 Komoditas baru otomatis dihubungkan ke <strong>Menu Stok</strong>, <strong>Beli Bahan Mentah</strong>, dan <strong>Produksi</strong> dengan stok awal 0.
+                </div>
+
+                <div style="display: flex; flex-direction: column; gap: 14px;">
+                    <!-- 1. Nama Komoditas -->
+                    <div class="input-group">
+                        <label for="add-ing-name">Nama Bahan / Komoditas <span style="color: var(--danger);">*</span></label>
+                        <input type="text" id="add-ing-name" class="standard-input" placeholder="Contoh: Kentang, Talas, Labu Madu..." autocomplete="off" onkeydown="if(event.key==='Enter') submitNewIngredient();">
+                        <div style="font-size: 11px; color: var(--text-muted); margin-top: 2px;">Varian bahan baku mentah yang akan dibeli dan diolah.</div>
+                    </div>
+
+                    <!-- 2. Satuan Mentah & Satuan Matang -->
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                        <div class="input-group">
+                            <label for="add-ing-raw-unit">Satuan Mentah (Beli) <span style="color: var(--danger);">*</span></label>
+                            <select id="add-ing-raw-unit" class="standard-input" onchange="onRawUnitChange()">
+                                <option value="kg">Kilogram (kg)</option>
+                                <option value="biji">Biji (biji)</option>
+                                <option value="g">Gram (g)</option>
+                                <option value="porsi">Porsi (porsi)</option>
+                                <option value="pcs">Pcs (pcs)</option>
+                                <option value="bungkus">Bungkus (bungkus)</option>
+                                <option value="custom">+ Satuan Lainnya...</option>
+                            </select>
+                            <input type="text" id="add-ing-raw-unit-custom" class="standard-input" placeholder="Ketik satuan mentah (mis: ikat)" style="display: none; margin-top: 6px;">
+                        </div>
+
+                        <div class="input-group">
+                            <label for="add-ing-cooked-unit">Satuan Matang (Jual) <span style="color: var(--danger);">*</span></label>
+                            <select id="add-ing-cooked-unit" class="standard-input" onchange="onCookedUnitChange()">
+                                <option value="biji">Biji (biji)</option>
+                                <option value="porsi">Porsi (porsi)</option>
+                                <option value="pcs">Pcs (pcs)</option>
+                                <option value="bungkus">Bungkus (bungkus)</option>
+                                <option value="kg">Kilogram (kg)</option>
+                                <option value="custom">+ Satuan Lainnya...</option>
+                            </select>
+                            <input type="text" id="add-ing-cooked-unit-custom" class="standard-input" placeholder="Ketik satuan jual (mis: potong)" style="display: none; margin-top: 6px;">
+                        </div>
+                    </div>
+
+                    <!-- 3. Harga Jual Standar -->
+                    <div class="input-group">
+                        <label for="add-ing-selling-price">Harga Jual Standar per Satuan Matang <span style="color: var(--danger);">*</span></label>
+                        <div class="input-with-unit">
+                            <input type="number" id="add-ing-selling-price" min="0" step="500" placeholder="Contoh: 2000"
+                                style="width: 100%; border: none; padding: 8px 10px; font-size: 14px; font-weight: 700; outline: none; font-family: inherit;"
+                                oninput="updatePriceHint()" onkeydown="if(event.key==='Enter') submitNewIngredient();">
+                            <span class="unit-tag" id="add-ing-price-unit-tag">Rp / biji</span>
+                        </div>
+                        <div id="add-ing-price-hint" style="font-size: 11px; color: var(--text-muted); margin-top: 2px;">
+                            Patokan harga jual saat produk matang disajikan ke pelanggan.
+                        </div>
+                    </div>
+
+                    <!-- 4. Catatan (Opsional) -->
+                    <div class="input-group">
+                        <label for="add-ing-notes">Catatan Tambahan (Opsional)</label>
+                        <input type="text" id="add-ing-notes" class="standard-input" placeholder="Misal: Dibeli dari pasar induk per karung..." onkeydown="if(event.key==='Enter') submitNewIngredient();">
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer" style="gap: 8px; display: flex; justify-content: flex-end;">
+                <button type="button" class="btn btn-secondary" onclick="closeAddIngredientModal()">Batal</button>
+                <button type="button" class="btn btn-primary" id="btn-save-ingredient" onclick="submitNewIngredient()">💾 Simpan Bahan</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL KONFIRMASI HAPUS / NONAKTIFKAN BAHAN BAKU -->
+    <div id="delete-ingredient-modal" class="modal-overlay" onclick="if(event.target === this) closeDeleteIngredientModal();">
+        <div class="modal-card" style="max-width: 440px;">
+            <div class="modal-header" style="border-bottom-color: #fecaca;">
+                <h3 style="color: var(--danger); display: flex; align-items: center; gap: 8px;">
+                    <span>🗑️</span> <span>Hapus / Nonaktifkan Bahan Baku</span>
+                </h3>
+                <button type="button" class="btn btn-sm btn-secondary" onclick="closeDeleteIngredientModal()">✕</button>
+            </div>
+            <div class="modal-body">
+                <div style="font-size: 15px; font-weight: 700; color: #0f172a; margin-bottom: 8px;" id="delete-ing-title">
+                    Hapus/Nonaktifkan Bahan?
+                </div>
+                <div style="background: #fff1f2; border: 1px solid #fecaca; border-radius: var(--radius-md); padding: 12px 14px; margin-bottom: 14px; font-size: 13px; color: #9f1239; line-height: 1.5;">
+                    Bahan ini akan disembunyikan dari menu <strong>Stok</strong>, <strong>Belanja</strong>, dan <strong>Produksi</strong>. Riwayat transaksi lama tetap tersimpan aman.
+                </div>
+                <div style="font-size: 12.5px; color: var(--text-muted); line-height: 1.5;">
+                    💡 Anda tetap bisa menambahkannya lagi kapan saja lewat tombol <strong>+ Tambah Bahan Baku</strong>.
+                </div>
+            </div>
+            <div class="modal-footer" style="gap: 8px; display: flex; justify-content: flex-end;">
+                <button type="button" class="btn btn-secondary" onclick="closeDeleteIngredientModal()">Batal</button>
+                <button type="button" class="btn btn-danger" id="btn-confirm-delete-ingredient"
+                    style="background: var(--danger); color: #fff; border-color: var(--danger);"
+                    onclick="executeDeleteIngredient()">Ya, Hapus</button>
             </div>
         </div>
     </div>
@@ -3037,9 +3175,14 @@
                         '<td>' + formatRupiah(item.selling_price) + ' / ' + item.product_symbol + '</td>' +
                         '<td>' + statusBadge + '</td>' +
                         '<td style="text-align: center; white-space: nowrap;">' +
+                        '<div style="display: inline-flex; align-items: center; justify-content: center; gap: 6px;">' +
                         '<button class="btn btn-sm btn-warning-outline" onclick="openWasteStockModal(\'' + item.ingredient_id + '\')">' +
                         '🗑️ Catat Terbuang/Rusak' +
                         '</button>' +
+                        '<button type="button" class="btn-icon-danger-soft" title="Hapus / Nonaktifkan ' + item.ingredient_name + '" onclick="openDeleteIngredientModal(\'' + item.ingredient_id + '\')">' +
+                        '✕' +
+                        '</button>' +
+                        '</div>' +
                         '</td>';
                     tbody.appendChild(tr);
                 });
@@ -3048,6 +3191,323 @@
                 tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; color: var(--danger);">Gagal memuat: ' + err.message + '</td></tr>';
             }
         }
+
+        // =========================================================
+        // MODAL TAMBAH BAHAN BAKU DINAMIS
+        // =========================================================
+        let availableUnitsCache = [];
+
+        async function loadUnitsForDropdown() {
+            try {
+                if (availableUnitsCache.length === 0) {
+                    const res = await fetch("/api/units");
+                    if (res.ok) {
+                        availableUnitsCache = await res.json();
+                    }
+                }
+                if (availableUnitsCache.length > 0) {
+                    populateUnitDropdown("add-ing-raw-unit", "kg");
+                    populateUnitDropdown("add-ing-cooked-unit", "biji");
+                }
+            } catch (e) {
+                console.warn("Could not load /api/units:", e);
+            }
+        }
+
+        function populateUnitDropdown(selectId, defaultSymbol) {
+            const selectEl = document.getElementById(selectId);
+            if (!selectEl) return;
+            const currentVal = selectEl.value || defaultSymbol;
+
+            selectEl.innerHTML = "";
+            availableUnitsCache.forEach(function(u) {
+                const opt = document.createElement("option");
+                opt.value = u.symbol || u.name.toLowerCase();
+                opt.textContent = u.name + " (" + (u.symbol || u.name.toLowerCase()) + ")";
+                selectEl.appendChild(opt);
+            });
+
+            const optCustom = document.createElement("option");
+            optCustom.value = "custom";
+            optCustom.textContent = "+ Satuan Lainnya...";
+            selectEl.appendChild(optCustom);
+
+            // Select previous or default
+            let matched = false;
+            for (let i = 0; i < selectEl.options.length; i++) {
+                if (selectEl.options[i].value.toLowerCase() === currentVal.toLowerCase()) {
+                    selectEl.selectedIndex = i;
+                    matched = true;
+                    break;
+                }
+            }
+            if (!matched && selectEl.options.length > 0) {
+                selectEl.selectedIndex = 0;
+            }
+        }
+
+        function openAddIngredientModal() {
+            const nameEl = document.getElementById("add-ing-name");
+            const rawSelect = document.getElementById("add-ing-raw-unit");
+            const rawCustom = document.getElementById("add-ing-raw-unit-custom");
+            const cookedSelect = document.getElementById("add-ing-cooked-unit");
+            const cookedCustom = document.getElementById("add-ing-cooked-unit-custom");
+            const priceEl = document.getElementById("add-ing-selling-price");
+            const notesEl = document.getElementById("add-ing-notes");
+
+            if (nameEl) nameEl.value = "";
+            if (rawCustom) { rawCustom.value = ""; rawCustom.style.display = "none"; }
+            if (cookedCustom) { cookedCustom.value = ""; cookedCustom.style.display = "none"; }
+            if (priceEl) priceEl.value = "";
+            if (notesEl) notesEl.value = "";
+
+            loadUnitsForDropdown().then(function() {
+                onRawUnitChange();
+                onCookedUnitChange();
+                updatePriceHint();
+            });
+
+            const modal = document.getElementById("add-ingredient-modal");
+            if (modal) modal.classList.add("active");
+            if (nameEl) setTimeout(function() { nameEl.focus(); }, 120);
+        }
+
+        function closeAddIngredientModal() {
+            const modal = document.getElementById("add-ingredient-modal");
+            if (modal) modal.classList.remove("active");
+        }
+
+        function onRawUnitChange() {
+            const select = document.getElementById("add-ing-raw-unit");
+            const custom = document.getElementById("add-ing-raw-unit-custom");
+            if (!select || !custom) return;
+            if (select.value === "custom") {
+                custom.style.display = "block";
+                custom.focus();
+            } else {
+                custom.style.display = "none";
+            }
+        }
+
+        function onCookedUnitChange() {
+            const select = document.getElementById("add-ing-cooked-unit");
+            const custom = document.getElementById("add-ing-cooked-unit-custom");
+            const tag = document.getElementById("add-ing-price-unit-tag");
+            if (!select) return;
+            if (select.value === "custom") {
+                if (custom) {
+                    custom.style.display = "block";
+                    custom.focus();
+                }
+                if (tag) tag.textContent = "Rp";
+            } else {
+                if (custom) custom.style.display = "none";
+                if (tag) tag.textContent = "Rp / " + select.value;
+            }
+            updatePriceHint();
+        }
+
+        function updatePriceHint() {
+            const priceEl = document.getElementById("add-ing-selling-price");
+            const select = document.getElementById("add-ing-cooked-unit");
+            const custom = document.getElementById("add-ing-cooked-unit-custom");
+            const hint = document.getElementById("add-ing-price-hint");
+            if (!hint) return;
+
+            const unitName = (select && select.value === "custom" && custom && custom.value.trim())
+                ? custom.value.trim()
+                : (select ? select.value : "biji");
+
+            const priceVal = parseFloat(priceEl ? priceEl.value : 0) || 0;
+            if (priceVal > 0) {
+                hint.textContent = "Setiap 1 " + unitName + " matang akan dijual seharga " + formatRupiah(priceVal) + ".";
+                hint.style.color = "var(--primary-dark)";
+                hint.style.fontWeight = "600";
+            } else {
+                hint.textContent = "Patokan harga jual saat produk matang disajikan ke pelanggan.";
+                hint.style.color = "var(--text-muted)";
+                hint.style.fontWeight = "normal";
+            }
+        }
+
+        async function submitNewIngredient() {
+            const nameEl = document.getElementById("add-ing-name");
+            const rawSelect = document.getElementById("add-ing-raw-unit");
+            const rawCustom = document.getElementById("add-ing-raw-unit-custom");
+            const cookedSelect = document.getElementById("add-ing-cooked-unit");
+            const cookedCustom = document.getElementById("add-ing-cooked-unit-custom");
+            const priceEl = document.getElementById("add-ing-selling-price");
+            const notesEl = document.getElementById("add-ing-notes");
+            const btnSave = document.getElementById("btn-save-ingredient");
+
+            const name = nameEl ? nameEl.value.trim() : "";
+            if (!name) {
+                alert("Mohon isi nama bahan / komoditas terlebih dahulu.");
+                if (nameEl) nameEl.focus();
+                return;
+            }
+
+            let rawUnit = rawSelect ? rawSelect.value : "kg";
+            if (rawUnit === "custom") {
+                rawUnit = rawCustom ? rawCustom.value.trim() : "";
+                if (!rawUnit) {
+                    alert("Mohon ketik satuan mentah untuk bahan ini.");
+                    if (rawCustom) rawCustom.focus();
+                    return;
+                }
+            }
+
+            let cookedUnit = cookedSelect ? cookedSelect.value : "biji";
+            if (cookedUnit === "custom") {
+                cookedUnit = cookedCustom ? cookedCustom.value.trim() : "";
+                if (!cookedUnit) {
+                    alert("Mohon ketik satuan matang / jual untuk bahan ini.");
+                    if (cookedCustom) cookedCustom.focus();
+                    return;
+                }
+            }
+
+            const rawPrice = priceEl ? priceEl.value : "";
+            const priceVal = parseFloat(rawPrice);
+            if (isNaN(priceVal) || priceVal < 0) {
+                alert("Mohon masukkan harga jual standar yang valid (angka 0 atau lebih).");
+                if (priceEl) priceEl.focus();
+                return;
+            }
+
+            const notes = notesEl ? notesEl.value.trim() : "";
+
+            const payload = {
+                name: name,
+                stock_unit: rawUnit,
+                selling_unit: cookedUnit,
+                selling_price: priceVal,
+                minimum_stock: 0,
+                notes: notes || null
+            };
+
+            btnSave.disabled = true;
+            btnSave.textContent = "⏳ Menyimpan...";
+
+            try {
+                const res = await fetch("/api/ingredients", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(payload)
+                });
+                const result = await res.json();
+                if (!res.ok) {
+                    throw new Error(result.detail || result.message || "Gagal menyimpan bahan");
+                }
+
+                closeAddIngredientModal();
+                showToast("✅ Bahan baku '" + name + "' berhasil disimpan dan langsung aktif di seluruh menu!", true);
+
+                // 1. Refresh master items
+                await fetchMasterItems();
+
+                // 2. Refresh Stok Table
+                await loadStockAndDashboard();
+
+                // 3. Pre-render Beli Bahan cards if container exists
+                const beliContainer = document.getElementById("beli-commodities-container");
+                if (beliContainer) {
+                    renderBeliCommodityCards();
+                }
+
+                // 4. Pre-render Produksi cards if container exists
+                const kukusContainer = document.getElementById("kukus-commodities-container");
+                if (kukusContainer) {
+                    renderKukusCommodityCards();
+                }
+            } catch (err) {
+                console.error(err);
+                showToast("❌ " + err.message, false);
+                alert("Gagal menambahkan bahan: " + err.message);
+            } finally {
+                btnSave.disabled = false;
+                btnSave.textContent = "💾 Simpan Bahan";
+            }
+        }
+
+        // =========================================================
+        // MODAL HAPUS / NONAKTIFKAN BAHAN BAKU
+        // =========================================================
+        let pendingDeleteIngredient = null;
+
+        function openDeleteIngredientModal(ingredientId) {
+            const item = (masterItems || []).find(function(m) { return m.ingredient_id === ingredientId; });
+            if (!item) return;
+
+            pendingDeleteIngredient = item;
+            const titleEl = document.getElementById("delete-ing-title");
+            if (titleEl) {
+                titleEl.textContent = "Hapus/Nonaktifkan " + item.ingredient_name + "?";
+            }
+
+            const modal = document.getElementById("delete-ingredient-modal");
+            if (modal) modal.classList.add("active");
+        }
+
+        function closeDeleteIngredientModal() {
+            const modal = document.getElementById("delete-ingredient-modal");
+            if (modal) modal.classList.remove("active");
+            pendingDeleteIngredient = null;
+        }
+
+        async function executeDeleteIngredient() {
+            if (!pendingDeleteIngredient) return;
+
+            const item = pendingDeleteIngredient;
+            const btn = document.getElementById("btn-confirm-delete-ingredient");
+            btn.disabled = true;
+            btn.textContent = "⏳ Menghapus...";
+
+            try {
+                const res = await fetch("/api/ingredients/" + item.ingredient_id, {
+                    method: "DELETE"
+                });
+                const result = await res.json();
+                if (!res.ok) {
+                    throw new Error(result.detail || result.message || "Gagal menonaktifkan bahan baku");
+                }
+
+                closeDeleteIngredientModal();
+                showToast("✅ Bahan baku '" + item.ingredient_name + "' berhasil dinonaktifkan.", true);
+
+                // Refresh master items and all relevant views
+                await fetchMasterItems();
+                await loadStockAndDashboard();
+
+                if (document.getElementById("beli-commodities-container")) {
+                    renderBeliCommodityCards();
+                }
+                if (document.getElementById("kukus-commodities-container")) {
+                    renderKukusCommodityCards();
+                }
+            } catch (err) {
+                console.error(err);
+                showToast("❌ " + err.message, false);
+                alert("Gagal menghapus bahan: " + err.message);
+            } finally {
+                btn.disabled = false;
+                btn.textContent = "Ya, Hapus";
+            }
+        }
+
+        // Close on escape key
+        document.addEventListener("keydown", function(e) {
+            if (e.key === "Escape") {
+                const addModal = document.getElementById("add-ingredient-modal");
+                if (addModal && addModal.classList.contains("active")) {
+                    closeAddIngredientModal();
+                }
+                const delModal = document.getElementById("delete-ingredient-modal");
+                if (delModal && delModal.classList.contains("active")) {
+                    closeDeleteIngredientModal();
+                }
+            }
+        });
 
         // =========================================================
         // MODAL CATAT TERBUANG / RUSAK (PER KOMODITAS DENGAN SHORTCUT)
