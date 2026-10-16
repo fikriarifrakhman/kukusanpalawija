@@ -3140,12 +3140,24 @@
                 masterItems = items;
                 const dashRes = results[1];
 
-                // Metric cards
-                document.getElementById("rekap-today-sales").textContent = formatRupiah(dashRes.today.sales.total_net);
-                document.getElementById("rekap-today-tx").textContent = dashRes.today.sales.transaction_count + " transaksi";
-                document.getElementById("rekap-month-sales").textContent = formatRupiah(dashRes.current_month.sales.total_net);
-                document.getElementById("rekap-month-expense").textContent = formatRupiah(dashRes.current_month.expenses.total);
-                document.getElementById("rekap-cash-balance").textContent = formatRupiah(dashRes.cash_balance);
+                // Metric cards dengan proteksi default "Rp 0"
+                const todaySales = (dashRes && dashRes.today && dashRes.today.sales && dashRes.today.sales.total_net) || 0;
+                const todayTx = (dashRes && dashRes.today && dashRes.today.sales && dashRes.today.sales.transaction_count) || 0;
+                const monthSales = (dashRes && dashRes.current_month && dashRes.current_month.sales && dashRes.current_month.sales.total_net) || 0;
+                const monthExpense = (dashRes && dashRes.current_month && dashRes.current_month.expenses && dashRes.current_month.expenses.total) || 0;
+                const cashBal = (dashRes && typeof dashRes.cash_balance === "number") ? dashRes.cash_balance : 0;
+
+                const elTodaySales = document.getElementById("rekap-today-sales");
+                const elTodayTx = document.getElementById("rekap-today-tx");
+                const elMonthSales = document.getElementById("rekap-month-sales");
+                const elMonthExpense = document.getElementById("rekap-month-expense");
+                const elCashBalance = document.getElementById("rekap-cash-balance");
+
+                if (elTodaySales) elTodaySales.textContent = formatRupiah(todaySales);
+                if (elTodayTx) elTodayTx.textContent = todayTx + " transaksi";
+                if (elMonthSales) elMonthSales.textContent = formatRupiah(monthSales);
+                if (elMonthExpense) elMonthExpense.textContent = formatRupiah(monthExpense);
+                if (elCashBalance) elCashBalance.textContent = formatRupiah(cashBal);
 
                 // Table
                 tbody.innerHTML = "";
@@ -3189,6 +3201,8 @@
             } catch (err) {
                 console.error(err);
                 tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; color: var(--danger);">Gagal memuat: ' + err.message + '</td></tr>';
+                const elCashBalance = document.getElementById("rekap-cash-balance");
+                if (elCashBalance) elCashBalance.textContent = "Rp 0";
             }
         }
 

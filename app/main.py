@@ -3807,14 +3807,14 @@ def dashboard():
         cur.execute(
             """
             SELECT
-                COALESCE(SUM(total_gross), 0),
-                COALESCE(SUM(platform_fee), 0),
-                COALESCE(SUM(total_net), 0),
-                COUNT(*)
-            FROM sales
-            WHERE sale_date::date = %s;
+                COALESCE(SUM(s.total_gross), 0) + COALESCE((SELECT SUM(df.omset) FROM daily_finance df WHERE df.entry_date = %s), 0),
+                COALESCE(SUM(s.platform_fee), 0),
+                COALESCE(SUM(s.total_net), 0) + COALESCE((SELECT SUM(df.omset) FROM daily_finance df WHERE df.entry_date = %s), 0),
+                COUNT(s.id) + COALESCE((SELECT COUNT(df.id) FROM daily_finance df WHERE df.entry_date = %s AND df.omset > 0), 0)
+            FROM sales s
+            WHERE s.sale_date::date = %s;
             """,
-            (today,)
+            (today, today, today, today)
         )
 
         sales_today = cur.fetchone()
@@ -3825,14 +3825,14 @@ def dashboard():
         cur.execute(
             """
             SELECT
-                COALESCE(SUM(total_gross), 0),
-                COALESCE(SUM(platform_fee), 0),
-                COALESCE(SUM(total_net), 0),
-                COUNT(*)
-            FROM sales
-            WHERE sale_date::date BETWEEN %s AND %s;
+                COALESCE(SUM(s.total_gross), 0) + COALESCE((SELECT SUM(df.omset) FROM daily_finance df WHERE df.entry_date BETWEEN %s AND %s), 0),
+                COALESCE(SUM(s.platform_fee), 0),
+                COALESCE(SUM(s.total_net), 0) + COALESCE((SELECT SUM(df.omset) FROM daily_finance df WHERE df.entry_date BETWEEN %s AND %s), 0),
+                COUNT(s.id) + COALESCE((SELECT COUNT(df.id) FROM daily_finance df WHERE df.entry_date BETWEEN %s AND %s AND df.omset > 0), 0)
+            FROM sales s
+            WHERE s.sale_date::date BETWEEN %s AND %s;
             """,
-            (first_day_of_month, today)
+            (first_day_of_month, today, first_day_of_month, today, first_day_of_month, today, first_day_of_month, today)
         )
 
         sales_month = cur.fetchone()
@@ -3843,12 +3843,11 @@ def dashboard():
         cur.execute(
             """
             SELECT
-                COALESCE(SUM(business_amount), 0)
-            FROM expenses
-            WHERE expense_date = %s
-              AND is_business = TRUE;
+                COALESCE((SELECT SUM(business_amount) FROM expenses WHERE expense_date = %s AND is_business = TRUE), 0) +
+                COALESCE((SELECT SUM(total_amount) FROM purchases WHERE purchase_date::date = %s), 0) +
+                COALESCE((SELECT SUM(total_amount) FROM packaging_purchases WHERE purchase_date::date = %s), 0);
             """,
-            (today,)
+            (today, today, today)
         )
 
         expense_today = float(cur.fetchone()[0])
@@ -3859,12 +3858,11 @@ def dashboard():
         cur.execute(
             """
             SELECT
-                COALESCE(SUM(business_amount), 0)
-            FROM expenses
-            WHERE expense_date BETWEEN %s AND %s
-              AND is_business = TRUE;
+                COALESCE((SELECT SUM(business_amount) FROM expenses WHERE expense_date BETWEEN %s AND %s AND is_business = TRUE), 0) +
+                COALESCE((SELECT SUM(total_amount) FROM purchases WHERE purchase_date::date BETWEEN %s AND %s), 0) +
+                COALESCE((SELECT SUM(total_amount) FROM packaging_purchases WHERE purchase_date::date BETWEEN %s AND %s), 0);
             """,
-            (first_day_of_month, today)
+            (first_day_of_month, today, first_day_of_month, today, first_day_of_month, today)
         )
 
         expense_month = float(cur.fetchone()[0])
@@ -3947,25 +3945,32 @@ def dashboard():
         cash_month = cur.fetchone()
 
         # ==========================================
-        # SALDO KAS KESELURUHAN
+        # SALDO KAS KESELURUHAN (MURNI DINAMIS)
         # ==========================================
+        # Dihitung murni berdasarkan (Total Penjualan aktual - Total Pengeluaran/Pembelian aktual).
+        # Jika belum ada transaksi sama sekali, saldo kas bernilai 0.0.
         cur.execute(
             """
             SELECT
-                COALESCE(
-                    SUM(
-                        CASE
-                            WHEN type = 'IN' THEN amount
-                            WHEN type = 'OUT' THEN -amount
-                            ELSE 0
-                        END
-                    ), 0
-                )
-            FROM cash_transactions;
+                -- Total Penjualan Aktual (sales.total_net + daily_finance.omset)
+                (
+                    COALESCE((SELECT SUM(total_net) FROM sales), 0) +
+                    COALESCE((SELECT SUM(omset) FROM daily_finance), 0)
+                ) AS total_actual_sales,
+                -- Total Pengeluaran & Pembelian Aktual (purchases + expenses + packaging_purchases)
+                (
+                    COALESCE((SELECT SUM(total_amount) FROM purchases), 0) +
+                    COALESCE((SELECT SUM(business_amount) FROM expenses WHERE is_business = TRUE), 0) +
+                    COALESCE((SELECT SUM(total_amount) FROM packaging_purchases), 0)
+                ) AS total_actual_expenses;
             """
         )
 
-        cash_balance = float(cur.fetchone()[0])
+        cash_summary = cur.fetchone()
+        total_actual_sales = float(cash_summary[0]) if cash_summary else 0.0
+        total_actual_expenses = float(cash_summary[1]) if cash_summary else 0.0
+
+        cash_balance = float(total_actual_sales - total_actual_expenses)
 
         # ==========================================
         # STOK BAHAN BAKU
