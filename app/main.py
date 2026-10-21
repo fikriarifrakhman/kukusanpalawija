@@ -68,6 +68,12 @@ def init_db_schema():
             LEFT JOIN finished_goods_stock fgs ON p.id = fgs.product_id
             WHERE fgs.id IS NULL
             ON CONFLICT (product_id) DO NOTHING;
+
+            -- Migrasi otomatis satuan baku Telur Ayam dan Kentang menjadi biji
+            UPDATE ingredients 
+            SET stock_unit_id = (SELECT id FROM units WHERE LOWER(symbol) = 'biji' LIMIT 1)
+            WHERE LOWER(TRIM(name)) IN ('telur ayam', 'kentang')
+              AND EXISTS (SELECT 1 FROM units WHERE LOWER(symbol) = 'biji');
         """)
         conn.commit()
         cur.close()
@@ -1366,11 +1372,14 @@ def delete_production_by_date(date: date):
         conn.close()
 
 
+@app.delete("/api/production/{production_id}")
 @app.delete("/api/productions/{production_id}")
 def delete_production_by_id(production_id: str):
     conn = get_connection()
     cur = conn.cursor()
     try:
+        cur.execute("DELETE FROM stock_movements WHERE reference_type = 'PRODUCTION' AND reference_id = %s", (production_id,))
+        cur.execute("DELETE FROM finished_goods_movements WHERE reference_type = 'PRODUCTION' AND reference_id = %s", (production_id,))
         cur.execute("DELETE FROM production_inputs WHERE production_id = %s", (production_id,))
         cur.execute("DELETE FROM production_outputs WHERE production_id = %s", (production_id,))
         cur.execute("DELETE FROM production WHERE id = %s", (production_id,))
@@ -1385,6 +1394,321 @@ def delete_production_by_id(production_id: str):
     finally:
         cur.close()
         conn.close()
+
+
+@app.put("/api/production/{production_id}")
+@app.put("/api/productions/{production_id}")
+def update_production(production_id: str, data: ProductionCreate):
+    conn = get_connection()
+    cur = conn.cursor()
+
+    try:
+        if not data.inputs:
+            raise HTTPException(status_code=400, detail="Minimal harus ada 1 bahan baku.")
+        if not data.outputs:
+            raise HTTPException(status_code=400, detail="Minimal harus ada 1 hasil produksi.")
+        if data.additional_cost < 0:
+            raise HTTPException(status_code=400, detail="Biaya tambahan tidak boleh negatif.")
+
+        # Validasi output
+        product_ids = set()
+        total_allocation = 0
+        for output in data.outputs:
+            if output.quantity <= 0:
+                raise HTTPException(status_code=400, detail="Jumlah hasil produksi harus lebih dari 0.")
+            if output.allocation_percentage <= 0:
+                raise HTTPException(status_code=400, detail="Allocation percentage harus lebih dari 0.")
+            if output.product_id in product_ids:
+                raise HTTPException(status_code=400, detail="Produk hasil produksi tidak boleh sama.")
+            product_ids.add(output.product_id)
+            total_allocation += output.allocation_percentage
+
+        if abs(total_allocation - 100) > 0.05:
+            raise HTTPException(status_code=400, detail=f"Total allocation harus 100%. Saat ini {total_allocation}%.")
+
+        # 1. Kunci dan periksa batch produksi lama
+        cur.execute("""
+            SELECT id, production_date, total_material_cost, additional_cost, total_cost, notes
+            FROM production
+            WHERE id = %s
+            FOR UPDATE;
+        """, (production_id,))
+        old_prod = cur.fetchone()
+        if not old_prod:
+            raise HTTPException(status_code=404, detail="Data produksi tidak ditemukan.")
+
+        # 2. Ambil inputs & outputs lama
+        cur.execute("""
+            SELECT ingredient_id, unit_id, quantity, unit_cost, total_cost
+            FROM production_inputs
+            WHERE production_id = %s;
+        """, (production_id,))
+        old_inputs = cur.fetchall()
+
+        cur.execute("""
+            SELECT product_id, unit_id, quantity, cost_per_unit, total_cost
+            FROM production_outputs
+            WHERE production_id = %s;
+        """, (production_id,))
+        old_outputs = cur.fetchall()
+
+        # 3. Kembalikan stok bahan mentah lama (Revert old inputs)
+        for row in old_inputs:
+            old_ing_id = str(row[0])
+            old_qty = float(row[2])
+
+            cur.execute("""
+                SELECT quantity, stock_value, average_cost
+                FROM stock_balances
+                WHERE ingredient_id = %s
+                FOR UPDATE;
+            """, (old_ing_id,))
+            stock = cur.fetchone()
+            if stock:
+                curr_q = float(stock[0])
+                curr_avg = float(stock[2])
+
+                rev_q = curr_q + old_qty
+                rev_v = rev_q * curr_avg
+                cur.execute("""
+                    UPDATE stock_balances
+                    SET quantity = %s, stock_value = %s, updated_at = NOW()
+                    WHERE ingredient_id = %s;
+                """, (rev_q, rev_v, old_ing_id))
+
+        # 4. Kembalikan/kurangi stok produk matang lama (Revert old outputs)
+        for row in old_outputs:
+            old_pid = str(row[0])
+            old_out_qty = float(row[2])
+            old_out_val = float(row[4])
+
+            cur.execute("""
+                SELECT quantity, stock_value, average_cost
+                FROM finished_goods_stock
+                WHERE product_id = %s
+                FOR UPDATE;
+            """, (old_pid,))
+            fg_stock = cur.fetchone()
+            if fg_stock:
+                curr_fg_q = float(fg_stock[0])
+                curr_fg_v = float(fg_stock[1])
+
+                rev_fg_q = max(0.0, curr_fg_q - old_out_qty)
+                rev_fg_v = max(0.0, curr_fg_v - old_out_val)
+                rev_fg_avg = (rev_fg_v / rev_fg_q) if rev_fg_q > 0 else 0.0
+
+                cur.execute("""
+                    UPDATE finished_goods_stock
+                    SET quantity = %s, stock_value = %s, average_cost = %s, updated_at = NOW()
+                    WHERE product_id = %s;
+                """, (rev_fg_q, rev_fg_v, rev_fg_avg, old_pid))
+
+        # 5. Kurangi stok bahan mentah sesuai data baru (Apply new inputs)
+        material_cost = 0.0
+        ingredient_stock_data = []
+
+        for item in data.inputs:
+            if item.quantity <= 0:
+                raise HTTPException(status_code=400, detail="Jumlah bahan baku harus lebih dari 0.")
+
+            cur.execute("""
+                SELECT quantity, stock_value, average_cost
+                FROM stock_balances
+                WHERE ingredient_id = %s
+                FOR UPDATE;
+            """, (item.ingredient_id,))
+            stock = cur.fetchone()
+            if not stock:
+                raise HTTPException(status_code=400, detail=f"Stok bahan dengan ID {item.ingredient_id} belum tersedia.")
+
+            current_quantity = float(stock[0])
+            current_average_cost = float(stock[2])
+
+            if item.quantity > current_quantity:
+                raise HTTPException(
+                    status_code=400,
+                    detail=f"Stok tidak cukup untuk bahan baku. Tersedia: {current_quantity}, dibutuhkan: {item.quantity}."
+                )
+
+            item_cost = item.quantity * current_average_cost
+            material_cost += item_cost
+
+            new_quantity = current_quantity - item.quantity
+            new_stock_value = new_quantity * current_average_cost
+
+            cur.execute("""
+                UPDATE stock_balances
+                SET quantity = %s, stock_value = %s, average_cost = %s, updated_at = NOW()
+                WHERE ingredient_id = %s;
+            """, (new_quantity, new_stock_value, current_average_cost, item.ingredient_id))
+
+            ingredient_stock_data.append({
+                "ingredient_id": item.ingredient_id,
+                "unit_id": item.unit_id,
+                "quantity": item.quantity,
+                "average_cost": current_average_cost,
+                "total_cost": item_cost
+            })
+
+        total_production_cost = material_cost + data.additional_cost
+
+        # 6. Tambahkan stok produk matang sesuai data baru (Apply new outputs)
+        output_results = []
+        for output in data.outputs:
+            allocated_cost = total_production_cost * (output.allocation_percentage / 100.0)
+            cost_per_unit = (allocated_cost / output.quantity) if output.quantity > 0 else 0.0
+
+            cur.execute("""
+                SELECT quantity, stock_value, average_cost
+                FROM finished_goods_stock
+                WHERE product_id = %s
+                FOR UPDATE;
+            """, (output.product_id,))
+            fg_stock = cur.fetchone()
+
+            if fg_stock:
+                curr_fg_q = float(fg_stock[0])
+                curr_fg_v = float(fg_stock[1])
+
+                new_fg_q = curr_fg_q + output.quantity
+                new_fg_v = curr_fg_v + allocated_cost
+                new_fg_avg = (new_fg_v / new_fg_q) if new_fg_q > 0 else 0.0
+
+                cur.execute("""
+                    UPDATE finished_goods_stock
+                    SET quantity = %s, stock_value = %s, average_cost = %s, updated_at = NOW()
+                    WHERE product_id = %s;
+                """, (new_fg_q, new_fg_v, new_fg_avg, output.product_id))
+            else:
+                cur.execute("""
+                    INSERT INTO finished_goods_stock (product_id, quantity, stock_value, average_cost, updated_at)
+                    VALUES (%s, %s, %s, %s, NOW());
+                """, (output.product_id, output.quantity, allocated_cost, cost_per_unit))
+
+            output_results.append({
+                "product_id": output.product_id,
+                "unit_id": output.unit_id,
+                "quantity": output.quantity,
+                "cost_per_unit": cost_per_unit,
+                "total_cost": allocated_cost
+            })
+
+        # 7. Update header production
+        cur.execute("""
+            UPDATE production
+            SET production_date = %s,
+                notes = %s,
+                total_material_cost = %s,
+                additional_cost = %s,
+                total_cost = %s
+            WHERE id = %s;
+        """, (
+            data.production_date,
+            data.notes,
+            material_cost,
+            data.additional_cost,
+            total_production_cost,
+            production_id
+        ))
+
+        # 8. Replace production_inputs
+        cur.execute("DELETE FROM production_inputs WHERE production_id = %s;", (production_id,))
+        for item in ingredient_stock_data:
+            cur.execute("""
+                INSERT INTO production_inputs (
+                    production_id, ingredient_id, quantity, unit_id, unit_cost, total_cost
+                ) VALUES (%s, %s, %s, %s, %s, %s);
+            """, (
+                production_id,
+                item["ingredient_id"],
+                item["quantity"],
+                item["unit_id"],
+                item["average_cost"],
+                item["total_cost"]
+            ))
+
+        # 9. Replace production_outputs
+        cur.execute("DELETE FROM production_outputs WHERE production_id = %s;", (production_id,))
+        for out in output_results:
+            cur.execute("""
+                INSERT INTO production_outputs (
+                    production_id, product_id, quantity, unit_id, cost_per_unit, total_cost
+                ) VALUES (%s, %s, %s, %s, %s, %s);
+            """, (
+                production_id,
+                out["product_id"],
+                out["quantity"],
+                out["unit_id"],
+                out["cost_per_unit"],
+                out["total_cost"]
+            ))
+
+        # 10. Replace stock_movements
+        cur.execute("""
+            DELETE FROM stock_movements
+            WHERE reference_type = 'PRODUCTION' AND reference_id = %s;
+        """, (production_id,))
+        for item in ingredient_stock_data:
+            cur.execute("""
+                INSERT INTO stock_movements (
+                    ingredient_id, movement_type, quantity, unit_id, unit_cost, total_value,
+                    reference_type, reference_id, movement_date, notes
+                ) VALUES (
+                    %s, 'PRODUCTION_USE', %s, %s, %s, %s,
+                    'PRODUCTION', %s, %s, %s
+                );
+            """, (
+                item["ingredient_id"],
+                item["quantity"],
+                item["unit_id"],
+                item["average_cost"],
+                item["total_cost"],
+                production_id,
+                data.production_date,
+                "Penggunaan bahan untuk produksi (diperbarui)"
+            ))
+
+        # 11. Replace finished_goods_movements
+        cur.execute("""
+            DELETE FROM finished_goods_movements
+            WHERE reference_type = 'PRODUCTION' AND reference_id = %s;
+        """, (production_id,))
+        for out in output_results:
+            cur.execute("""
+                INSERT INTO finished_goods_movements (
+                    product_id, movement_type, quantity, unit_id, unit_cost, total_value,
+                    reference_type, reference_id, movement_date, notes
+                ) VALUES (
+                    %s, 'PRODUCTION_IN', %s, %s, %s, %s,
+                    'PRODUCTION', %s, %s, %s
+                );
+            """, (
+                out["product_id"],
+                out["quantity"],
+                out["unit_id"],
+                out["cost_per_unit"],
+                out["total_cost"],
+                production_id,
+                data.production_date,
+                "Hasil produksi (diperbarui)"
+            ))
+
+        conn.commit()
+        return {
+            "status": "success",
+            "message": "Data produksi berhasil diperbarui",
+            "production_id": str(production_id),
+            "total_cost": total_production_cost
+        }
+
+    except HTTPException:
+        conn.rollback()
+        raise
+    except Exception as e:
+        conn.rollback()
+        raise HTTPException(status_code=500, detail=f"Gagal memperbarui produksi: {str(e)}")
+    finally:
+        cur.close()
         conn.close()
 
 
@@ -1609,6 +1933,7 @@ def get_purchases():
                     SELECT json_agg(json_build_object(
                         'ingredient_id', pi.ingredient_id,
                         'ingredient_name', i.name,
+                        'unit_id', pi.unit_id,
                         'quantity', pi.quantity,
                         'unit_symbol', u.symbol,
                         'unit_price', pi.unit_price,
@@ -1638,6 +1963,58 @@ def get_purchases():
         return purchases
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Gagal mengambil riwayat pembelian: {str(e)}")
+    finally:
+        cur.close()
+        conn.close()
+
+
+@app.get("/api/purchases/{purchase_id}")
+def get_purchase_detail(purchase_id: str):
+    conn = get_connection()
+    cur = conn.cursor()
+    try:
+        cur.execute("""
+            SELECT 
+                p.id, 
+                p.purchase_date, 
+                p.supplier_name, 
+                p.total_amount, 
+                p.payment_method, 
+                p.notes,
+                (
+                    SELECT json_agg(json_build_object(
+                        'ingredient_id', pi.ingredient_id,
+                        'ingredient_name', i.name,
+                        'unit_id', pi.unit_id,
+                        'quantity', pi.quantity,
+                        'unit_symbol', u.symbol,
+                        'unit_price', pi.unit_price,
+                        'subtotal', pi.subtotal
+                    ))
+                    FROM purchase_items pi
+                    JOIN ingredients i ON pi.ingredient_id = i.id
+                    JOIN units u ON pi.unit_id = u.id
+                    WHERE pi.purchase_id = p.id
+                ) AS items
+            FROM purchases p
+            WHERE p.id = %s
+        """, (purchase_id,))
+        row = cur.fetchone()
+        if not row:
+            raise HTTPException(status_code=404, detail="Data pembelian tidak ditemukan")
+        return {
+            "id": str(row[0]),
+            "purchase_date": row[1].isoformat() if row[1] else None,
+            "supplier_name": row[2] or "",
+            "total_amount": float(row[3]) if row[3] is not None else 0.0,
+            "payment_method": row[4] or "CASH",
+            "notes": row[5] or "",
+            "items": row[6] or []
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Gagal mengambil data pembelian: {str(e)}")
     finally:
         cur.close()
         conn.close()
@@ -1719,6 +2096,250 @@ def delete_purchase_by_id(purchase_id: str):
     finally:
         cur.close()
         conn.close()
+
+
+@app.put("/api/purchases/{purchase_id}")
+def update_purchase(purchase_id: str, purchase: PurchaseCreate):
+    connection = get_connection()
+
+    try:
+        cursor = connection.cursor()
+
+        if not purchase.items:
+            raise HTTPException(status_code=400, detail="Minimal harus ada satu item pembelian.")
+
+        for item in purchase.items:
+            if item.quantity <= 0:
+                raise HTTPException(status_code=400, detail="Kuantitas bahan harus lebih dari 0.")
+            if item.unit_price <= 0:
+                raise HTTPException(status_code=400, detail="Harga satuan bahan harus lebih dari 0.")
+
+        # 1. Kunci dan periksa header pembelian lama
+        cursor.execute("""
+            SELECT id, purchase_date, supplier_name, total_amount, payment_method, notes
+            FROM purchases
+            WHERE id = %s
+            FOR UPDATE;
+        """, (purchase_id,))
+        old_purchase = cursor.fetchone()
+        if not old_purchase:
+            raise HTTPException(status_code=404, detail="Data pembelian tidak ditemukan.")
+
+        # 2. Ambil data item pembelian lama
+        cursor.execute("""
+            SELECT ingredient_id, unit_id, quantity, unit_price, subtotal
+            FROM purchase_items
+            WHERE purchase_id = %s;
+        """, (purchase_id,))
+        old_item_rows = cursor.fetchall()
+        old_items_map = {}
+        for row in old_item_rows:
+            old_items_map[str(row[0])] = {
+                "unit_id": str(row[1]),
+                "quantity": float(row[2]),
+                "unit_price": float(row[3]),
+                "subtotal": float(row[4])
+            }
+
+        # 3. Bentuk peta item baru
+        new_items_map = {}
+        total_amount = 0.0
+        for item in purchase.items:
+            ing_id = str(item.ingredient_id)
+            subtotal = float(item.quantity) * float(item.unit_price)
+            total_amount += subtotal
+            new_items_map[ing_id] = {
+                "unit_id": str(item.unit_id),
+                "quantity": float(item.quantity),
+                "unit_price": float(item.unit_price),
+                "subtotal": subtotal
+            }
+
+        # 4. Kumpulkan seluruh ingredient_id yang terdampak (lama & baru)
+        all_ing_ids = set(old_items_map.keys()) | set(new_items_map.keys())
+
+        # 5. Sesuaikan stock_balances dan kalkulasi ulang MWA untuk masing-masing bahan
+        for ing_id in all_ing_ids:
+            cursor.execute("""
+                SELECT quantity, stock_value, average_cost
+                FROM stock_balances
+                WHERE ingredient_id = %s
+                FOR UPDATE;
+            """, (ing_id,))
+            stock = cursor.fetchone()
+
+            old_qty = old_items_map[ing_id]["quantity"] if ing_id in old_items_map else 0.0
+            old_sub = old_items_map[ing_id]["subtotal"] if ing_id in old_items_map else 0.0
+            new_qty = new_items_map[ing_id]["quantity"] if ing_id in new_items_map else 0.0
+            new_sub = new_items_map[ing_id]["subtotal"] if ing_id in new_items_map else 0.0
+
+            delta_qty = new_qty - old_qty
+            delta_val = new_sub - old_sub
+
+            if stock:
+                curr_qty = float(stock[0])
+                curr_val = float(stock[1])
+
+                updated_qty = curr_qty + delta_qty
+                if updated_qty < -0.0001:
+                    raise HTTPException(
+                        status_code=400,
+                        detail=f"Perubahan kuantitas menyebabkan stok bahan baku menjadi negatif (stok berjalan: {curr_qty}, selisih: {delta_qty})."
+                    )
+                updated_qty = max(0.0, updated_qty)
+                updated_val = max(0.0, curr_val + delta_val)
+                updated_avg = (updated_val / updated_qty) if updated_qty > 0 else 0.0
+
+                cursor.execute("""
+                    UPDATE stock_balances
+                    SET quantity = %s,
+                        stock_value = %s,
+                        average_cost = %s,
+                        updated_at = NOW()
+                    WHERE ingredient_id = %s;
+                """, (updated_qty, updated_val, updated_avg, ing_id))
+            else:
+                if new_qty > 0:
+                    cursor.execute("""
+                        INSERT INTO stock_balances (ingredient_id, quantity, stock_value, average_cost)
+                        VALUES (%s, %s, %s, %s);
+                    """, (ing_id, new_qty, new_sub, new_sub / new_qty))
+
+        # 6. Perbarui header purchases
+        cursor.execute("""
+            UPDATE purchases
+            SET purchase_date = %s,
+                supplier_name = %s,
+                total_amount = %s,
+                payment_method = %s,
+                notes = %s
+            WHERE id = %s;
+        """, (
+            purchase.purchase_date,
+            purchase.supplier_name,
+            total_amount,
+            purchase.payment_method,
+            purchase.notes,
+            purchase_id
+        ))
+
+        # 7. Ganti purchase_items
+        cursor.execute("DELETE FROM purchase_items WHERE purchase_id = %s;", (purchase_id,))
+        for ing_id, it in new_items_map.items():
+            cursor.execute("""
+                INSERT INTO purchase_items (
+                    purchase_id,
+                    ingredient_id,
+                    unit_id,
+                    quantity,
+                    unit_price,
+                    subtotal
+                )
+                VALUES (%s, %s, %s, %s, %s, %s);
+            """, (
+                purchase_id,
+                ing_id,
+                it["unit_id"],
+                it["quantity"],
+                it["unit_price"],
+                it["subtotal"]
+            ))
+
+        # 8. Ganti stock_movements
+        cursor.execute("""
+            DELETE FROM stock_movements
+            WHERE reference_type = 'PURCHASE' AND reference_id = %s;
+        """, (purchase_id,))
+        for ing_id, it in new_items_map.items():
+            cursor.execute("""
+                INSERT INTO stock_movements (
+                    ingredient_id,
+                    movement_type,
+                    quantity,
+                    unit_id,
+                    unit_cost,
+                    total_value,
+                    reference_type,
+                    reference_id,
+                    movement_date,
+                    notes
+                )
+                VALUES (
+                    %s,
+                    'PURCHASE',
+                    %s,
+                    %s,
+                    %s,
+                    %s,
+                    'PURCHASE',
+                    %s,
+                    %s,
+                    %s
+                );
+            """, (
+                ing_id,
+                it["quantity"],
+                it["unit_id"],
+                it["unit_price"],
+                it["subtotal"],
+                purchase_id,
+                purchase.purchase_date,
+                purchase.notes
+            ))
+
+        # 9. Perbarui cash_transactions (menyesuaikan saldo kas secara akurat)
+        cursor.execute("""
+            UPDATE cash_transactions
+            SET transaction_date = %s,
+                amount = %s,
+                payment_method = %s,
+                description = %s
+            WHERE reference_type = 'PURCHASE' AND reference_id = %s;
+        """, (
+            purchase.purchase_date,
+            total_amount,
+            purchase.payment_method,
+            'Pembelian bahan baku (diperbarui)',
+            purchase_id
+        ))
+        if cursor.rowcount == 0:
+            cursor.execute("""
+                INSERT INTO cash_transactions (
+                    transaction_date,
+                    type,
+                    category,
+                    amount,
+                    reference_type,
+                    reference_id,
+                    payment_method,
+                    description
+                )
+                VALUES (%s, 'OUT', 'PEMBELIAN', %s, 'PURCHASE', %s, %s, %s);
+            """, (
+                purchase.purchase_date,
+                total_amount,
+                purchase_id,
+                purchase.payment_method,
+                'Pembelian bahan baku'
+            ))
+
+        connection.commit()
+        return {
+            "status": "success",
+            "message": "Pembelian berhasil diperbarui",
+            "purchase_id": str(purchase_id),
+            "total_amount": total_amount
+        }
+
+    except HTTPException:
+        connection.rollback()
+        raise
+    except Exception as e:
+        connection.rollback()
+        raise HTTPException(status_code=500, detail=f"Gagal memperbarui pembelian: {str(e)}")
+    finally:
+        cursor.close()
+        connection.close()
 
 
 @app.get("/api/stock/raw-materials")

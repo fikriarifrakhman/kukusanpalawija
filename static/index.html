@@ -968,7 +968,8 @@
                 </div>
                 <div class="header-actions">
                     <button class="btn btn-secondary" onclick="loadPurchaseHistory()">🔄 Segarkan</button>
-                    <button class="btn btn-danger-outline" onclick="openClearPurchaseModal()">🗑️ Kosongkan Data Pembelian</button>
+                    <button class="btn btn-danger-outline" onclick="openClearPurchaseModal()">🗑️ Kosongkan Data
+                        Pembelian</button>
                     <button class="btn btn-primary" onclick="togglePurchaseForm()">
                         <span id="btn-toggle-beli-icon">➕</span> <span id="btn-toggle-beli-text">Catat Belanja
                             Baru</span>
@@ -1080,7 +1081,8 @@
                 </div>
                 <div class="header-actions">
                     <button class="btn btn-secondary" onclick="loadModalHistory()">🔄 Segarkan</button>
-                    <button class="btn btn-danger-outline" onclick="openClearModalModal()">🗑️ Kosongkan Seluruh Riwayat Modal</button>
+                    <button class="btn btn-danger-outline" onclick="openClearModalModal()">🗑️ Kosongkan Seluruh Riwayat
+                        Modal</button>
                 </div>
             </div>
 
@@ -1090,12 +1092,14 @@
                     <div>
                         <strong style="font-size: 16px; color: #0f172a;">➕ Tambah Modal Harian</strong>
                         <p style="font-size: 12.5px; color: var(--text-muted);">
-                            Modal produksi otomatis terhitung dari total biaya riwayat produksi pada tanggal yang dipilih.
+                            Modal produksi otomatis terhitung dari total biaya riwayat produksi pada tanggal yang
+                            dipilih.
                         </p>
                     </div>
                 </div>
 
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-bottom: 16px;">
+                <div
+                    style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-bottom: 16px;">
                     <div class="input-group">
                         <label for="modal-date"><strong>📅 Tanggal Modal</strong></label>
                         <input type="date" id="modal-date" class="standard-input" onchange="onModalDateChange()">
@@ -1115,8 +1119,10 @@
 
                     <div class="input-group">
                         <label for="modal-ops-cost"><strong>🛠️ Biaya Operasional (Manual)</strong></label>
-                        <div class="input-with-unit" style="display: flex; align-items: center; border: 1px solid var(--border); border-radius: var(--radius-md); background: #fff;">
-                            <span style="padding: 0 10px; font-weight: 700; color: var(--text-muted); font-size: 13px;">Rp</span>
+                        <div class="input-with-unit"
+                            style="display: flex; align-items: center; border: 1px solid var(--border); border-radius: var(--radius-md); background: #fff;">
+                            <span
+                                style="padding: 0 10px; font-weight: 700; color: var(--text-muted); font-size: 13px;">Rp</span>
                             <input type="number" id="modal-ops-cost" min="0" step="1000" placeholder="0"
                                 style="width: 100%; border: none; padding: 9px 10px; font-size: 14px; font-weight: 700; outline: none; font-family: inherit;"
                                 oninput="calculateModalTotal()">
@@ -1128,22 +1134,27 @@
 
                     <div class="input-group">
                         <label for="modal-notes"><strong>📝 Catatan (Opsional)</strong></label>
-                        <input type="text" id="modal-notes" class="standard-input" placeholder="Misal: Gas 1 tabung + operasional lapak">
+                        <input type="text" id="modal-notes" class="standard-input"
+                            placeholder="Misal: Gas 1 tabung + operasional lapak">
                     </div>
                 </div>
 
                 <!-- TOTAL MODAL HARIAN HIGHLIGHT BAR -->
-                <div style="background: #f0fdf4; border: 1.5px solid var(--primary-border); border-radius: var(--radius-lg); padding: 14px 18px; margin-bottom: 6px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+                <div
+                    style="background: #f0fdf4; border: 1.5px solid var(--primary-border); border-radius: var(--radius-lg); padding: 14px 18px; margin-bottom: 6px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
                     <div>
-                        <div style="font-size: 12px; font-weight: 700; color: var(--primary-text); text-transform: uppercase; letter-spacing: 0.5px;">
+                        <div
+                            style="font-size: 12px; font-weight: 700; color: var(--primary-text); text-transform: uppercase; letter-spacing: 0.5px;">
                             Total Modal Harian (Modal Produksi + Biaya Operasional)
                         </div>
-                        <div id="modal-total-display" style="font-size: 26px; font-weight: 800; color: var(--primary); margin-top: 2px;">
+                        <div id="modal-total-display"
+                            style="font-size: 26px; font-weight: 800; color: var(--primary); margin-top: 2px;">
                             Rp0
                         </div>
                     </div>
                     <div style="display: flex; gap: 8px;">
-                        <button type="button" class="btn btn-secondary" onclick="resetModalForm()">🔄 Reset Form</button>
+                        <button type="button" class="btn btn-secondary" onclick="resetModalForm()">🔄 Reset
+                            Form</button>
                         <button type="button" class="btn btn-primary" id="btn-save-modal" onclick="submitModal()">
                             💾 Simpan Modal
                         </button>
@@ -1153,21 +1164,25 @@
 
             <!-- BAGIAN 2: RIWAYAT MODAL -->
             <div class="card">
-                <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin-bottom: 16px;">
+                <div
+                    style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin-bottom: 16px;">
                     <div>
                         <strong style="font-size: 16px; color: #0f172a;">📋 Riwayat Modal</strong>
-                        <p style="font-size: 12.5px; color: var(--text-muted);">Data modal harian yang tersimpan dan siap dipanggil modul keuangan</p>
+                        <p style="font-size: 12.5px; color: var(--text-muted);">Data modal harian yang tersimpan dan
+                            siap dipanggil modul keuangan</p>
                     </div>
 
                     <!-- FILTER RENTANG TANGGAL -->
                     <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
                         <div style="display: flex; align-items: center; gap: 6px;">
                             <label style="font-size: 12px; font-weight: 600; color: var(--text-muted);">Dari:</label>
-                            <input type="date" id="filter-modal-start" class="standard-input" style="padding: 6px 10px; font-size: 12.5px;">
+                            <input type="date" id="filter-modal-start" class="standard-input"
+                                style="padding: 6px 10px; font-size: 12.5px;">
                         </div>
                         <div style="display: flex; align-items: center; gap: 6px;">
                             <label style="font-size: 12px; font-weight: 600; color: var(--text-muted);">Sampai:</label>
-                            <input type="date" id="filter-modal-end" class="standard-input" style="padding: 6px 10px; font-size: 12.5px;">
+                            <input type="date" id="filter-modal-end" class="standard-input"
+                                style="padding: 6px 10px; font-size: 12.5px;">
                         </div>
                         <button class="btn btn-sm btn-primary" onclick="loadModalHistory()">🔍 Filter</button>
                         <button class="btn btn-sm btn-secondary" onclick="resetModalFilter()">Semua</button>
@@ -1175,17 +1190,21 @@
                 </div>
 
                 <!-- RINGKASAN REKAP MODAL -->
-                <div id="modal-summary-box" style="display: flex; gap: 16px; margin-bottom: 16px; padding: 12px 16px; background: #f8fafc; border: 1px solid var(--border); border-radius: var(--radius-md); flex-wrap: wrap;">
+                <div id="modal-summary-box"
+                    style="display: flex; gap: 16px; margin-bottom: 16px; padding: 12px 16px; background: #f8fafc; border: 1px solid var(--border); border-radius: var(--radius-md); flex-wrap: wrap;">
                     <div>
                         <span style="font-size: 11.5px; color: var(--text-muted); font-weight: 600;">TOTAL MODAL:</span>
-                        <div id="sum-modal-total" style="font-size: 18px; font-weight: 800; color: var(--primary);">Rp0</div>
+                        <div id="sum-modal-total" style="font-size: 18px; font-weight: 800; color: var(--primary);">Rp0
+                        </div>
                     </div>
                     <div style="border-left: 1px solid var(--border); padding-left: 16px;">
-                        <span style="font-size: 11.5px; color: var(--text-muted); font-weight: 600;">TOTAL PRODUKSI:</span>
+                        <span style="font-size: 11.5px; color: var(--text-muted); font-weight: 600;">TOTAL
+                            PRODUKSI:</span>
                         <div id="sum-modal-prod" style="font-size: 18px; font-weight: 700; color: #0f172a;">Rp0</div>
                     </div>
                     <div style="border-left: 1px solid var(--border); padding-left: 16px;">
-                        <span style="font-size: 11.5px; color: var(--text-muted); font-weight: 600;">TOTAL OPERASIONAL:</span>
+                        <span style="font-size: 11.5px; color: var(--text-muted); font-weight: 600;">TOTAL
+                            OPERASIONAL:</span>
                         <div id="sum-modal-ops" style="font-size: 18px; font-weight: 700; color: #0f172a;">Rp0</div>
                     </div>
                 </div>
@@ -1225,7 +1244,8 @@
                 <div class="header-actions">
                     <button class="btn btn-primary" onclick="openAddIngredientModal()">➕ Tambah Bahan Baku</button>
                     <button class="btn btn-secondary" onclick="loadStockAndDashboard()">🔄 Segarkan</button>
-                    <button class="btn btn-danger-outline" onclick="openClearAllStockModal()">🗑️ Kosongkan Seluruh Stok</button>
+                    <button class="btn btn-danger-outline" onclick="openClearAllStockModal()">🗑️ Kosongkan Seluruh
+                        Stok</button>
                 </div>
             </div>
 
@@ -1255,15 +1275,19 @@
 
             <!-- TABEL STOK TERPADU 13 KOMODITAS -->
             <div class="card">
-                <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 14px;">
+                <div
+                    style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 14px;">
                     <div>
                         <strong style="font-size: 16px; color: #0f172a;">🥔 Posisi Stok Komoditas Palawija</strong>
-                        <p style="font-size: 12.5px; color: var(--text-muted); margin-top: 2px;">Pantauan stok bahan mentah dan produk matang siap jual</p>
+                        <p style="font-size: 12.5px; color: var(--text-muted); margin-top: 2px;">Pantauan stok bahan
+                            mentah dan produk matang siap jual</p>
                     </div>
                     <div style="display: flex; gap: 8px;">
-                        <button class="btn btn-sm btn-primary" onclick="openAddIngredientModal()">➕ Tambah Bahan Baku</button>
+                        <button class="btn btn-sm btn-primary" onclick="openAddIngredientModal()">➕ Tambah Bahan
+                            Baku</button>
                         <button class="btn btn-sm btn-secondary" onclick="loadStockAndDashboard()">🔄 Segarkan</button>
-                        <button class="btn btn-sm btn-danger-outline" onclick="openClearAllStockModal()">🗑️ Kosongkan Seluruh Stok</button>
+                        <button class="btn btn-sm btn-danger-outline" onclick="openClearAllStockModal()">🗑️ Kosongkan
+                            Seluruh Stok</button>
                     </div>
                 </div>
 
@@ -1311,21 +1335,25 @@
 
             <!-- BAGIAN 1: INPUT KEUANGAN HARIAN -->
             <div class="card" style="border: 2px solid var(--primary-border); margin-bottom: 20px;">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 8px;">
+                <div
+                    style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 8px;">
                     <div>
                         <strong style="font-size: 16px; color: #0f172a;">💰 Input Keuangan Harian</strong>
                         <p style="font-size: 12.5px; color: var(--text-muted); margin-top: 2px;">
-                            Pilih tanggal penjualan. Modal otomatis terisi dari menu Modal, dan Profit terhitung secara real-time.
+                            Pilih tanggal penjualan. Modal otomatis terisi dari menu Modal, dan Profit terhitung secara
+                            real-time.
                         </p>
                     </div>
                 </div>
 
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; margin-bottom: 16px;">
+                <div
+                    style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; margin-bottom: 16px;">
                     <!-- Tanggal Penjualan -->
                     <div class="input-group">
                         <label for="finance-date"><strong>📅 Tanggal Penjualan</strong></label>
                         <input type="date" id="finance-date" class="standard-input" onchange="onFinanceDateChange()">
-                        <div id="finance-date-status" style="font-size: 11.5px; color: var(--text-muted); margin-top: 4px;">
+                        <div id="finance-date-status"
+                            style="font-size: 11.5px; color: var(--text-muted); margin-top: 4px;">
                             Pilih tanggal untuk memuat data modal otomatis.
                         </div>
                     </div>
@@ -1338,7 +1366,8 @@
                                 style="background: #f8fafc; font-weight: 700; color: #0f172a;" value="Rp0">
                             <input type="hidden" id="finance-modal-val" value="0">
                         </div>
-                        <div id="finance-modal-hint" style="font-size: 11.5px; color: var(--text-muted); margin-top: 4px;">
+                        <div id="finance-modal-hint"
+                            style="font-size: 11.5px; color: var(--text-muted); margin-top: 4px;">
                             Memeriksa modal harian...
                         </div>
                     </div>
@@ -1346,8 +1375,10 @@
                     <!-- Omset / Pendapatan Kotor (Manual) -->
                     <div class="input-group">
                         <label for="finance-omset"><strong>📈 Pendapatan Kotor / Omset (Manual)</strong></label>
-                        <div class="input-with-unit" style="display: flex; align-items: center; border: 1px solid var(--border); border-radius: var(--radius-md); background: #fff;">
-                            <span style="padding: 0 10px; font-weight: 700; color: var(--text-muted); font-size: 13px;">Rp</span>
+                        <div class="input-with-unit"
+                            style="display: flex; align-items: center; border: 1px solid var(--border); border-radius: var(--radius-md); background: #fff;">
+                            <span
+                                style="padding: 0 10px; font-weight: 700; color: var(--text-muted); font-size: 13px;">Rp</span>
                             <input type="number" id="finance-omset" min="0" step="1000" placeholder="0"
                                 style="width: 100%; border: none; padding: 9px 10px; font-size: 14px; font-weight: 700; outline: none; font-family: inherit;"
                                 oninput="calculateFinanceProfit()">
@@ -1360,7 +1391,8 @@
                     <!-- Catatan (Opsional) -->
                     <div class="input-group">
                         <label for="finance-notes"><strong>📝 Catatan (Opsional)</strong></label>
-                        <input type="text" id="finance-notes" class="standard-input" placeholder="Misal: Penjualan ramai di lapak CFD / pasar">
+                        <input type="text" id="finance-notes" class="standard-input"
+                            placeholder="Misal: Penjualan ramai di lapak CFD / pasar">
                         <div style="font-size: 11.5px; color: var(--text-muted); margin-top: 4px;">
                             Catatan kondisi jualan / event harian.
                         </div>
@@ -1368,23 +1400,28 @@
                 </div>
 
                 <!-- REAL-TIME PROFIT HIGHLIGHT BAR -->
-                <div id="finance-profit-bar" style="background: #f0fdf4; border: 1.5px solid var(--primary-border); border-radius: var(--radius-lg); padding: 14px 18px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 14px; transition: all 0.2s ease;">
+                <div id="finance-profit-bar"
+                    style="background: #f0fdf4; border: 1.5px solid var(--primary-border); border-radius: var(--radius-lg); padding: 14px 18px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 14px; transition: all 0.2s ease;">
                     <div>
                         <div style="display: flex; align-items: center; gap: 8px;">
-                            <span style="font-size: 12px; font-weight: 700; color: #334155; text-transform: uppercase; letter-spacing: 0.5px;">
+                            <span
+                                style="font-size: 12px; font-weight: 700; color: #334155; text-transform: uppercase; letter-spacing: 0.5px;">
                                 Profit Bersih Harian (Pendapatan Kotor - Modal)
                             </span>
                             <span id="finance-profit-badge" class="badge badge-green">Netral</span>
                         </div>
-                        <div id="finance-profit-display" style="font-size: 26px; font-weight: 800; color: var(--primary); margin-top: 2px;">
+                        <div id="finance-profit-display"
+                            style="font-size: 26px; font-weight: 800; color: var(--primary); margin-top: 2px;">
                             Rp0
                         </div>
-                        <div id="finance-formula-text" style="font-size: 11.5px; color: var(--text-muted); margin-top: 2px;">
+                        <div id="finance-formula-text"
+                            style="font-size: 11.5px; color: var(--text-muted); margin-top: 2px;">
                             Omset Rp0 - Modal Rp0 = Profit Rp0
                         </div>
                     </div>
                     <div style="display: flex; gap: 8px;">
-                        <button type="button" class="btn btn-secondary" onclick="resetFinanceForm()">🔄 Reset Form</button>
+                        <button type="button" class="btn btn-secondary" onclick="resetFinanceForm()">🔄 Reset
+                            Form</button>
                         <button type="button" class="btn btn-primary" id="btn-save-finance" onclick="submitFinance()">
                             💾 Simpan Catatan Keuangan
                         </button>
@@ -1394,7 +1431,8 @@
 
             <!-- BAGIAN 2: RANGKUMAN KEUANGAN -->
             <div class="card">
-                <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin-bottom: 16px;">
+                <div
+                    style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin-bottom: 16px;">
                     <div>
                         <strong style="font-size: 16px; color: #0f172a;">📋 Rangkuman Keuangan</strong>
                         <p style="font-size: 12.5px; color: var(--text-muted); margin-top: 2px;">
@@ -1406,11 +1444,13 @@
                     <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
                         <div style="display: flex; align-items: center; gap: 6px;">
                             <label style="font-size: 12px; font-weight: 600; color: var(--text-muted);">Dari:</label>
-                            <input type="date" id="filter-finance-start" class="standard-input" style="padding: 6px 10px; font-size: 12.5px;">
+                            <input type="date" id="filter-finance-start" class="standard-input"
+                                style="padding: 6px 10px; font-size: 12.5px;">
                         </div>
                         <div style="display: flex; align-items: center; gap: 6px;">
                             <label style="font-size: 12px; font-weight: 600; color: var(--text-muted);">Sampai:</label>
-                            <input type="date" id="filter-finance-end" class="standard-input" style="padding: 6px 10px; font-size: 12.5px;">
+                            <input type="date" id="filter-finance-end" class="standard-input"
+                                style="padding: 6px 10px; font-size: 12.5px;">
                         </div>
                         <button class="btn btn-sm btn-primary" onclick="loadFinanceHistory()">🔍 Filter</button>
                         <button class="btn btn-sm btn-secondary" onclick="resetFinanceFilter()">Semua</button>
@@ -1422,17 +1462,22 @@
                     <div class="metric-card" style="border-left: 4px solid #64748b;">
                         <div class="metric-label">TOTAL MODAL</div>
                         <div id="sum-finance-modal" style="font-size: 20px; font-weight: 800; color: #0f172a;">Rp0</div>
-                        <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px;">Produksi + Operasional</div>
+                        <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px;">Produksi + Operasional
+                        </div>
                     </div>
                     <div class="metric-card" style="border-left: 4px solid var(--primary);">
                         <div class="metric-label">TOTAL PENDAPATAN (OMSET)</div>
-                        <div id="sum-finance-omset" style="font-size: 20px; font-weight: 800; color: var(--primary);">Rp0</div>
-                        <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px;">Kotor seluruh hari</div>
+                        <div id="sum-finance-omset" style="font-size: 20px; font-weight: 800; color: var(--primary);">
+                            Rp0</div>
+                        <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px;">Kotor seluruh hari
+                        </div>
                     </div>
                     <div class="metric-card" id="card-sum-profit" style="border-left: 4px solid var(--primary);">
                         <div class="metric-label">TOTAL PROFIT (LABA BERSIH)</div>
-                        <div id="sum-finance-profit" style="font-size: 20px; font-weight: 800; color: var(--primary);">Rp0</div>
-                        <div id="sum-finance-profit-note" style="font-size: 11px; color: var(--text-muted); margin-top: 4px;">Omset - Modal</div>
+                        <div id="sum-finance-profit" style="font-size: 20px; font-weight: 800; color: var(--primary);">
+                            Rp0</div>
+                        <div id="sum-finance-profit-note"
+                            style="font-size: 11px; color: var(--text-muted); margin-top: 4px;">Omset - Modal</div>
                     </div>
                     <div class="metric-card" style="border-left: 4px solid #f59e0b;">
                         <div class="metric-label">MARGIN PROFIT</div>
@@ -1456,7 +1501,8 @@
                         </thead>
                         <tbody id="finance-history-tbody">
                             <tr>
-                                <td colspan="6" style="text-align: center; padding: 30px;">Memuat rangkuman keuangan...</td>
+                                <td colspan="6" style="text-align: center; padding: 30px;">Memuat rangkuman keuangan...
+                                </td>
                             </tr>
                         </tbody>
                         <tfoot id="finance-history-tfoot" style="background: #f8fafc; border-top: 2px solid #cbd5e1;">
@@ -1466,7 +1512,8 @@
                                 </td>
                                 <td id="tfoot-sum-modal" style="font-weight: 800; color: #0f172a;">Rp0</td>
                                 <td id="tfoot-sum-omset" style="font-weight: 800; color: var(--primary);">Rp0</td>
-                                <td id="tfoot-sum-profit" style="font-weight: 800; color: var(--primary); font-size: 14.5px;">Rp0</td>
+                                <td id="tfoot-sum-profit"
+                                    style="font-weight: 800; color: var(--primary); font-size: 14.5px;">Rp0</td>
                                 <td id="tfoot-sum-notes" style="color: var(--text-muted); font-size: 12px;">-</td>
                                 <td style="text-align: center; color: var(--text-muted);">-</td>
                             </tr>
@@ -1488,6 +1535,118 @@
             <div class="modal-body" id="modal-batch-body"></div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" onclick="closeBatchModal()">Tutup</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL EDIT RIWAYAT PRODUKSI DAPUR KUKUS -->
+    <div id="edit-production-modal" class="modal-overlay">
+        <div class="modal-card" style="max-width: 760px;">
+            <div class="modal-header">
+                <h3 id="edit-production-modal-title">✏️ Edit Riwayat Produksi Dapur Kukus</h3>
+                <button type="button" class="btn btn-sm btn-secondary" onclick="closeEditProductionModal()">✕</button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="edit-production-id">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 14px;">
+                    <div>
+                        <label style="font-size: 12px; font-weight: 700; color: var(--text-muted); display: block; margin-bottom: 4px;">TANGGAL & JAM PRODUKSI</label>
+                        <input type="datetime-local" id="edit-production-date" class="standard-input">
+                    </div>
+                    <div>
+                        <label style="font-size: 12px; font-weight: 700; color: var(--text-muted); display: block; margin-bottom: 4px;">CATATAN PRODUKSI</label>
+                        <input type="text" id="edit-production-notes" class="standard-input" placeholder="Misal: Batch pagi, kukus ubi & kentang">
+                    </div>
+                </div>
+
+                <div style="font-size: 13px; font-weight: 700; margin-bottom: 4px; color: #0f172a;">
+                    Rincian Bahan Mentah (Input) & Hasil Matang (Output):
+                </div>
+                <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 10px;">
+                    Sistem otomatis mengembalikan stok mentah & matang lama, kemudian memotong/menambahkan stok sesuai input baru secara akurat.
+                </div>
+
+                <div style="max-height: 320px; overflow-y: auto; border: 1px solid var(--border); border-radius: 8px; margin-bottom: 12px;">
+                    <table class="data-table" style="margin: 0; width: 100%;">
+                        <thead>
+                            <tr style="background: #f8fafc;">
+                                <th>Komoditas</th>
+                                <th style="width: 140px;">Jumlah Mentah</th>
+                                <th style="width: 140px;">Hasil Matang</th>
+                                <th style="text-align: right; width: 130px;">Biaya Mentah</th>
+                                <th style="text-align: right; width: 140px;">Estimasi HPP</th>
+                            </tr>
+                        </thead>
+                        <tbody id="edit-production-items-tbody"></tbody>
+                    </table>
+                </div>
+
+                <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px 14px; background: var(--primary-light); border: 1px solid var(--primary-border); border-radius: 8px;">
+                    <div>
+                        <div style="font-size: 11px; font-weight: 700; color: var(--primary-text);">TOTAL ESTIMASI BIAYA BATCH:</div>
+                        <div style="font-size: 11px; color: #166534;" id="edit-production-summary-count">0 Komoditas</div>
+                    </div>
+                    <div id="edit-production-total-display" style="font-size: 18px; font-weight: 800; color: var(--primary);">Rp0</div>
+                </div>
+            </div>
+            <div class="modal-footer" style="gap: 8px; display: flex; justify-content: flex-end;">
+                <button type="button" class="btn btn-secondary" onclick="closeEditProductionModal()">Batal</button>
+                <button type="button" class="btn btn-primary" id="btn-save-edit-production" onclick="submitEditProduction()">💾 Simpan Perubahan</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL EDIT RIWAYAT PEMBELIAN -->
+    <div id="edit-purchase-modal" class="modal-overlay">
+        <div class="modal-card" style="max-width: 720px;">
+            <div class="modal-header">
+                <h3>✏️ Edit Riwayat Pembelian Bahan Baku</h3>
+                <button type="button" class="btn btn-sm btn-secondary" onclick="closeEditPurchaseModal()">✕</button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="edit-purchase-id">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 14px;">
+                    <div>
+                        <label style="font-size: 12px; font-weight: 700; color: var(--text-muted); display: block; margin-bottom: 4px;">TANGGAL & JAM PEMBELIAN</label>
+                        <input type="datetime-local" id="edit-purchase-date" class="standard-input">
+                    </div>
+                    <div>
+                        <label style="font-size: 12px; font-weight: 700; color: var(--text-muted); display: block; margin-bottom: 4px;">CATATAN PEMBELIAN</label>
+                        <input type="text" id="edit-purchase-notes" class="standard-input" placeholder="Misal: Belanja pasar pagi">
+                    </div>
+                </div>
+
+                <div style="font-size: 13px; font-weight: 700; margin-bottom: 6px;">Daftar Bahan Baku yang Dibeli:</div>
+                <div style="max-height: 280px; overflow-y: auto; border: 1px solid var(--border); border-radius: 8px; margin-bottom: 10px;">
+                    <table class="data-table" style="margin: 0; width: 100%;">
+                        <thead>
+                            <tr style="background: #f8fafc;">
+                                <th>Bahan Baku</th>
+                                <th style="width: 140px;">Kuantitas</th>
+                                <th style="width: 160px;">Harga Satuan (Rp)</th>
+                                <th style="text-align: right; width: 140px;">Subtotal</th>
+                                <th style="width: 44px; text-align: center;">✕</th>
+                            </tr>
+                        </thead>
+                        <tbody id="edit-purchase-items-tbody"></tbody>
+                    </table>
+                </div>
+
+                <div style="display: flex; gap: 8px; align-items: center; margin-bottom: 14px; background: #f8fafc; padding: 8px 12px; border-radius: 8px;">
+                    <select id="edit-purchase-add-select" class="standard-input" style="flex: 1;">
+                        <option value="">-- Tambah Bahan Lain ke Pembelian Ini --</option>
+                    </select>
+                    <button type="button" class="btn btn-sm btn-secondary" onclick="addEditPurchaseItemRow()">➕ Tambah</button>
+                </div>
+
+                <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px 14px; background: var(--primary-light); border: 1px solid var(--primary-border); border-radius: 8px;">
+                    <div style="font-weight: 700; color: var(--primary-text); font-size: 13px;">TOTAL PEMBELIAN:</div>
+                    <div id="edit-purchase-total-display" style="font-size: 18px; font-weight: 800; color: var(--primary);">Rp0</div>
+                </div>
+            </div>
+            <div class="modal-footer" style="gap: 8px; display: flex; justify-content: flex-end;">
+                <button type="button" class="btn btn-secondary" onclick="closeEditPurchaseModal()">Batal</button>
+                <button type="button" class="btn btn-primary" id="btn-save-edit-purchase" onclick="submitEditPurchase()">💾 Simpan Perubahan</button>
             </div>
         </div>
     </div>
@@ -1529,16 +1688,22 @@
                 <button type="button" class="btn btn-sm btn-secondary" onclick="closeDeletePurchaseModal()">✕</button>
             </div>
             <div class="modal-body">
-                <div style="background: var(--danger-light); border: 1px solid #fecaca; border-radius: var(--radius-md); padding: 14px 16px; margin-bottom: 14px;">
-                    <div style="font-weight: 700; color: var(--danger); margin-bottom: 6px;">⚠️ Tindakan ini tidak dapat dibatalkan!</div>
+                <div
+                    style="background: var(--danger-light); border: 1px solid #fecaca; border-radius: var(--radius-md); padding: 14px 16px; margin-bottom: 14px;">
+                    <div style="font-weight: 700; color: var(--danger); margin-bottom: 6px;">⚠️ Tindakan ini tidak dapat
+                        dibatalkan!</div>
                     <div style="font-size: 13px; color: #7f1d1d; line-height: 1.5;">
-                        Data pembelian ini akan dihapus permanen. Stok bahan yang sudah masuk <strong>tidak akan dikembalikan</strong>.
+                        Data pembelian ini akan dihapus permanen. Stok bahan yang sudah masuk <strong>tidak akan
+                            dikembalikan</strong>.
                     </div>
                 </div>
-                <div id="delete-purchase-info" style="font-size: 13.5px; color: var(--text-main); background: #f8fafc; padding: 10px 12px; border-radius: 8px;"></div>
+                <div id="delete-purchase-info"
+                    style="font-size: 13.5px; color: var(--text-main); background: #f8fafc; padding: 10px 12px; border-radius: 8px;">
+                </div>
             </div>
             <div class="modal-footer" style="gap: 8px; display: flex; justify-content: flex-end;">
-                <button type="button" class="btn btn-secondary" onclick="closeDeletePurchaseModal()">Tidak, Batal</button>
+                <button type="button" class="btn btn-secondary" onclick="closeDeletePurchaseModal()">Tidak,
+                    Batal</button>
                 <button type="button" class="btn" id="btn-confirm-delete-purchase"
                     style="background: var(--danger); color: #fff; border-color: var(--danger);"
                     onclick="executeDeletePurchase()">Ya, Hapus</button>
@@ -1554,17 +1719,21 @@
                 <button type="button" class="btn btn-sm btn-secondary" onclick="closeClearPurchaseModal()">✕</button>
             </div>
             <div class="modal-body">
-                <div style="background: var(--danger-light); border: 1px solid #fecaca; border-radius: var(--radius-md); padding: 14px 16px; margin-bottom: 14px;">
-                    <div style="font-weight: 700; color: var(--danger); margin-bottom: 6px;">⚠️ Tindakan ini tidak dapat dibatalkan!</div>
+                <div
+                    style="background: var(--danger-light); border: 1px solid #fecaca; border-radius: var(--radius-md); padding: 14px 16px; margin-bottom: 14px;">
+                    <div style="font-weight: 700; color: var(--danger); margin-bottom: 6px;">⚠️ Tindakan ini tidak dapat
+                        dibatalkan!</div>
                     <div style="font-size: 13px; color: #7f1d1d; line-height: 1.5;">
                         Seluruh riwayat pembelian bahan baku akan dihapus permanen dari database.
                         Stok bahan yang sudah masuk <strong>tidak akan dikembalikan</strong>.
                     </div>
                 </div>
-                <div style="font-size: 13.5px; color: var(--text-main);">Apakah Anda yakin ingin menghapus seluruh data riwayat pembelian?</div>
+                <div style="font-size: 13.5px; color: var(--text-main);">Apakah Anda yakin ingin menghapus seluruh data
+                    riwayat pembelian?</div>
             </div>
             <div class="modal-footer" style="gap: 8px; display: flex; justify-content: flex-end;">
-                <button type="button" class="btn btn-secondary" onclick="closeClearPurchaseModal()">Tidak, Batal</button>
+                <button type="button" class="btn btn-secondary" onclick="closeClearPurchaseModal()">Tidak,
+                    Batal</button>
                 <button type="button" class="btn" id="btn-confirm-clear-purchase"
                     style="background: var(--danger); color: #fff; border-color: var(--danger);"
                     onclick="executeClearAllPurchases()">Ya, Hapus Semua</button>
@@ -1580,13 +1749,17 @@
                 <button type="button" class="btn btn-sm btn-secondary" onclick="closeDeleteModalModal()">✕</button>
             </div>
             <div class="modal-body">
-                <div style="background: var(--danger-light); border: 1px solid #fecaca; border-radius: var(--radius-md); padding: 14px 16px; margin-bottom: 14px;">
-                    <div style="font-weight: 700; color: var(--danger); margin-bottom: 6px;">⚠️ Tindakan ini tidak dapat dibatalkan!</div>
+                <div
+                    style="background: var(--danger-light); border: 1px solid #fecaca; border-radius: var(--radius-md); padding: 14px 16px; margin-bottom: 14px;">
+                    <div style="font-weight: 700; color: var(--danger); margin-bottom: 6px;">⚠️ Tindakan ini tidak dapat
+                        dibatalkan!</div>
                     <div style="font-size: 13px; color: #7f1d1d; line-height: 1.5;">
                         Data modal pada tanggal ini akan dihapus permanen dari database.
                     </div>
                 </div>
-                <div id="delete-modal-info" style="font-size: 13.5px; color: var(--text-main); background: #f8fafc; padding: 10px 12px; border-radius: 8px;"></div>
+                <div id="delete-modal-info"
+                    style="font-size: 13.5px; color: var(--text-main); background: #f8fafc; padding: 10px 12px; border-radius: 8px;">
+                </div>
             </div>
             <div class="modal-footer" style="gap: 8px; display: flex; justify-content: flex-end;">
                 <button type="button" class="btn btn-secondary" onclick="closeDeleteModalModal()">Tidak, Batal</button>
@@ -1605,13 +1778,16 @@
                 <button type="button" class="btn btn-sm btn-secondary" onclick="closeClearModalModal()">✕</button>
             </div>
             <div class="modal-body">
-                <div style="background: var(--danger-light); border: 1px solid #fecaca; border-radius: var(--radius-md); padding: 14px 16px; margin-bottom: 14px;">
-                    <div style="font-weight: 700; color: var(--danger); margin-bottom: 6px;">⚠️ Tindakan ini tidak dapat dibatalkan!</div>
+                <div
+                    style="background: var(--danger-light); border: 1px solid #fecaca; border-radius: var(--radius-md); padding: 14px 16px; margin-bottom: 14px;">
+                    <div style="font-weight: 700; color: var(--danger); margin-bottom: 6px;">⚠️ Tindakan ini tidak dapat
+                        dibatalkan!</div>
                     <div style="font-size: 13px; color: #7f1d1d; line-height: 1.5;">
                         Seluruh riwayat modal harian usaha akan dihapus permanen dari database.
                     </div>
                 </div>
-                <div style="font-size: 13.5px; color: var(--text-main);">Apakah Anda yakin ingin menghapus seluruh data riwayat modal?</div>
+                <div style="font-size: 13.5px; color: var(--text-main);">Apakah Anda yakin ingin menghapus seluruh data
+                    riwayat modal?</div>
             </div>
             <div class="modal-footer" style="gap: 8px; display: flex; justify-content: flex-end;">
                 <button type="button" class="btn btn-secondary" onclick="closeClearModalModal()">Tidak, Batal</button>
@@ -1630,16 +1806,22 @@
                 <button type="button" class="btn btn-sm btn-secondary" onclick="closeDeleteFinanceModal()">✕</button>
             </div>
             <div class="modal-body">
-                <div style="background: var(--danger-light); border: 1px solid #fecaca; border-radius: var(--radius-md); padding: 12px 14px; margin-bottom: 14px;">
-                    <div style="font-weight: 700; color: var(--danger); margin-bottom: 4px;">⚠️ Konfirmasi Penghapusan</div>
+                <div
+                    style="background: var(--danger-light); border: 1px solid #fecaca; border-radius: var(--radius-md); padding: 12px 14px; margin-bottom: 14px;">
+                    <div style="font-weight: 700; color: var(--danger); margin-bottom: 4px;">⚠️ Konfirmasi Penghapusan
+                    </div>
                     <div style="font-size: 13px; color: #7f1d1d; line-height: 1.5;">
-                        Data keuangan pada tanggal ini akan dihapus permanen. Data di menu Modal dan Produksi tidak akan terpengaruh.
+                        Data keuangan pada tanggal ini akan dihapus permanen. Data di menu Modal dan Produksi tidak akan
+                        terpengaruh.
                     </div>
                 </div>
-                <div id="delete-finance-info" style="font-size: 13px; color: var(--text-main); background: #f8fafc; padding: 12px; border-radius: 8px; line-height: 1.6;"></div>
+                <div id="delete-finance-info"
+                    style="font-size: 13px; color: var(--text-main); background: #f8fafc; padding: 12px; border-radius: 8px; line-height: 1.6;">
+                </div>
             </div>
             <div class="modal-footer" style="gap: 8px; display: flex; justify-content: flex-end;">
-                <button type="button" class="btn btn-secondary" onclick="closeDeleteFinanceModal()">Tidak, Batal</button>
+                <button type="button" class="btn btn-secondary" onclick="closeDeleteFinanceModal()">Tidak,
+                    Batal</button>
                 <button type="button" class="btn" id="btn-confirm-delete-finance"
                     style="background: var(--danger); color: #fff; border-color: var(--danger);"
                     onclick="executeDeleteFinance()">Ya, Hapus</button>
@@ -1655,13 +1837,17 @@
                 <button type="button" class="btn btn-sm btn-secondary" onclick="closeClearFinanceModal()">✕</button>
             </div>
             <div class="modal-body">
-                <div style="background: var(--danger-light); border: 1px solid #fecaca; border-radius: var(--radius-md); padding: 14px 16px; margin-bottom: 14px;">
-                    <div style="font-weight: 700; color: var(--danger); margin-bottom: 6px;">⚠️ Tindakan ini tidak dapat dibatalkan!</div>
+                <div
+                    style="background: var(--danger-light); border: 1px solid #fecaca; border-radius: var(--radius-md); padding: 14px 16px; margin-bottom: 14px;">
+                    <div style="font-weight: 700; color: var(--danger); margin-bottom: 6px;">⚠️ Tindakan ini tidak dapat
+                        dibatalkan!</div>
                     <div style="font-size: 13px; color: #7f1d1d; line-height: 1.5;">
-                        Seluruh catatan harian omset dan kalkulasi profit pada modul Keuangan akan dihapus permanen dari database.
+                        Seluruh catatan harian omset dan kalkulasi profit pada modul Keuangan akan dihapus permanen dari
+                        database.
                     </div>
                 </div>
-                <div style="font-size: 13.5px; color: var(--text-main);">Apakah Anda yakin ingin mengosongkan seluruh data keuangan?</div>
+                <div style="font-size: 13.5px; color: var(--text-main);">Apakah Anda yakin ingin mengosongkan seluruh
+                    data keuangan?</div>
             </div>
             <div class="modal-footer" style="gap: 8px; display: flex; justify-content: flex-end;">
                 <button type="button" class="btn btn-secondary" onclick="closeClearFinanceModal()">Tidak, Batal</button>
@@ -1680,14 +1866,18 @@
                 <button type="button" class="btn btn-sm btn-secondary" onclick="closeClearAllStockModal()">✕</button>
             </div>
             <div class="modal-body">
-                <div style="background: var(--danger-light); border: 1px solid #fecaca; border-radius: var(--radius-md); padding: 14px 16px; margin-bottom: 14px;">
-                    <div style="font-weight: 700; color: var(--danger); margin-bottom: 6px;">⚠️ Konfirmasi Pengosongan Stok</div>
+                <div
+                    style="background: var(--danger-light); border: 1px solid #fecaca; border-radius: var(--radius-md); padding: 14px 16px; margin-bottom: 14px;">
+                    <div style="font-weight: 700; color: var(--danger); margin-bottom: 6px;">⚠️ Konfirmasi Pengosongan
+                        Stok</div>
                     <div style="font-size: 13px; color: #7f1d1d; line-height: 1.5;">
-                        Apakah Anda yakin ingin mengosongkan seluruh stok yang tersisa? Tindakan ini akan mencatat seluruh sisa stok mentah &amp; matang saat ini sebagai Terbuang/Rusak.
+                        Apakah Anda yakin ingin mengosongkan seluruh stok yang tersisa? Tindakan ini akan mencatat
+                        seluruh sisa stok mentah &amp; matang saat ini sebagai Terbuang/Rusak.
                     </div>
                 </div>
                 <div style="font-size: 13.5px; color: var(--text-main); line-height: 1.5;">
-                    Seluruh sisa stok komoditas palawija akan otomatis menjadi <strong>0 (Habis)</strong> dan dicatat ke dalam riwayat barang terbuang/rusak.
+                    Seluruh sisa stok komoditas palawija akan otomatis menjadi <strong>0 (Habis)</strong> dan dicatat ke
+                    dalam riwayat barang terbuang/rusak.
                 </div>
             </div>
             <div class="modal-footer" style="gap: 8px; display: flex; justify-content: flex-end;">
@@ -1709,22 +1899,29 @@
                 <button type="button" class="btn btn-sm btn-secondary" onclick="closeAddIngredientModal()">✕</button>
             </div>
             <div class="modal-body">
-                <div style="background: var(--primary-light); border: 1px solid var(--primary-border); border-radius: var(--radius-md); padding: 11px 14px; margin-bottom: 14px; font-size: 12.5px; color: var(--primary-dark); line-height: 1.5;">
-                    💡 Komoditas baru otomatis dihubungkan ke <strong>Menu Stok</strong>, <strong>Beli Bahan Mentah</strong>, dan <strong>Produksi</strong> dengan stok awal 0.
+                <div
+                    style="background: var(--primary-light); border: 1px solid var(--primary-border); border-radius: var(--radius-md); padding: 11px 14px; margin-bottom: 14px; font-size: 12.5px; color: var(--primary-dark); line-height: 1.5;">
+                    💡 Komoditas baru otomatis dihubungkan ke <strong>Menu Stok</strong>, <strong>Beli Bahan
+                        Mentah</strong>, dan <strong>Produksi</strong> dengan stok awal 0.
                 </div>
 
                 <div style="display: flex; flex-direction: column; gap: 14px;">
                     <!-- 1. Nama Komoditas -->
                     <div class="input-group">
-                        <label for="add-ing-name">Nama Bahan / Komoditas <span style="color: var(--danger);">*</span></label>
-                        <input type="text" id="add-ing-name" class="standard-input" placeholder="Contoh: Kentang, Talas, Labu Madu..." autocomplete="off" onkeydown="if(event.key==='Enter') submitNewIngredient();">
-                        <div style="font-size: 11px; color: var(--text-muted); margin-top: 2px;">Varian bahan baku mentah yang akan dibeli dan diolah.</div>
+                        <label for="add-ing-name">Nama Bahan / Komoditas <span
+                                style="color: var(--danger);">*</span></label>
+                        <input type="text" id="add-ing-name" class="standard-input"
+                            placeholder="Contoh: Kentang, Talas, Labu Madu..." autocomplete="off"
+                            onkeydown="if(event.key==='Enter') submitNewIngredient();">
+                        <div style="font-size: 11px; color: var(--text-muted); margin-top: 2px;">Varian bahan baku
+                            mentah yang akan dibeli dan diolah.</div>
                     </div>
 
                     <!-- 2. Satuan Mentah & Satuan Matang -->
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
                         <div class="input-group">
-                            <label for="add-ing-raw-unit">Satuan Mentah (Beli) <span style="color: var(--danger);">*</span></label>
+                            <label for="add-ing-raw-unit">Satuan Mentah (Beli) <span
+                                    style="color: var(--danger);">*</span></label>
                             <select id="add-ing-raw-unit" class="standard-input" onchange="onRawUnitChange()">
                                 <option value="kg">Kilogram (kg)</option>
                                 <option value="biji">Biji (biji)</option>
@@ -1734,11 +1931,13 @@
                                 <option value="bungkus">Bungkus (bungkus)</option>
                                 <option value="custom">+ Satuan Lainnya...</option>
                             </select>
-                            <input type="text" id="add-ing-raw-unit-custom" class="standard-input" placeholder="Ketik satuan mentah (mis: ikat)" style="display: none; margin-top: 6px;">
+                            <input type="text" id="add-ing-raw-unit-custom" class="standard-input"
+                                placeholder="Ketik satuan mentah (mis: ikat)" style="display: none; margin-top: 6px;">
                         </div>
 
                         <div class="input-group">
-                            <label for="add-ing-cooked-unit">Satuan Matang (Jual) <span style="color: var(--danger);">*</span></label>
+                            <label for="add-ing-cooked-unit">Satuan Matang (Jual) <span
+                                    style="color: var(--danger);">*</span></label>
                             <select id="add-ing-cooked-unit" class="standard-input" onchange="onCookedUnitChange()">
                                 <option value="biji">Biji (biji)</option>
                                 <option value="porsi">Porsi (porsi)</option>
@@ -1747,20 +1946,24 @@
                                 <option value="kg">Kilogram (kg)</option>
                                 <option value="custom">+ Satuan Lainnya...</option>
                             </select>
-                            <input type="text" id="add-ing-cooked-unit-custom" class="standard-input" placeholder="Ketik satuan jual (mis: potong)" style="display: none; margin-top: 6px;">
+                            <input type="text" id="add-ing-cooked-unit-custom" class="standard-input"
+                                placeholder="Ketik satuan jual (mis: potong)" style="display: none; margin-top: 6px;">
                         </div>
                     </div>
 
                     <!-- 3. Harga Jual Standar -->
                     <div class="input-group">
-                        <label for="add-ing-selling-price">Harga Jual Standar per Satuan Matang <span style="color: var(--danger);">*</span></label>
+                        <label for="add-ing-selling-price">Harga Jual Standar per Satuan Matang <span
+                                style="color: var(--danger);">*</span></label>
                         <div class="input-with-unit">
-                            <input type="number" id="add-ing-selling-price" min="0" step="500" placeholder="Contoh: 2000"
+                            <input type="number" id="add-ing-selling-price" min="0" step="500"
+                                placeholder="Contoh: 2000"
                                 style="width: 100%; border: none; padding: 8px 10px; font-size: 14px; font-weight: 700; outline: none; font-family: inherit;"
                                 oninput="updatePriceHint()" onkeydown="if(event.key==='Enter') submitNewIngredient();">
                             <span class="unit-tag" id="add-ing-price-unit-tag">Rp / biji</span>
                         </div>
-                        <div id="add-ing-price-hint" style="font-size: 11px; color: var(--text-muted); margin-top: 2px;">
+                        <div id="add-ing-price-hint"
+                            style="font-size: 11px; color: var(--text-muted); margin-top: 2px;">
                             Patokan harga jual saat produk matang disajikan ke pelanggan.
                         </div>
                     </div>
@@ -1768,19 +1971,23 @@
                     <!-- 4. Catatan (Opsional) -->
                     <div class="input-group">
                         <label for="add-ing-notes">Catatan Tambahan (Opsional)</label>
-                        <input type="text" id="add-ing-notes" class="standard-input" placeholder="Misal: Dibeli dari pasar induk per karung..." onkeydown="if(event.key==='Enter') submitNewIngredient();">
+                        <input type="text" id="add-ing-notes" class="standard-input"
+                            placeholder="Misal: Dibeli dari pasar induk per karung..."
+                            onkeydown="if(event.key==='Enter') submitNewIngredient();">
                     </div>
                 </div>
             </div>
             <div class="modal-footer" style="gap: 8px; display: flex; justify-content: flex-end;">
                 <button type="button" class="btn btn-secondary" onclick="closeAddIngredientModal()">Batal</button>
-                <button type="button" class="btn btn-primary" id="btn-save-ingredient" onclick="submitNewIngredient()">💾 Simpan Bahan</button>
+                <button type="button" class="btn btn-primary" id="btn-save-ingredient"
+                    onclick="submitNewIngredient()">💾 Simpan Bahan</button>
             </div>
         </div>
     </div>
 
     <!-- MODAL KONFIRMASI HAPUS / NONAKTIFKAN BAHAN BAKU -->
-    <div id="delete-ingredient-modal" class="modal-overlay" onclick="if(event.target === this) closeDeleteIngredientModal();">
+    <div id="delete-ingredient-modal" class="modal-overlay"
+        onclick="if(event.target === this) closeDeleteIngredientModal();">
         <div class="modal-card" style="max-width: 440px;">
             <div class="modal-header" style="border-bottom-color: #fecaca;">
                 <h3 style="color: var(--danger); display: flex; align-items: center; gap: 8px;">
@@ -1789,11 +1996,14 @@
                 <button type="button" class="btn btn-sm btn-secondary" onclick="closeDeleteIngredientModal()">✕</button>
             </div>
             <div class="modal-body">
-                <div style="font-size: 15px; font-weight: 700; color: #0f172a; margin-bottom: 8px;" id="delete-ing-title">
+                <div style="font-size: 15px; font-weight: 700; color: #0f172a; margin-bottom: 8px;"
+                    id="delete-ing-title">
                     Hapus/Nonaktifkan Bahan?
                 </div>
-                <div style="background: #fff1f2; border: 1px solid #fecaca; border-radius: var(--radius-md); padding: 12px 14px; margin-bottom: 14px; font-size: 13px; color: #9f1239; line-height: 1.5;">
-                    Bahan ini akan disembunyikan dari menu <strong>Stok</strong>, <strong>Belanja</strong>, dan <strong>Produksi</strong>. Riwayat transaksi lama tetap tersimpan aman.
+                <div
+                    style="background: #fff1f2; border: 1px solid #fecaca; border-radius: var(--radius-md); padding: 12px 14px; margin-bottom: 14px; font-size: 13px; color: #9f1239; line-height: 1.5;">
+                    Bahan ini akan disembunyikan dari menu <strong>Stok</strong>, <strong>Belanja</strong>, dan
+                    <strong>Produksi</strong>. Riwayat transaksi lama tetap tersimpan aman.
                 </div>
                 <div style="font-size: 12.5px; color: var(--text-muted); line-height: 1.5;">
                     💡 Anda tetap bisa menambahkannya lagi kapan saja lewat tombol <strong>+ Tambah Bahan Baku</strong>.
@@ -1816,14 +2026,20 @@
                 <button type="button" class="btn btn-sm btn-secondary" onclick="closeWasteStockModal()">✕</button>
             </div>
             <div class="modal-body">
-                <div style="background: var(--warning-light); border: 1px solid #fde68a; border-radius: var(--radius-md); padding: 12px 14px; margin-bottom: 14px; font-size: 13px; color: #92400e; line-height: 1.5;">
-                    ⚠️ Stok komoditas terkait akan <strong>dikurangi otomatis</strong> sebesar jumlah yang dicatat terbuang/rusak.
+                <div
+                    style="background: var(--warning-light); border: 1px solid #fde68a; border-radius: var(--radius-md); padding: 12px 14px; margin-bottom: 14px; font-size: 13px; color: #92400e; line-height: 1.5;">
+                    ⚠️ Stok komoditas terkait akan <strong>dikurangi otomatis</strong> sebesar jumlah yang dicatat
+                    terbuang/rusak.
                 </div>
-                <div id="waste-stock-item-info" style="font-size: 14px; color: #0f172a; margin-bottom: 12px; background: #f8fafc; padding: 10px 12px; border-radius: var(--radius-md); border: 1px solid var(--border);"></div>
+                <div id="waste-stock-item-info"
+                    style="font-size: 14px; color: #0f172a; margin-bottom: 12px; background: #f8fafc; padding: 10px 12px; border-radius: var(--radius-md); border: 1px solid var(--border);">
+                </div>
 
                 <!-- SHORTCUT CEPAT BUANG SEMUA SISA -->
-                <div style="background: #f1f5f9; border: 1.5px dashed #94a3b8; border-radius: var(--radius-md); padding: 12px; margin-bottom: 14px;">
-                    <div style="font-size: 11.5px; font-weight: 700; color: #334155; text-transform: uppercase; margin-bottom: 8px; letter-spacing: 0.5px;">
+                <div
+                    style="background: #f1f5f9; border: 1.5px dashed #94a3b8; border-radius: var(--radius-md); padding: 12px; margin-bottom: 14px;">
+                    <div
+                        style="font-size: 11.5px; font-weight: 700; color: #334155; text-transform: uppercase; margin-bottom: 8px; letter-spacing: 0.5px;">
                         ⚡ Tombol Cepat (Shortcut Buang Sisa):
                     </div>
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
@@ -1831,13 +2047,15 @@
                             style="background: #ffffff; border: 1.5px solid #cbd5e1; color: #0f172a; font-weight: 700; padding: 8px 10px; font-size: 12.5px; text-align: left; display: flex; flex-direction: column; gap: 2px;"
                             onclick="applyWasteShortcut('RAW')">
                             <span>⚡ Buang Semua Sisa Mentah</span>
-                            <span id="shortcut-raw-val" style="font-size: 11px; color: var(--text-muted); font-weight: 600;">(0 kg)</span>
+                            <span id="shortcut-raw-val"
+                                style="font-size: 11px; color: var(--text-muted); font-weight: 600;">(0 kg)</span>
                         </button>
                         <button type="button" id="btn-shortcut-cooked" class="btn btn-sm"
                             style="background: #ffffff; border: 1.5px solid #cbd5e1; color: #0f172a; font-weight: 700; padding: 8px 10px; font-size: 12.5px; text-align: left; display: flex; flex-direction: column; gap: 2px;"
                             onclick="applyWasteShortcut('COOKED')">
                             <span>⚡ Buang Semua Sisa Matang</span>
-                            <span id="shortcut-cooked-val" style="font-size: 11px; color: var(--text-muted); font-weight: 600;">(0 porsi)</span>
+                            <span id="shortcut-cooked-val"
+                                style="font-size: 11px; color: var(--text-muted); font-weight: 600;">(0 porsi)</span>
                         </button>
                     </div>
                     <div style="font-size: 11px; color: var(--text-muted); margin-top: 6px;">
@@ -1873,7 +2091,8 @@
                     </div>
                     <div class="input-group">
                         <label>Catatan (Opsional):</label>
-                        <input type="text" id="waste-stock-notes" class="standard-input" placeholder="Misal: Busuk, basi, sisa jualan, jatuh, dll.">
+                        <input type="text" id="waste-stock-notes" class="standard-input"
+                            placeholder="Misal: Busuk, basi, sisa jualan, jatuh, dll.">
                     </div>
                 </div>
             </div>
@@ -1954,8 +2173,8 @@
         // PAGE NAVIGATION
         // =========================================================
         function showPage(pageId) {
-            document.querySelectorAll(".app-page").forEach(function(p) { p.style.display = "none"; });
-            document.querySelectorAll(".nav-btn").forEach(function(b) { b.classList.remove("active"); });
+            document.querySelectorAll(".app-page").forEach(function (p) { p.style.display = "none"; });
+            document.querySelectorAll(".nav-btn").forEach(function (b) { b.classList.remove("active"); });
 
             var targetPage = document.getElementById("page-" + pageId);
             var targetBtn = document.getElementById("nav-btn-" + pageId);
@@ -1986,6 +2205,14 @@
                 const res = await fetch("/api/production/recipe-items");
                 if (!res.ok) throw new Error("Gagal mengambil master bahan");
                 masterItems = await res.json();
+                // Pastikan konsistensi satuan baku Telur Ayam dan Kentang adalah 'biji'
+                (masterItems || []).forEach(function (m) {
+                    const normName = (m.ingredient_name || "").trim().toLowerCase();
+                    if (normName === "telur ayam" || normName === "kentang") {
+                        m.ingredient_symbol = "biji";
+                        m.ingredient_unit = "Biji";
+                    }
+                });
                 return masterItems;
             } catch (err) {
                 console.error(err);
@@ -2016,12 +2243,15 @@
             const container = document.getElementById("kukus-commodities-container");
             container.innerHTML = "";
 
-            masterItems.forEach(function(item) {
+            masterItems.forEach(function (item) {
                 const hasStock = item.current_stock > 0;
                 const card = document.createElement("div");
                 card.className = "commodity-card";
                 card.id = "kukus-card-" + item.ingredient_id;
                 card.dataset.id = item.ingredient_id;
+
+                const isBiji = (item.ingredient_symbol || "").toLowerCase() === "biji";
+                const rawStep = isBiji ? "1" : "0.1";
 
                 card.innerHTML =
                     '<div class="commodity-header">' +
@@ -2037,7 +2267,7 @@
                     '<div class="input-group">' +
                     '<label>Jumlah Mentah (' + item.ingredient_symbol + ')</label>' +
                     '<div class="input-with-unit">' +
-                    '<input type="number" class="kukus-raw-input" min="0" step="0.1" placeholder="0" ' +
+                    '<input type="number" class="kukus-raw-input" min="0" step="' + rawStep + '" placeholder="0" ' +
                     'oninput="onKukusInputChange(\'' + item.ingredient_id + '\')">' +
                     '<span class="unit-tag">' + item.ingredient_symbol + '</span>' +
                     '</div>' +
@@ -2082,7 +2312,7 @@
             let activeCount = 0;
             const filled = [];
 
-            masterItems.forEach(function(item) {
+            masterItems.forEach(function (item) {
                 const card = document.getElementById("kukus-card-" + item.ingredient_id);
                 if (!card) return;
 
@@ -2115,7 +2345,7 @@
             // Calculate proportional allocation & HPP
             if (filled.length > 0) {
                 let allocSum = 0;
-                filled.forEach(function(f, idx) {
+                filled.forEach(function (f, idx) {
                     let pct;
                     if (filled.length === 1) {
                         pct = 100;
@@ -2160,7 +2390,7 @@
             const filled = [];
             let totalCost = 0;
 
-            masterItems.forEach(function(item) {
+            masterItems.forEach(function (item) {
                 const card = document.getElementById("kukus-card-" + item.ingredient_id);
                 if (!card) return;
                 const rawInput = card.querySelector(".kukus-raw-input");
@@ -2187,7 +2417,7 @@
             }
 
             let allocSum = 0;
-            filled.forEach(function(f, idx) {
+            filled.forEach(function (f, idx) {
                 let pct;
                 if (filled.length === 1) {
                     pct = 100;
@@ -2274,13 +2504,16 @@
             }
 
             tbody.innerHTML = "";
-            kukusHistory.forEach(function(b) {
+            kukusHistory.forEach(function (b) {
                 const tr = document.createElement("tr");
                 tr.innerHTML =
                     '<td style="white-space: nowrap;">' + formatDateTime(b.production_date) + '</td>' +
                     '<td style="font-weight: 800;">' + formatRupiah(b.total_cost) + '</td>' +
-                    '<td style="text-align: center;">' +
+                    '<td style="text-align: center; white-space: nowrap;">' +
+                    '<div style="display: inline-flex; align-items: center; justify-content: center; gap: 6px;">' +
                     '<button class="btn btn-sm btn-secondary" onclick="viewBatchDetail(\'' + b.id + '\')">👁️ Rincian</button>' +
+                    '<button class="btn btn-sm btn-warning-outline" onclick="openEditProductionModal(\'' + b.id + '\')">✏️ Edit</button>' +
+                    '</div>' +
                     '</td>';
                 tbody.appendChild(tr);
             });
@@ -2344,7 +2577,7 @@
                 notes: document.getElementById("kukus-notes") ? document.getElementById("kukus-notes").value : "",
                 items: {}
             };
-            document.querySelectorAll("#kukus-commodities-container .commodity-card").forEach(function(card) {
+            document.querySelectorAll("#kukus-commodities-container .commodity-card").forEach(function (card) {
                 const id = card.dataset.id;
                 const rawEl = card.querySelector(".kukus-raw-input");
                 const cookedEl = card.querySelector(".kukus-cooked-input");
@@ -2367,7 +2600,7 @@
 
                 if (draft.items) {
                     let hasData = false;
-                    Object.keys(draft.items).forEach(function(id) {
+                    Object.keys(draft.items).forEach(function (id) {
                         const card = document.getElementById("kukus-card-" + id);
                         if (card) {
                             const rawEl = card.querySelector(".kukus-raw-input");
@@ -2388,7 +2621,7 @@
         function resetCookingForm(askConfirm) {
             if (askConfirm === undefined) askConfirm = true;
             if (askConfirm && !confirm("Kosongkan form masak?")) return;
-            document.querySelectorAll("#kukus-commodities-container .commodity-card").forEach(function(card) {
+            document.querySelectorAll("#kukus-commodities-container .commodity-card").forEach(function (card) {
                 const rawEl = card.querySelector(".kukus-raw-input");
                 const cookedEl = card.querySelector(".kukus-cooked-input");
                 if (rawEl) rawEl.value = "";
@@ -2424,11 +2657,14 @@
             const container = document.getElementById("beli-commodities-container");
             container.innerHTML = "";
 
-            masterItems.forEach(function(item) {
+            masterItems.forEach(function (item) {
                 const card = document.createElement("div");
                 card.className = "commodity-card";
                 card.id = "beli-card-" + item.ingredient_id;
                 card.dataset.id = item.ingredient_id;
+
+                const isBiji = (item.ingredient_symbol || "").toLowerCase() === "biji";
+                const buyStep = isBiji ? "1" : "0.1";
 
                 card.innerHTML =
                     '<div class="commodity-header">' +
@@ -2445,7 +2681,7 @@
                     '<div class="input-group">' +
                     '<label>Jumlah Beli (' + item.ingredient_symbol + ')</label>' +
                     '<div class="input-with-unit">' +
-                    '<input type="number" class="beli-qty-input" min="0" step="0.1" placeholder="0" ' +
+                    '<input type="number" class="beli-qty-input" min="0" step="' + buyStep + '" placeholder="0" ' +
                     'oninput="onBeliInputChange(\'' + item.ingredient_id + '\')">' +
                     '<span class="unit-tag">' + item.ingredient_symbol + '</span>' +
                     '</div>' +
@@ -2482,7 +2718,7 @@
             let total = 0;
             let count = 0;
 
-            masterItems.forEach(function(item) {
+            masterItems.forEach(function (item) {
                 const card = document.getElementById("beli-card-" + item.ingredient_id);
                 if (!card) return;
 
@@ -2519,7 +2755,7 @@
 
             const items = [];
             let validationError = false;
-            masterItems.forEach(function(item) {
+            masterItems.forEach(function (item) {
                 if (validationError) return;
                 const card = document.getElementById("beli-card-" + item.ingredient_id);
                 if (!card) return;
@@ -2607,9 +2843,9 @@
             }
 
             tbody.innerHTML = "";
-            beliHistory.forEach(function(p) {
+            beliHistory.forEach(function (p) {
                 const tr = document.createElement("tr");
-                const itemsHtml = (p.items || []).map(function(i) {
+                const itemsHtml = (p.items || []).map(function (i) {
                     return '<div><strong>' + i.ingredient_name + '</strong>: ' + formatNumber(i.quantity) + ' ' + i.unit_symbol + ' (@' + formatRupiah(i.unit_price) + ')</div>';
                 }).join("") || "-";
 
@@ -2621,7 +2857,10 @@
                     '<td style="font-weight: 800; color: #0f172a;">' + formatRupiah(p.total_amount) + '</td>' +
                     '<td>' + (p.notes || "-") + '</td>' +
                     '<td style="text-align: center; white-space: nowrap;">' +
+                    '<div style="display: inline-flex; align-items: center; justify-content: center; gap: 6px;">' +
+                    '<button class="btn btn-sm btn-secondary" onclick="openEditPurchaseModal(\'' + p.id + '\')">✏️ Edit</button>' +
                     '<button class="btn btn-sm btn-danger-outline" onclick="openDeletePurchaseModal(\'' + p.id + '\', \'' + safeDateLabel + '\', \'' + safeTotalLabel + '\')">🗑️ Hapus</button>' +
+                    '</div>' +
                     '</td>';
                 tbody.appendChild(tr);
             });
@@ -2642,6 +2881,251 @@
         function closeDeletePurchaseModal() {
             pendingDeletePurchaseId = null;
             document.getElementById("delete-purchase-modal").classList.remove("active");
+        }
+
+        // =========================================================
+        // MODAL & CONTROLLER EDIT RIWAYAT PEMBELIAN
+        // =========================================================
+        let currentEditPurchase = null;
+
+        async function openEditPurchaseModal(purchaseId) {
+            let p = (beliHistory || []).find(x => x.id === purchaseId);
+            if (!p) {
+                try {
+                    const res = await fetch("/api/purchases/" + purchaseId);
+                    if (res.ok) p = await res.json();
+                } catch (e) {
+                    console.error(e);
+                }
+            }
+            if (!p) {
+                alert("Data pembelian tidak ditemukan.");
+                return;
+            }
+
+            currentEditPurchase = JSON.parse(JSON.stringify(p));
+
+            document.getElementById("edit-purchase-id").value = p.id;
+
+            const dt = p.purchase_date ? new Date(p.purchase_date) : new Date();
+            const offset = dt.getTimezoneOffset() * 60000;
+            const localIso = new Date(dt.getTime() - offset).toISOString().slice(0, 16);
+            document.getElementById("edit-purchase-date").value = localIso;
+            document.getElementById("edit-purchase-notes").value = p.notes || "";
+
+            if (!masterItems || masterItems.length === 0) {
+                await fetchMasterItems();
+            }
+
+            renderEditPurchaseItemsTable();
+            populateEditPurchaseDropdown();
+            document.getElementById("edit-purchase-modal").classList.add("active");
+        }
+
+        function closeEditPurchaseModal() {
+            currentEditPurchase = null;
+            document.getElementById("edit-purchase-modal").classList.remove("active");
+        }
+
+        function renderEditPurchaseItemsTable() {
+            const tbody = document.getElementById("edit-purchase-items-tbody");
+            tbody.innerHTML = "";
+
+            if (!currentEditPurchase || !currentEditPurchase.items || currentEditPurchase.items.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: var(--text-muted); padding: 18px;">Belum ada item dalam pembelian ini. Silakan tambah bahan di bawah.</td></tr>';
+                document.getElementById("edit-purchase-total-display").textContent = "Rp0";
+                return;
+            }
+
+            let total = 0;
+            currentEditPurchase.items.forEach(function (item, idx) {
+                const qty = parseFloat(item.quantity) || 0;
+                const price = parseFloat(item.unit_price) || 0;
+                const subtotal = qty * price;
+                total += subtotal;
+
+                const m = (masterItems || []).find(x => x.ingredient_id === item.ingredient_id);
+                const name = item.ingredient_name || (m ? m.ingredient_name : "Bahan");
+                const symbol = (name.toLowerCase().includes("telur") || name.toLowerCase().includes("kentang"))
+                    ? "biji"
+                    : (item.unit_symbol || (m ? m.ingredient_symbol : ""));
+                const stepVal = symbol === "biji" ? "1" : "0.1";
+
+                const tr = document.createElement("tr");
+                tr.innerHTML =
+                    '<td style="font-weight: 700;">🥔 ' + name + ' <span style="font-size: 11px; color: var(--text-muted);">(' + symbol + ')</span></td>' +
+                    '<td>' +
+                    '<div class="input-with-unit" style="margin: 0;">' +
+                    '<input type="number" class="standard-input edit-item-qty" min="0" step="' + stepVal + '" value="' + qty + '" ' +
+                    'oninput="onEditPurchaseItemChange(' + idx + ', this.value, null)">' +
+                    '<span class="unit-tag">' + symbol + '</span>' +
+                    '</div>' +
+                    '</td>' +
+                    '<td>' +
+                    '<div class="input-with-unit" style="margin: 0;">' +
+                    '<input type="number" class="standard-input edit-item-price" min="0" step="500" value="' + price + '" ' +
+                    'oninput="onEditPurchaseItemChange(' + idx + ', null, this.value)">' +
+                    '<span class="unit-tag">Rp</span>' +
+                    '</div>' +
+                    '</td>' +
+                    '<td style="text-align: right; font-weight: 700; color: #0f172a;" id="edit-purchase-row-subtotal-' + idx + '">' +
+                    formatRupiah(subtotal) +
+                    '</td>' +
+                    '<td style="text-align: center;">' +
+                    '<button type="button" class="btn-icon-danger-soft" title="Hapus baris item" onclick="removeEditPurchaseItemRow(' + idx + ')">✕</button>' +
+                    '</td>';
+                tbody.appendChild(tr);
+            });
+
+            document.getElementById("edit-purchase-total-display").textContent = formatRupiah(total);
+        }
+
+        function onEditPurchaseItemChange(idx, newQty, newPrice) {
+            if (!currentEditPurchase || !currentEditPurchase.items || !currentEditPurchase.items[idx]) return;
+            if (newQty !== null) currentEditPurchase.items[idx].quantity = parseFloat(newQty) || 0;
+            if (newPrice !== null) currentEditPurchase.items[idx].unit_price = parseFloat(newPrice) || 0;
+
+            const qty = currentEditPurchase.items[idx].quantity || 0;
+            const price = currentEditPurchase.items[idx].unit_price || 0;
+            const subtotal = qty * price;
+            currentEditPurchase.items[idx].subtotal = subtotal;
+
+            const subEl = document.getElementById("edit-purchase-row-subtotal-" + idx);
+            if (subEl) subEl.textContent = formatRupiah(subtotal);
+
+            let total = 0;
+            currentEditPurchase.items.forEach(function (it) {
+                total += ((parseFloat(it.quantity) || 0) * (parseFloat(it.unit_price) || 0));
+            });
+            document.getElementById("edit-purchase-total-display").textContent = formatRupiah(total);
+        }
+
+        function removeEditPurchaseItemRow(idx) {
+            if (!currentEditPurchase || !currentEditPurchase.items) return;
+            currentEditPurchase.items.splice(idx, 1);
+            renderEditPurchaseItemsTable();
+            populateEditPurchaseDropdown();
+        }
+
+        function populateEditPurchaseDropdown() {
+            const sel = document.getElementById("edit-purchase-add-select");
+            if (!sel) return;
+            sel.innerHTML = '<option value="">-- Tambah Bahan Lain ke Pembelian Ini --</option>';
+
+            const currentIngIds = new Set((currentEditPurchase && currentEditPurchase.items || []).map(x => x.ingredient_id));
+            (masterItems || []).forEach(function (m) {
+                if (!currentIngIds.has(m.ingredient_id)) {
+                    const opt = document.createElement("option");
+                    opt.value = m.ingredient_id;
+                    opt.textContent = m.ingredient_name + " (" + m.ingredient_symbol + ")";
+                    sel.appendChild(opt);
+                }
+            });
+        }
+
+        function addEditPurchaseItemRow() {
+            const sel = document.getElementById("edit-purchase-add-select");
+            const ingId = sel ? sel.value : "";
+            if (!ingId) return;
+
+            const m = (masterItems || []).find(x => x.ingredient_id === ingId);
+            if (!m) return;
+
+            if (!currentEditPurchase.items) currentEditPurchase.items = [];
+            currentEditPurchase.items.push({
+                ingredient_id: m.ingredient_id,
+                ingredient_name: m.ingredient_name,
+                unit_id: m.stock_unit_id,
+                unit_symbol: m.ingredient_symbol,
+                quantity: 1,
+                unit_price: m.average_cost > 0 ? m.average_cost : 0,
+                subtotal: m.average_cost > 0 ? m.average_cost : 0
+            });
+
+            renderEditPurchaseItemsTable();
+            populateEditPurchaseDropdown();
+        }
+
+        async function submitEditPurchase() {
+            const purchaseId = document.getElementById("edit-purchase-id").value;
+            const dateVal = document.getElementById("edit-purchase-date").value;
+            const notesVal = document.getElementById("edit-purchase-notes").value;
+            const btn = document.getElementById("btn-save-edit-purchase");
+
+            if (!dateVal) {
+                alert("Tanggal pembelian wajib diisi.");
+                return;
+            }
+
+            if (!currentEditPurchase || !currentEditPurchase.items || currentEditPurchase.items.length === 0) {
+                alert("Minimal harus ada 1 bahan dalam pembelian.");
+                return;
+            }
+
+            const validItems = [];
+            for (let i = 0; i < currentEditPurchase.items.length; i++) {
+                const it = currentEditPurchase.items[i];
+                const q = parseFloat(it.quantity) || 0;
+                const p = parseFloat(it.unit_price) || 0;
+                if (q <= 0) {
+                    alert("Kuantitas untuk " + (it.ingredient_name || "bahan") + " harus lebih dari 0.");
+                    return;
+                }
+                if (p <= 0) {
+                    alert("Harga satuan untuk " + (it.ingredient_name || "bahan") + " harus lebih dari 0.");
+                    return;
+                }
+
+                let uid = it.unit_id;
+                if (!uid) {
+                    const m = (masterItems || []).find(x => x.ingredient_id === it.ingredient_id);
+                    if (m) uid = m.stock_unit_id;
+                }
+
+                validItems.push({
+                    ingredient_id: it.ingredient_id,
+                    unit_id: uid,
+                    quantity: q,
+                    unit_price: p
+                });
+            }
+
+            const payload = {
+                purchase_date: new Date(dateVal).toISOString(),
+                supplier_name: currentEditPurchase.supplier_name || null,
+                payment_method: currentEditPurchase.payment_method || "CASH",
+                notes: notesVal ? notesVal.trim() : null,
+                items: validItems
+            };
+
+            btn.disabled = true;
+            btn.textContent = "⏳ Menyimpan...";
+
+            try {
+                const res = await fetch("/api/purchases/" + purchaseId, {
+                    method: "PUT",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(payload)
+                });
+                const result = await res.json();
+                if (!res.ok) {
+                    throw new Error(result.detail || result.message || "Gagal memperbarui pembelian");
+                }
+
+                closeEditPurchaseModal();
+                showToast("✅ Berhasil memperbarui riwayat pembelian & saldo kas/stok.", true);
+
+                await Promise.all([
+                    fetchMasterItems().then(renderBeliCommodityCards),
+                    loadPurchaseHistory(),
+                    loadStockAndDashboard()
+                ]);
+            } catch (err) {
+                alert("Gagal: " + err.message);
+            } finally {
+                btn.disabled = false;
+                btn.textContent = "💾 Simpan Perubahan";
+            }
         }
 
         async function executeDeletePurchase() {
@@ -2726,7 +3210,7 @@
                 notes: document.getElementById("beli-notes") ? document.getElementById("beli-notes").value : "",
                 items: {}
             };
-            document.querySelectorAll("#beli-commodities-container .commodity-card").forEach(function(card) {
+            document.querySelectorAll("#beli-commodities-container .commodity-card").forEach(function (card) {
                 const id = card.dataset.id;
                 const qtyEl = card.querySelector(".beli-qty-input");
                 const priceEl = card.querySelector(".beli-price-input");
@@ -2749,7 +3233,7 @@
 
                 if (draft.items) {
                     let hasData = false;
-                    Object.keys(draft.items).forEach(function(id) {
+                    Object.keys(draft.items).forEach(function (id) {
                         const card = document.getElementById("beli-card-" + id);
                         if (card) {
                             const qtyEl = card.querySelector(".beli-qty-input");
@@ -2770,7 +3254,7 @@
         function resetPurchaseForm(askConfirm) {
             if (askConfirm === undefined) askConfirm = true;
             if (askConfirm && !confirm("Kosongkan form belanja?")) return;
-            document.querySelectorAll("#beli-commodities-container .commodity-card").forEach(function(card) {
+            document.querySelectorAll("#beli-commodities-container .commodity-card").forEach(function (card) {
                 const qtyEl = card.querySelector(".beli-qty-input");
                 if (qtyEl) qtyEl.value = "";
                 card.classList.remove("has-data");
@@ -3012,7 +3496,7 @@
             }
 
             tbody.innerHTML = "";
-            modalHistory.forEach(function(m) {
+            modalHistory.forEach(function (m) {
                 sumTotal += m.total_modal || 0;
                 sumProd += m.production_cost || 0;
                 sumOps += m.operational_cost || 0;
@@ -3134,7 +3618,7 @@
             try {
                 const results = await Promise.all([
                     fetchMasterItems(),
-                    fetch("/api/dashboard").then(function(r) { return r.json(); })
+                    fetch("/api/dashboard").then(function (r) { return r.json(); })
                 ]);
                 const items = results[0];
                 masterItems = items;
@@ -3161,7 +3645,7 @@
 
                 // Table
                 tbody.innerHTML = "";
-                items.forEach(function(item) {
+                items.forEach(function (item) {
                     const tr = document.createElement("tr");
                     const rawStock = parseFloat(item.current_stock) || 0;
                     const cookedStock = parseFloat(item.cooked_stock) || 0;
@@ -3234,7 +3718,7 @@
             const currentVal = selectEl.value || defaultSymbol;
 
             selectEl.innerHTML = "";
-            availableUnitsCache.forEach(function(u) {
+            availableUnitsCache.forEach(function (u) {
                 const opt = document.createElement("option");
                 opt.value = u.symbol || u.name.toLowerCase();
                 opt.textContent = u.name + " (" + (u.symbol || u.name.toLowerCase()) + ")";
@@ -3275,7 +3759,7 @@
             if (priceEl) priceEl.value = "";
             if (notesEl) notesEl.value = "";
 
-            loadUnitsForDropdown().then(function() {
+            loadUnitsForDropdown().then(function () {
                 onRawUnitChange();
                 onCookedUnitChange();
                 updatePriceHint();
@@ -3283,7 +3767,7 @@
 
             const modal = document.getElementById("add-ingredient-modal");
             if (modal) modal.classList.add("active");
-            if (nameEl) setTimeout(function() { nameEl.focus(); }, 120);
+            if (nameEl) setTimeout(function () { nameEl.focus(); }, 120);
         }
 
         function closeAddIngredientModal() {
@@ -3450,7 +3934,7 @@
         let pendingDeleteIngredient = null;
 
         function openDeleteIngredientModal(ingredientId) {
-            const item = (masterItems || []).find(function(m) { return m.ingredient_id === ingredientId; });
+            const item = (masterItems || []).find(function (m) { return m.ingredient_id === ingredientId; });
             if (!item) return;
 
             pendingDeleteIngredient = item;
@@ -3510,7 +3994,7 @@
         }
 
         // Close on escape key
-        document.addEventListener("keydown", function(e) {
+        document.addEventListener("keydown", function (e) {
             if (e.key === "Escape") {
                 const addModal = document.getElementById("add-ingredient-modal");
                 if (addModal && addModal.classList.contains("active")) {
@@ -3527,7 +4011,7 @@
         // MODAL CATAT TERBUANG / RUSAK (PER KOMODITAS DENGAN SHORTCUT)
         // =========================================================
         function openWasteStockModal(ingredientId) {
-            const item = (masterItems || []).find(function(m) { return m.ingredient_id === ingredientId; });
+            const item = (masterItems || []).find(function (m) { return m.ingredient_id === ingredientId; });
             if (!item) return;
 
             currentWasteItem = item;
@@ -3782,6 +4266,332 @@
 
         function closeBatchModal() {
             document.getElementById("batch-detail-modal").classList.remove("active");
+        }
+
+        // =========================================================
+        // CONTROLLER EDIT RIWAYAT PRODUKSI DAPUR KUKUS
+        // =========================================================
+        let currentEditProduction = null;
+
+        async function openEditProductionModal(batchId) {
+            let batch = null;
+            try {
+                const res = await fetch("/api/productions/" + batchId);
+                if (res.ok) batch = await res.json();
+            } catch (e) {
+                console.error(e);
+            }
+
+            if (!batch) {
+                batch = (kukusHistory || []).find(b => b.id === batchId);
+            }
+
+            if (!batch) {
+                alert("Data produksi tidak ditemukan.");
+                return;
+            }
+
+            currentEditProduction = JSON.parse(JSON.stringify(batch));
+
+            document.getElementById("edit-production-id").value = batch.id;
+            document.getElementById("edit-production-modal-title").textContent =
+                "✏️ Edit Batch Produksi #" + batch.id.substring(0, 8).toUpperCase();
+
+            const dt = batch.production_date ? new Date(batch.production_date) : new Date();
+            const offset = dt.getTimezoneOffset() * 60000;
+            const localIso = new Date(dt.getTime() - offset).toISOString().slice(0, 16);
+            document.getElementById("edit-production-date").value = localIso;
+            document.getElementById("edit-production-notes").value = batch.notes || "";
+
+            if (!masterItems || masterItems.length === 0) {
+                await fetchMasterItems();
+            }
+
+            renderEditProductionItemsTable();
+            document.getElementById("edit-production-modal").classList.add("active");
+        }
+
+        function closeEditProductionModal() {
+            currentEditProduction = null;
+            document.getElementById("edit-production-modal").classList.remove("active");
+        }
+
+        function renderEditProductionItemsTable() {
+            const tbody = document.getElementById("edit-production-items-tbody");
+            tbody.innerHTML = "";
+
+            const commMap = {};
+
+            (currentEditProduction.inputs || []).forEach(function (inp) {
+                const iid = inp.ingredient_id;
+                commMap[iid] = {
+                    ingredient_id: iid,
+                    ingredient_name: inp.ingredient_name,
+                    unit_id: inp.unit_id,
+                    unit_symbol: inp.unit_symbol,
+                    raw_qty: parseFloat(inp.quantity) || 0,
+                    unit_cost: parseFloat(inp.unit_cost) || 0,
+                    cooked_qty: 0,
+                    product_id: null,
+                    product_name: null,
+                    selling_unit_id: null,
+                    product_symbol: null
+                };
+            });
+
+            (currentEditProduction.outputs || []).forEach(function (out) {
+                const m = (masterItems || []).find(x => x.product_id === out.product_id || (x.ingredient_name && out.product_name && x.ingredient_name.toLowerCase() === out.product_name.toLowerCase()));
+                const iid = m ? m.ingredient_id : out.product_id;
+                if (!commMap[iid]) {
+                    commMap[iid] = {
+                        ingredient_id: m ? m.ingredient_id : out.product_id,
+                        ingredient_name: out.product_name,
+                        unit_id: m ? m.stock_unit_id : out.unit_id,
+                        unit_symbol: m ? m.ingredient_symbol : out.unit_symbol,
+                        raw_qty: 0,
+                        unit_cost: m ? m.average_cost : 0,
+                        cooked_qty: parseFloat(out.quantity) || 0,
+                        product_id: out.product_id,
+                        product_name: out.product_name,
+                        selling_unit_id: out.unit_id,
+                        product_symbol: out.unit_symbol
+                    };
+                } else {
+                    commMap[iid].cooked_qty = parseFloat(out.quantity) || 0;
+                    commMap[iid].product_id = out.product_id;
+                    commMap[iid].product_name = out.product_name;
+                    commMap[iid].selling_unit_id = out.unit_id;
+                    commMap[iid].product_symbol = out.unit_symbol;
+                }
+            });
+
+            Object.keys(commMap).forEach(function (iid) {
+                const item = commMap[iid];
+                const m = (masterItems || []).find(x => x.ingredient_id === iid || (x.ingredient_name && item.ingredient_name && x.ingredient_name.toLowerCase() === item.ingredient_name.toLowerCase()));
+                if (m) {
+                    item.ingredient_name = m.ingredient_name;
+                    item.product_name = m.product_name;
+                    item.product_id = m.product_id;
+                    item.unit_id = m.stock_unit_id;
+                    item.selling_unit_id = m.selling_unit_id;
+                    item.unit_symbol = m.ingredient_symbol;
+                    item.product_symbol = m.product_symbol;
+                    if (!item.unit_cost || item.unit_cost <= 0) item.unit_cost = m.average_cost;
+                }
+            });
+
+            currentEditProduction._commMap = commMap;
+
+            const commList = Object.values(commMap);
+            if (commList.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: var(--text-muted); padding: 18px;">Tidak ada rincian bahan/produk pada batch ini.</td></tr>';
+                document.getElementById("edit-production-total-display").textContent = "Rp0";
+                return;
+            }
+
+            commList.forEach(function (c) {
+                const tr = document.createElement("tr");
+                const rawSymbol = (c.ingredient_name && (c.ingredient_name.toLowerCase().includes("telur") || c.ingredient_name.toLowerCase().includes("kentang")))
+                    ? "biji"
+                    : (c.unit_symbol || "kg");
+                const cookedSymbol = c.product_symbol || "biji";
+                const rawStep = rawSymbol === "biji" ? "1" : "0.1";
+
+                tr.innerHTML =
+                    '<td style="font-weight: 700;">🥔 ' + c.ingredient_name + '</td>' +
+                    '<td>' +
+                    '<div class="input-with-unit" style="margin: 0;">' +
+                    '<input type="number" class="standard-input edit-prod-raw-input" min="0" step="' + rawStep + '" value="' + c.raw_qty + '" ' +
+                    'oninput="onEditProductionInputChange(\'' + c.ingredient_id + '\', this.value, null)">' +
+                    '<span class="unit-tag">' + rawSymbol + '</span>' +
+                    '</div>' +
+                    '</td>' +
+                    '<td>' +
+                    '<div class="input-with-unit" style="margin: 0;">' +
+                    '<input type="number" class="standard-input edit-prod-cooked-input" min="0" step="1" value="' + c.cooked_qty + '" ' +
+                    'oninput="onEditProductionInputChange(\'' + c.ingredient_id + '\', null, this.value)">' +
+                    '<span class="unit-tag">' + cookedSymbol + '</span>' +
+                    '</div>' +
+                    '</td>' +
+                    '<td style="text-align: right; font-weight: 600;" id="edit-prod-subtotal-' + c.ingredient_id + '">Rp0</td>' +
+                    '<td style="text-align: right; font-weight: 700; color: var(--primary);" id="edit-prod-hpp-' + c.ingredient_id + '">-</td>';
+                tbody.appendChild(tr);
+            });
+
+            calculateEditProductionTotals();
+        }
+
+        function onEditProductionInputChange(iid, newRaw, newCooked) {
+            if (!currentEditProduction || !currentEditProduction._commMap || !currentEditProduction._commMap[iid]) return;
+            const c = currentEditProduction._commMap[iid];
+            if (newRaw !== null) c.raw_qty = parseFloat(newRaw) || 0;
+            if (newCooked !== null) c.cooked_qty = parseFloat(newCooked) || 0;
+            calculateEditProductionTotals();
+        }
+
+        function calculateEditProductionTotals() {
+            if (!currentEditProduction || !currentEditProduction._commMap) return;
+            const commList = Object.values(currentEditProduction._commMap);
+
+            let totalRawCost = 0;
+            let activeCount = 0;
+            const filled = [];
+
+            commList.forEach(function (c) {
+                const subtotal = c.raw_qty * (c.unit_cost || 0);
+                const subEl = document.getElementById("edit-prod-subtotal-" + c.ingredient_id);
+                if (subEl) subEl.textContent = formatRupiah(subtotal);
+
+                if (c.raw_qty > 0 || c.cooked_qty > 0) {
+                    activeCount++;
+                    filled.push({ item: c, subtotal: subtotal });
+                    totalRawCost += subtotal;
+                } else {
+                    const hppEl = document.getElementById("edit-prod-hpp-" + c.ingredient_id);
+                    if (hppEl) hppEl.textContent = "-";
+                }
+            });
+
+            if (filled.length > 0) {
+                let allocSum = 0;
+                filled.forEach(function (f, idx) {
+                    let pct;
+                    if (filled.length === 1) {
+                        pct = 100;
+                    } else if (totalRawCost > 0) {
+                        pct = (f.subtotal / totalRawCost) * 100;
+                    } else {
+                        pct = 100 / filled.length;
+                    }
+
+                    if (idx === filled.length - 1) {
+                        pct = Math.round((100 - allocSum) * 100) / 100;
+                    } else {
+                        pct = Math.round(pct * 100) / 100;
+                        allocSum += pct;
+                    }
+
+                    f.item.allocation_percentage = pct;
+                    const allocCost = totalRawCost * (pct / 100);
+                    const hpp = f.item.cooked_qty > 0 ? (allocCost / f.item.cooked_qty) : 0;
+                    const hppEl = document.getElementById("edit-prod-hpp-" + f.item.ingredient_id);
+                    if (hppEl) {
+                        hppEl.textContent = f.item.cooked_qty > 0
+                            ? (formatRupiah(hpp) + " / " + (f.item.product_symbol || "biji"))
+                            : "(Isi hasil)";
+                    }
+                });
+            }
+
+            const countEl = document.getElementById("edit-production-summary-count");
+            if (countEl) countEl.textContent = activeCount + " Komoditas";
+            document.getElementById("edit-production-total-display").textContent = formatRupiah(totalRawCost);
+        }
+
+        async function submitEditProduction() {
+            const batchId = document.getElementById("edit-production-id").value;
+            const dateVal = document.getElementById("edit-production-date").value;
+            const notesVal = document.getElementById("edit-production-notes").value;
+            const btn = document.getElementById("btn-save-edit-production");
+
+            if (!dateVal) {
+                alert("Tanggal produksi wajib diisi.");
+                return;
+            }
+
+            if (!currentEditProduction || !currentEditProduction._commMap) return;
+            const commList = Object.values(currentEditProduction._commMap);
+
+            const filled = commList.filter(c => c.raw_qty > 0 || c.cooked_qty > 0);
+            if (filled.length === 0) {
+                alert("Silakan masukkan setidaknya 1 komoditas yang dimasak.");
+                return;
+            }
+
+            for (let i = 0; i < filled.length; i++) {
+                const f = filled[i];
+                if (f.raw_qty <= 0 || f.cooked_qty <= 0) {
+                    alert("Jumlah mentah dan hasil matang untuk " + f.ingredient_name + " harus lebih dari 0.");
+                    return;
+                }
+            }
+
+            let totalCost = 0;
+            filled.forEach(f => {
+                totalCost += (f.raw_qty * (f.unit_cost || 0));
+            });
+
+            let allocSum = 0;
+            const inputs = [];
+            const outputs = [];
+
+            filled.forEach(function (f, idx) {
+                let pct;
+                if (filled.length === 1) {
+                    pct = 100;
+                } else if (totalCost > 0) {
+                    pct = ((f.raw_qty * (f.unit_cost || 0)) / totalCost) * 100;
+                } else {
+                    pct = 100 / filled.length;
+                }
+
+                if (idx === filled.length - 1) {
+                    pct = Math.round((100 - allocSum) * 100) / 100;
+                } else {
+                    pct = Math.round(pct * 100) / 100;
+                    allocSum += pct;
+                }
+
+                inputs.push({
+                    ingredient_id: f.ingredient_id,
+                    unit_id: f.unit_id,
+                    quantity: f.raw_qty
+                });
+
+                outputs.push({
+                    product_id: f.product_id,
+                    unit_id: f.selling_unit_id,
+                    quantity: f.cooked_qty,
+                    allocation_percentage: pct
+                });
+            });
+
+            const payload = {
+                production_date: new Date(dateVal).toISOString(),
+                notes: notesVal ? notesVal.trim() : null,
+                additional_cost: 0,
+                inputs: inputs,
+                outputs: outputs
+            };
+
+            btn.disabled = true;
+            btn.textContent = "⏳ Menyimpan...";
+
+            try {
+                const res = await fetch("/api/production/" + batchId, {
+                    method: "PUT",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(payload)
+                });
+                const result = await res.json();
+                if (!res.ok) {
+                    throw new Error(result.detail || result.message || "Gagal memperbarui produksi");
+                }
+
+                closeEditProductionModal();
+                showToast("✅ Berhasil memperbarui data produksi & stok komoditas.", true);
+
+                await Promise.all([
+                    fetchMasterItems().then(renderKukusCommodityCards),
+                    loadProductionHistory(),
+                    loadStockAndDashboard()
+                ]);
+            } catch (err) {
+                alert("Gagal: " + err.message);
+            } finally {
+                btn.disabled = false;
+                btn.textContent = "💾 Simpan Perubahan";
+            }
         }
 
         // =========================================================
@@ -4107,7 +4917,7 @@
             }
 
             tbody.innerHTML = "";
-            records.forEach(function(r) {
+            records.forEach(function (r) {
                 const tr = document.createElement("tr");
                 const safeDate = r.entry_date;
                 const safeModal = formatRupiah(r.modal).replace(/"/g, '&quot;').replace(/'/g, "&#39;");
@@ -4124,7 +4934,7 @@
                     '<td style="color: #0f172a;">' + formatRupiah(r.modal) + '</td>' +
                     '<td style="font-weight: 700; color: #0f172a;">' + formatRupiah(r.omset) + '</td>' +
                     '<td style="font-weight: 800; font-size: 14.5px; color: ' + profitColor + ';">' +
-                        formatRupiah(r.profit) + profitBadge +
+                    formatRupiah(r.profit) + profitBadge +
                     '</td>' +
                     '<td style="color: var(--text-muted);">' + (r.notes || "-") + '</td>' +
                     '<td style="text-align: center; white-space: nowrap;">' +
@@ -4241,7 +5051,7 @@
         // =========================================================
         // INITIALIZE ON LOAD
         // =========================================================
-        window.addEventListener("DOMContentLoaded", function() {
+        window.addEventListener("DOMContentLoaded", function () {
             const validPages = ["dapur-kukus", "beli-bahan", "modal", "stok-rekap", "keuangan"];
             let saved = localStorage.getItem(ACTIVE_TAB_KEY) || "dapur-kukus";
             if (!validPages.includes(saved)) {
