@@ -1,6 +1,28 @@
 from fastapi.staticfiles import StaticFiles
-from datetime import datetime, date
+from datetime import datetime, date, timezone, timedelta
 from typing import List, Optional
+
+try:
+    from zoneinfo import ZoneInfo
+    JAKARTA_TZ = ZoneInfo("Asia/Jakarta")
+except Exception:
+    JAKARTA_TZ = timezone(timedelta(hours=7), name="Asia/Jakarta")
+
+def get_now() -> datetime:
+    """Mengembalikan waktu saat ini dalam zona waktu Asia/Jakarta (WIB)."""
+    return datetime.now(JAKARTA_TZ)
+
+def get_today() -> date:
+    """Mengembalikan tanggal hari ini dalam zona waktu Asia/Jakarta (WIB)."""
+    return datetime.now(JAKARTA_TZ).date()
+
+def ensure_wib(dt: Optional[datetime]) -> datetime:
+    """Memastikan objek datetime selalu mengacu ke zona waktu Asia/Jakarta (WIB / UTC+7)."""
+    if dt is None:
+        return datetime.now(JAKARTA_TZ)
+    if dt.tzinfo is None:
+        return dt.replace(tzinfo=JAKARTA_TZ)
+    return dt.astimezone(JAKARTA_TZ)
 
 from pydantic import BaseModel
 from fastapi import FastAPI, HTTPException
@@ -32,6 +54,7 @@ def init_db_schema():
     conn = get_connection()
     try:
         cur = conn.cursor()
+        cur.execute("SET TIME ZONE 'Asia/Jakarta';")
         cur.execute("""
             CREATE TABLE IF NOT EXISTS daily_modal (
                 id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -641,6 +664,7 @@ class StockWasteCreate(BaseModel):
 def create_production(data: ProductionCreate):
     conn = get_connection()
     cur = conn.cursor()
+    production_date = ensure_wib(data.production_date)
 
     try:
         if not data.inputs:
@@ -769,7 +793,7 @@ def create_production(data: ProductionCreate):
             RETURNING id
             """,
             (
-                data.production_date,
+                production_date,
                 data.notes,
                 material_cost,
                 data.additional_cost,
@@ -872,7 +896,7 @@ def create_production(data: ProductionCreate):
                     item["average_cost"],
                     item_cost,
                     production_id,
-                    data.production_date,
+                    production_date,
                     "Penggunaan bahan untuk produksi",
                 )
             )
@@ -1033,7 +1057,7 @@ def create_production(data: ProductionCreate):
                     cost_per_unit,
                     allocated_cost,
                     production_id,
-                    data.production_date,
+                    production_date,
                     "Hasil produksi",
                 )
             )
@@ -1224,7 +1248,7 @@ def get_production_cost_by_date(date: date):
         cur.execute("""
             SELECT COALESCE(SUM(total_cost), 0), COUNT(*)
             FROM production
-            WHERE production_date::date = %s
+            WHERE (production_date AT TIME ZONE 'Asia/Jakarta')::date = %s
         """, (date,))
         row = cur.fetchone()
         return {
@@ -1350,15 +1374,15 @@ def delete_production_by_date(date: date):
     try:
         cur.execute("""
             DELETE FROM production_inputs WHERE production_id IN (
-                SELECT id FROM production WHERE production_date::date = %s
+                SELECT id FROM production WHERE (production_date AT TIME ZONE 'Asia/Jakarta')::date = %s
             )
         """, (date,))
         cur.execute("""
             DELETE FROM production_outputs WHERE production_id IN (
-                SELECT id FROM production WHERE production_date::date = %s
+                SELECT id FROM production WHERE (production_date AT TIME ZONE 'Asia/Jakarta')::date = %s
             )
         """, (date,))
-        cur.execute("DELETE FROM production WHERE production_date::date = %s", (date,))
+        cur.execute("DELETE FROM production WHERE (production_date AT TIME ZONE 'Asia/Jakarta')::date = %s", (date,))
         conn.commit()
         return {
             "status": "success",
@@ -1401,6 +1425,7 @@ def delete_production_by_id(production_id: str):
 def update_production(production_id: str, data: ProductionCreate):
     conn = get_connection()
     cur = conn.cursor()
+    production_date = ensure_wib(data.production_date)
 
     try:
         if not data.inputs:
@@ -1603,7 +1628,7 @@ def update_production(production_id: str, data: ProductionCreate):
                 total_cost = %s
             WHERE id = %s;
         """, (
-            data.production_date,
+            production_date,
             data.notes,
             material_cost,
             data.additional_cost,
@@ -1664,7 +1689,7 @@ def update_production(production_id: str, data: ProductionCreate):
                 item["average_cost"],
                 item["total_cost"],
                 production_id,
-                data.production_date,
+                production_date,
                 "Penggunaan bahan untuk produksi (diperbarui)"
             ))
 
@@ -1689,7 +1714,7 @@ def update_production(production_id: str, data: ProductionCreate):
                 out["cost_per_unit"],
                 out["total_cost"],
                 production_id,
-                data.production_date,
+                production_date,
                 "Hasil produksi (diperbarui)"
             ))
 
@@ -1715,6 +1740,7 @@ def update_production(production_id: str, data: ProductionCreate):
 @app.post("/api/purchases")
 def create_purchase(purchase: PurchaseCreate):
     connection = get_connection()
+    purchase_date = ensure_wib(purchase.purchase_date)
 
     try:
         cursor = connection.cursor()
@@ -1739,7 +1765,7 @@ def create_purchase(purchase: PurchaseCreate):
             VALUES (%s, %s, %s, %s, %s)
             RETURNING id;
         """, (
-            purchase.purchase_date,
+            purchase_date,
             purchase.supplier_name,
             total_amount,
             purchase.payment_method,
@@ -1860,7 +1886,7 @@ def create_purchase(purchase: PurchaseCreate):
                 item.unit_price,
                 subtotal,
                 purchase_id,
-                purchase.purchase_date,
+                purchase_date,
                 purchase.notes
             ))
 
@@ -1887,7 +1913,7 @@ def create_purchase(purchase: PurchaseCreate):
                 %s
             );
         """, (
-            purchase.purchase_date,
+            purchase_date,
             total_amount,
             purchase_id,
             purchase.payment_method,
@@ -2027,20 +2053,20 @@ def delete_purchases_by_date(date: date):
     try:
         cur.execute("""
             DELETE FROM cash_transactions WHERE reference_type = 'PURCHASE' AND reference_id IN (
-                SELECT id FROM purchases WHERE purchase_date::date = %s
+                SELECT id FROM purchases WHERE (purchase_date AT TIME ZONE 'Asia/Jakarta')::date = %s
             )
         """, (date,))
         cur.execute("""
             DELETE FROM stock_movements WHERE reference_type = 'PURCHASE' AND reference_id IN (
-                SELECT id FROM purchases WHERE purchase_date::date = %s
+                SELECT id FROM purchases WHERE (purchase_date AT TIME ZONE 'Asia/Jakarta')::date = %s
             )
         """, (date,))
         cur.execute("""
             DELETE FROM purchase_items WHERE purchase_id IN (
-                SELECT id FROM purchases WHERE purchase_date::date = %s
+                SELECT id FROM purchases WHERE (purchase_date AT TIME ZONE 'Asia/Jakarta')::date = %s
             )
         """, (date,))
-        cur.execute("DELETE FROM purchases WHERE purchase_date::date = %s", (date,))
+        cur.execute("DELETE FROM purchases WHERE (purchase_date AT TIME ZONE 'Asia/Jakarta')::date = %s", (date,))
         conn.commit()
         return {
             "status": "success",
@@ -2101,6 +2127,7 @@ def delete_purchase_by_id(purchase_id: str):
 @app.put("/api/purchases/{purchase_id}")
 def update_purchase(purchase_id: str, purchase: PurchaseCreate):
     connection = get_connection()
+    purchase_date = ensure_wib(purchase.purchase_date)
 
     try:
         cursor = connection.cursor()
@@ -2215,7 +2242,7 @@ def update_purchase(purchase_id: str, purchase: PurchaseCreate):
                 notes = %s
             WHERE id = %s;
         """, (
-            purchase.purchase_date,
+            purchase_date,
             purchase.supplier_name,
             total_amount,
             purchase.payment_method,
@@ -2283,7 +2310,7 @@ def update_purchase(purchase_id: str, purchase: PurchaseCreate):
                 it["unit_price"],
                 it["subtotal"],
                 purchase_id,
-                purchase.purchase_date,
+                purchase_date,
                 purchase.notes
             ))
 
@@ -2296,7 +2323,7 @@ def update_purchase(purchase_id: str, purchase: PurchaseCreate):
                 description = %s
             WHERE reference_type = 'PURCHASE' AND reference_id = %s;
         """, (
-            purchase.purchase_date,
+            purchase_date,
             total_amount,
             purchase.payment_method,
             'Pembelian bahan baku (diperbarui)',
@@ -2316,7 +2343,7 @@ def update_purchase(purchase_id: str, purchase: PurchaseCreate):
                 )
                 VALUES (%s, 'OUT', 'PEMBELIAN', %s, 'PURCHASE', %s, %s, %s);
             """, (
-                purchase.purchase_date,
+                purchase_date,
                 total_amount,
                 purchase_id,
                 purchase.payment_method,
@@ -2444,6 +2471,7 @@ def get_finished_goods_stock():
 
 @app.post("/api/sales/lapak")
 def create_sale_lapak(data: SaleLapakCreate):
+    sale_date = ensure_wib(data.sale_date)
 
     if not data.items:
         raise HTTPException(
@@ -2577,7 +2605,7 @@ def create_sale_lapak(data: SaleLapakCreate):
             RETURNING id
             """,
             (
-                data.sale_date,
+                sale_date,
                 subtotal,
                 discount,
                 platform_fee,
@@ -2683,7 +2711,7 @@ def create_sale_lapak(data: SaleLapakCreate):
                     item["cost_per_unit"],
                     item["total_cost"],
                     sale_id,
-                    data.sale_date,
+                    sale_date,
                     "Penjualan Lapak"
                 )
             )
@@ -2717,7 +2745,7 @@ def create_sale_lapak(data: SaleLapakCreate):
             )
             """,
             (
-                data.sale_date,
+                sale_date,
                 total_net,
                 sale_id,
                 data.payment_method,
@@ -2811,6 +2839,7 @@ def get_sales():
 
 @app.post("/api/sales/gofood")
 def create_sale_gofood(data: SaleGoFoodCreate):
+    sale_date = ensure_wib(data.sale_date)
 
     if data.gross_amount <= 0:
         raise HTTPException(
@@ -2877,7 +2906,7 @@ def create_sale_gofood(data: SaleGoFoodCreate):
             RETURNING id
             """,
             (
-                data.sale_date,
+                sale_date,
                 subtotal,
                 discount,
                 platform_fee,
@@ -2926,7 +2955,7 @@ def create_sale_gofood(data: SaleGoFoodCreate):
             )
             """,
             (
-                data.sale_date,
+                sale_date,
                 total_net,
                 sale_id,
                 data.payment_method,
@@ -2966,6 +2995,7 @@ def create_sale_gofood(data: SaleGoFoodCreate):
 
 @app.post("/api/waste")
 def create_waste(data: WasteCreate):
+    waste_date = ensure_wib(data.date)
 
     if data.quantity <= 0:
         raise HTTPException(
@@ -3066,7 +3096,7 @@ def create_waste(data: WasteCreate):
             RETURNING id
             """,
             (
-                data.date,
+                waste_date,
                 data.product_id,
                 data.quantity,
                 unit_id,
@@ -3137,7 +3167,7 @@ def create_waste(data: WasteCreate):
                 cost_per_unit,
                 total_loss,
                 waste_id,
-                data.date,
+                waste_date,
                 data.reason
             )
         )
@@ -3177,6 +3207,7 @@ def create_waste(data: WasteCreate):
 
 @app.post("/api/packaging/stock-opname")
 def create_packaging_stock_opname(data: PackagingStockOpnameCreate):
+    opname_date = ensure_wib(data.opname_date)
 
     if not data.items:
         raise HTTPException(
@@ -3203,7 +3234,7 @@ def create_packaging_stock_opname(data: PackagingStockOpnameCreate):
             RETURNING id
             """,
             (
-                data.opname_date.date(),
+                opname_date.date(),
                 data.notes
             )
         )
@@ -3404,7 +3435,7 @@ def create_packaging_stock_opname(data: PackagingStockOpnameCreate):
                     average_cost,
                     abs(difference_value),
                     opname_id,
-                    data.opname_date,
+                    opname_date,
                     item.notes
                 )
             )
@@ -3558,6 +3589,7 @@ def create_expense(data: ExpenseCreate):
         # =========================================================
         # 5. Catat cash out
         # =========================================================
+        tx_date = get_now() if data.expense_date == get_today() else datetime.combine(data.expense_date, datetime.min.time()).replace(tzinfo=JAKARTA_TZ)
 
         cur.execute(
             """
@@ -3583,7 +3615,7 @@ def create_expense(data: ExpenseCreate):
             )
             """,
             (
-                data.expense_date,
+                tx_date,
                 data.amount,
                 expense_id,
                 data.payment_method,
@@ -3632,6 +3664,7 @@ def create_expense(data: ExpenseCreate):
 
 @app.post("/api/packaging/purchases")
 def create_packaging_purchase(data: PackagingPurchaseCreate):
+    purchase_date = ensure_wib(data.purchase_date)
 
     # =========================================================
     # 1. Validasi input
@@ -3694,7 +3727,7 @@ def create_packaging_purchase(data: PackagingPurchaseCreate):
             RETURNING id
             """,
             (
-                data.purchase_date,
+                purchase_date,
                 data.supplier_name,
                 total_amount,
                 data.payment_method,
@@ -3924,7 +3957,7 @@ def create_packaging_purchase(data: PackagingPurchaseCreate):
                     item.unit_price,
                     subtotal,
                     purchase_id,
-                    data.purchase_date,
+                    purchase_date,
                     data.notes
                 )
             )
@@ -3968,7 +4001,7 @@ def create_packaging_purchase(data: PackagingPurchaseCreate):
             )
             """,
             (
-                data.purchase_date,
+                purchase_date,
                 total_amount,
                 purchase_id,
                 data.payment_method,
@@ -4032,7 +4065,7 @@ def get_dashboard_summary(
                 COALESCE(SUM(platform_fee), 0) AS total_platform_fee,
                 COALESCE(SUM(total_net), 0) AS total_net
             FROM sales
-            WHERE sale_date::date BETWEEN %s AND %s
+            WHERE (sale_date AT TIME ZONE 'Asia/Jakarta')::date BETWEEN %s AND %s
         """, (start_date, end_date))
 
         sales = cur.fetchone()
@@ -4051,7 +4084,7 @@ def get_dashboard_summary(
             FROM sales s
             JOIN sale_items si
                 ON si.sale_id = s.id
-            WHERE s.sale_date::date BETWEEN %s AND %s
+            WHERE (s.sale_date AT TIME ZONE 'Asia/Jakarta')::date BETWEEN %s AND %s
         """, (start_date, end_date))
 
         total_hpp_lapak = float(cur.fetchone()[0])
@@ -4076,7 +4109,7 @@ def get_dashboard_summary(
             SELECT
                 COALESCE(SUM(total_loss), 0)
             FROM waste
-            WHERE date::date BETWEEN %s AND %s
+            WHERE (date AT TIME ZONE 'Asia/Jakarta')::date BETWEEN %s AND %s
         """, (start_date, end_date))
 
         total_waste_loss = float(cur.fetchone()[0])
@@ -4107,7 +4140,7 @@ def get_dashboard_summary(
                 ) AS cash_out
 
             FROM cash_transactions
-            WHERE transaction_date::date BETWEEN %s AND %s
+            WHERE (transaction_date AT TIME ZONE 'Asia/Jakarta')::date BETWEEN %s AND %s
         """, (start_date, end_date))
 
         cash = cur.fetchone()
@@ -4186,7 +4219,7 @@ def sales_report(
                 FROM sales s
                 JOIN sales_channels sc
                     ON sc.id = s.channel_id
-                WHERE s.sale_date::date BETWEEN %s AND %s
+                WHERE (s.sale_date AT TIME ZONE 'Asia/Jakarta')::date BETWEEN %s AND %s
                 GROUP BY sc.id, sc.name
             ),
 
@@ -4197,7 +4230,7 @@ def sales_report(
                 FROM sales s
                 LEFT JOIN sale_items si
                     ON si.sale_id = s.id
-                WHERE s.sale_date::date BETWEEN %s AND %s
+                WHERE (s.sale_date AT TIME ZONE 'Asia/Jakarta')::date BETWEEN %s AND %s
                 GROUP BY s.channel_id
             )
 
@@ -4289,7 +4322,7 @@ def profit_loss_report(
                 COALESCE(SUM(s.platform_fee), 0) AS total_platform_fee,
                 COALESCE(SUM(s.total_net), 0) AS total_net
             FROM sales s
-            WHERE s.sale_date::date BETWEEN %s AND %s;
+            WHERE (s.sale_date AT TIME ZONE 'Asia/Jakarta')::date BETWEEN %s AND %s;
             """,
             (start_date, end_date)
         )
@@ -4312,7 +4345,7 @@ def profit_loss_report(
                 ON s.id = si.sale_id
             JOIN sales_channels sc
                 ON sc.id = s.channel_id
-            WHERE s.sale_date::date BETWEEN %s AND %s
+            WHERE (s.sale_date AT TIME ZONE 'Asia/Jakarta')::date BETWEEN %s AND %s
               AND sc.name = 'Lapak';
             """,
             (start_date, end_date)
@@ -4344,7 +4377,7 @@ def profit_loss_report(
             SELECT
                 COALESCE(SUM(w.total_loss), 0)
             FROM waste w
-            WHERE w.date::date BETWEEN %s AND %s;
+            WHERE (w.date AT TIME ZONE 'Asia/Jakarta')::date BETWEEN %s AND %s;
             """,
             (start_date, end_date)
         )
@@ -4419,7 +4452,7 @@ def dashboard():
         # ==========================================
         # TANGGAL
         # ==========================================
-        today = date.today()
+        today = get_today()
         first_day_of_month = today.replace(day=1)
 
         # ==========================================
@@ -4433,7 +4466,7 @@ def dashboard():
                 COALESCE(SUM(s.total_net), 0) + COALESCE((SELECT SUM(df.omset) FROM daily_finance df WHERE df.entry_date = %s), 0),
                 COUNT(s.id) + COALESCE((SELECT COUNT(df.id) FROM daily_finance df WHERE df.entry_date = %s AND df.omset > 0), 0)
             FROM sales s
-            WHERE s.sale_date::date = %s;
+            WHERE (s.sale_date AT TIME ZONE 'Asia/Jakarta')::date = %s;
             """,
             (today, today, today, today)
         )
@@ -4451,7 +4484,7 @@ def dashboard():
                 COALESCE(SUM(s.total_net), 0) + COALESCE((SELECT SUM(df.omset) FROM daily_finance df WHERE df.entry_date BETWEEN %s AND %s), 0),
                 COUNT(s.id) + COALESCE((SELECT COUNT(df.id) FROM daily_finance df WHERE df.entry_date BETWEEN %s AND %s AND df.omset > 0), 0)
             FROM sales s
-            WHERE s.sale_date::date BETWEEN %s AND %s;
+            WHERE (s.sale_date AT TIME ZONE 'Asia/Jakarta')::date BETWEEN %s AND %s;
             """,
             (first_day_of_month, today, first_day_of_month, today, first_day_of_month, today, first_day_of_month, today)
         )
@@ -4465,8 +4498,8 @@ def dashboard():
             """
             SELECT
                 COALESCE((SELECT SUM(business_amount) FROM expenses WHERE expense_date = %s AND is_business = TRUE), 0) +
-                COALESCE((SELECT SUM(total_amount) FROM purchases WHERE purchase_date::date = %s), 0) +
-                COALESCE((SELECT SUM(total_amount) FROM packaging_purchases WHERE purchase_date::date = %s), 0);
+                COALESCE((SELECT SUM(total_amount) FROM purchases WHERE (purchase_date AT TIME ZONE 'Asia/Jakarta')::date = %s), 0) +
+                COALESCE((SELECT SUM(total_amount) FROM packaging_purchases WHERE (purchase_date AT TIME ZONE 'Asia/Jakarta')::date = %s), 0);
             """,
             (today, today, today)
         )
@@ -4480,8 +4513,8 @@ def dashboard():
             """
             SELECT
                 COALESCE((SELECT SUM(business_amount) FROM expenses WHERE expense_date BETWEEN %s AND %s AND is_business = TRUE), 0) +
-                COALESCE((SELECT SUM(total_amount) FROM purchases WHERE purchase_date::date BETWEEN %s AND %s), 0) +
-                COALESCE((SELECT SUM(total_amount) FROM packaging_purchases WHERE purchase_date::date BETWEEN %s AND %s), 0);
+                COALESCE((SELECT SUM(total_amount) FROM purchases WHERE (purchase_date AT TIME ZONE 'Asia/Jakarta')::date BETWEEN %s AND %s), 0) +
+                COALESCE((SELECT SUM(total_amount) FROM packaging_purchases WHERE (purchase_date AT TIME ZONE 'Asia/Jakarta')::date BETWEEN %s AND %s), 0);
             """,
             (first_day_of_month, today, first_day_of_month, today, first_day_of_month, today)
         )
@@ -4496,7 +4529,7 @@ def dashboard():
             SELECT
                 COALESCE(SUM(total_loss), 0)
             FROM waste
-            WHERE date::date BETWEEN %s AND %s;
+            WHERE (date AT TIME ZONE 'Asia/Jakarta')::date BETWEEN %s AND %s;
             """,
             (first_day_of_month, today)
         )
@@ -4527,7 +4560,7 @@ def dashboard():
                     ), 0
                 ) AS cash_out
             FROM cash_transactions
-            WHERE transaction_date::date = %s;
+            WHERE (transaction_date AT TIME ZONE 'Asia/Jakarta')::date = %s;
             """,
             (today,)
         )
@@ -4558,7 +4591,7 @@ def dashboard():
                     ), 0
                 ) AS cash_out
             FROM cash_transactions
-            WHERE transaction_date::date BETWEEN %s AND %s;
+            WHERE (transaction_date AT TIME ZONE 'Asia/Jakarta')::date BETWEEN %s AND %s;
             """,
             (first_day_of_month, today)
         )
@@ -5091,7 +5124,7 @@ def create_stock_waste_item(data: StockWasteCreate):
 
     conn = get_connection()
     cur = conn.cursor()
-    waste_date = data.date or datetime.now()
+    waste_date = ensure_wib(data.date)
     try:
         if data.item_type.upper() == "RAW":
             cur.execute("""
@@ -5226,10 +5259,10 @@ def get_stock_waste_list(start_date: Optional[date] = None, end_date: Optional[d
         params = []
         conditions = []
         if start_date:
-            conditions.append("w.date::date >= %s")
+            conditions.append("(w.date AT TIME ZONE 'Asia/Jakarta')::date >= %s")
             params.append(start_date)
         if end_date:
-            conditions.append("w.date::date <= %s")
+            conditions.append("(w.date AT TIME ZONE 'Asia/Jakarta')::date <= %s")
             params.append(end_date)
         if conditions:
             query += " WHERE " + " AND ".join(conditions)
@@ -5263,7 +5296,7 @@ def delete_waste_by_date(date: date):
     conn = get_connection()
     cur = conn.cursor()
     try:
-        cur.execute("DELETE FROM waste WHERE date::date = %s", (date,))
+        cur.execute("DELETE FROM waste WHERE (date AT TIME ZONE 'Asia/Jakarta')::date = %s", (date,))
         conn.commit()
         return {"status": "success", "message": f"Data bahan terbuang pada tanggal {date} berhasil dihapus."}
     except Exception as e:
@@ -5311,7 +5344,7 @@ def reset_all_waste():
 def clear_all_stock_to_waste():
     conn = get_connection()
     cur = conn.cursor()
-    now = datetime.now()
+    now = get_now()
     try:
         # 1. Ambil sisa stok mentah yang > 0
         cur.execute("""
